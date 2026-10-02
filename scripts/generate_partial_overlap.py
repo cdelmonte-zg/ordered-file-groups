@@ -13,44 +13,23 @@ Run from the repository root:
   python scripts/generate_partial_overlap.py --depth 4
 """
 import argparse
-import importlib.util
-import random
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+
+from generate_base import generate_table, write_sorted
 
 HERE = Path(__file__).resolve().parent
-GENERATOR = HERE / "generate_base.py"
-# The generator derives its timestamps from the current time; pin it.
-TIME_ORIGIN = datetime(2026, 9, 29, tzinfo=timezone.utc)
 
 
-class FixedDateTime(datetime):
-    @classmethod
-    def now(cls, tz=None):
-        return TIME_ORIGIN
-
-
-def load_generator():
-    spec = importlib.util.spec_from_file_location("gen16919", GENERATOR)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    module.datetime = FixedDateTime
-    return module
-
-
-def base_table(gen, rows, seed, cache):
-    if cache.exists():
-        return pd.read_parquet(cache)
-    random.seed(seed)
-    pools = gen.initialize_pools(rows)
-    df = gen.generate_time_series_data(rows, pools)
-    df = df.sort_values(by=["col_1", "col_2"], kind="stable").reset_index(drop=True)
-    cache.parent.mkdir(parents=True, exist_ok=True)
-    gen.save_with_schema(df, str(cache), "zstd")
+def base_table(rows, seed, cache):
+    """The one table every variant redistributes, generated once and cached."""
+    if not cache.exists():
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        write_sorted(generate_table(rows, seed), cache)
     return pd.read_parquet(cache)
 
 
@@ -82,8 +61,7 @@ def main():
 
     out = args.output_dir or Path(f"/tmp/df-16919-partial-{args.files}-depth-{args.depth}")
     cache = args.cache or Path(f"/tmp/df-16919-base/base-{args.rows}-seed-{args.seed}-origin-2026-09-29.parquet")
-    gen = load_generator()
-    df = base_table(gen, args.rows, args.seed, cache)
+    df = base_table(args.rows, args.seed, cache)
 
     entities = sorted(df["col_1"].unique())
     slots = args.files - 1 + args.depth
@@ -109,7 +87,8 @@ def main():
         if part.empty:
             sys.exit(f"file {i} would be empty")
         assert pd.MultiIndex.from_frame(part[["col_1", "col_2"]]).is_monotonic_increasing
-        gen.save_with_schema(part, str(out / f"reproducible_data_{i:02d}.parquet"), "zstd")
+        write_sorted(pa.Table.from_pandas(part, preserve_index=False),
+                     out / f"reproducible_data_{i:02d}.parquet")
         lo = (part["col_1"].min(), int(part["col_2"].min()))
         hi = (part["col_1"].max(), int(part["col_2"].max()))
         bounds.append((lo, hi))

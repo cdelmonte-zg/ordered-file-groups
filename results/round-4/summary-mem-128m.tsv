@@ -1,0 +1,21 @@
+dataset	variant	ok	groups	sort	mode	elapsed_med	elapsed_min	elapsed_max	rss_mb_med	sort_spills	final_agg_spills	final_agg_spill_mb	repartition_spills	repartition_spill_mb	error
+partial-12-depth-1	original	10/10	2	0	PartiallySorted([0, 1])	0.732	0.700	0.777	393	0	14	91.5	4	14.2	
+partial-12-depth-1	accept-groups	10/10	2	0	PartiallySorted([0, 1])	0.731	0.699	0.785	412	0	14	91.5	4	14.2	
+partial-12-depth-2	original	10/10	2	0	PartiallySorted([0, 1])	0.647	0.622	0.663	430	0	14	90.3	4	8.0	
+partial-12-depth-2	accept-groups	10/10	2	0	PartiallySorted([0, 1])	0.639	0.625	0.666	424	0	14	90.3	4	8.6	
+partial-12-depth-3	original	9/10	2	1	Linear	0.747	0.693	0.787	520	34	27	207.3	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+partial-12-depth-3	accept-groups	10/10	3	0	PartiallySorted([0, 1])	0.573	0.528	0.602	458	0	16	81.7	6	15.4	
+partial-12-depth-4	original	9/10	2	1	Linear	0.777	0.733	0.830	526	34	24	178.1	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+partial-12-depth-4	accept-groups	10/10	4	0	PartiallySorted([0, 1])	0.563	0.546	0.592	490	0	16	81.7	8	28.2	
+partial-12-depth-6	original	9/10	2	1	Linear	0.749	0.731	0.849	530	33	27	231.1	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+partial-12-depth-6	accept-groups	10/10	6	0	PartiallySorted([0, 1])	0.639	0.606	0.703	472	0	13	69.5	12	46.5	
+partial-12-depth-12	original	8/10	2	1	Linear	0.723	0.705	0.797	514	33	27	211.3	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+partial-12-depth-12	accept-groups	10/10	12	0	PartiallySorted([0, 1])	0.712	0.685	0.773	650	0	23	127.9	23	57.1	
+sorted-medium-3	original	8/10	2	1	Linear	0.794	0.716	0.822	512	35	24	178.1	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+sorted-medium-3	accept-groups	10/10	3	0	PartiallySorted([0, 1])	0.559	0.529	0.596	425	0	16	86.6	6	21.5	
+overlap-medium-12	original	4/10	2	1	Linear	0.772	0.744	0.826	526	36	28	232.2	1	0.9	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+overlap-medium-12	accept-groups	10/10	12	0	PartiallySorted([0, 1])	0.760	0.740	0.786	672	0	26	126.2	24	70.8	
+sorted-15-target10	original	0/10		0					636						Resources exhausted: Additional allocation failed for FinalHashAggregateStream[8] with top memory consumers (across reservations) as:
+sorted-15-target10	accept-groups	0/10		0					915						Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+overlap-1000-x-600	original	9/10	2	1	Linear	0.832	0.802	0.866	583	32	28	231.1	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+overlap-1000-x-600	accept-groups	10/10	1000	0	PartiallySorted([0, 1])	0.886	0.842	0.905	1650	0	87	214.6	1	88.8	

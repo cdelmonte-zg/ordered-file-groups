@@ -1,0 +1,13 @@
+variant	lengths	run	result	elapsed_seconds	max_rss_mb	final_agg_spills	final_agg_spill_mb	repartition_spills	error
+baseline	{'entities': 15, 'references': 14, 'instances': 13}	1	ok	0.620	392	15	90.3	4	
+baseline	{'entities': 15, 'references': 14, 'instances': 13}	2	ok	0.581	388	15	90.3	4	
+baseline	{'entities': 15, 'references': 14, 'instances': 13}	3	ok	0.633	379	14	87.8	4	
+refs-short	{'entities': 15, 'references': 11, 'instances': 10}	1	ok	0.390	330	0	0.0	0	
+refs-short	{'entities': 15, 'references': 11, 'instances': 10}	2	ok	0.407	309	0	0.0	0	
+refs-short	{'entities': 15, 'references': 11, 'instances': 10}	3	ok	0.376	286	0	0.0	0	
+all-short	{'entities': 12, 'references': 11, 'instances': 10}	1	ok	0.380	259	0	0.0	0	
+all-short	{'entities': 12, 'references': 11, 'instances': 10}	2	ok	0.351	258	0	0.0	0	
+all-short	{'entities': 12, 'references': 11, 'instances': 10}	3	ok	0.375	256	0	0.0	0	
+all-long	{'entities': 25, 'references': 14, 'instances': 13}	1	ok	0.644	381	8	48.3	4	
+all-long	{'entities': 25, 'references': 14, 'instances': 13}	2	ok	0.634	376	12	71.5	4	
+all-long	{'entities': 25, 'references': 14, 'instances': 13}	3	ok	0.624	389	8	48.3	4	

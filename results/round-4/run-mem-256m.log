@@ -1,0 +1,31 @@
+done: partial-12-depth-1
+done: partial-12-depth-2
+done: partial-12-depth-3
+done: partial-12-depth-4
+done: partial-12-depth-6
+done: partial-12-depth-12
+done: sorted-medium-3
+done: overlap-medium-12
+done: sorted-15-target10
+done: overlap-1000-x-600
+dataset	variant	ok	groups	sort	mode	elapsed_med	elapsed_min	elapsed_max	rss_mb_med	sort_spills	final_agg_spills	final_agg_spill_mb	repartition_spills	repartition_spill_mb	error
+partial-12-depth-1	original	10/10	2	0	PartiallySorted([0, 1])	0.534	0.518	0.567	378	0	0	0.0	1	0.0	
+partial-12-depth-1	accept-groups	10/10	2	0	PartiallySorted([0, 1])	0.531	0.507	0.552	384	0	0	0.0	1	0.0	
+partial-12-depth-2	original	10/10	2	0	PartiallySorted([0, 1])	0.451	0.432	0.494	376	0	0	0.0	0	0.0	
+partial-12-depth-2	accept-groups	10/10	2	0	PartiallySorted([0, 1])	0.450	0.445	0.463	370	0	0	0.0	0	0.0	
+partial-12-depth-3	original	10/10	2	1	Linear	0.690	0.606	0.725	545	14	10	89.0	0	0.0	
+partial-12-depth-3	accept-groups	10/10	3	0	PartiallySorted([0, 1])	0.391	0.380	0.405	442	0	0	0.0	3	2.3	
+partial-12-depth-4	original	10/10	2	1	Linear	0.671	0.636	0.713	537	14	10	89.0	0	0.0	
+partial-12-depth-4	accept-groups	10/10	4	0	PartiallySorted([0, 1])	0.403	0.391	0.428	485	0	0	0.0	4	8.3	
+partial-12-depth-6	original	10/10	2	1	Linear	0.677	0.642	0.736	534	14	10	89.0	0	0.0	
+partial-12-depth-6	accept-groups	10/10	6	0	PartiallySorted([0, 1])	0.384	0.370	0.427	508	0	0	0.0	10	11.8	
+partial-12-depth-12	original	10/10	2	1	Linear	0.661	0.622	0.696	544	14	10	89.0	0	0.0	
+partial-12-depth-12	accept-groups	10/10	12	0	PartiallySorted([0, 1])	0.560	0.533	0.592	676	0	5	25.0	21	41.3	
+sorted-medium-3	original	10/10	2	1	Linear	0.738	0.681	0.781	495	13	10	89.0	0	0.0	
+sorted-medium-3	accept-groups	10/10	3	0	PartiallySorted([0, 1])	0.396	0.366	0.419	434	0	0	0.0	4	5.5	
+overlap-medium-12	original	10/10	2	1	Linear	0.706	0.687	0.732	550	14	10	89.0	0	0.0	
+overlap-medium-12	accept-groups	10/10	12	0	PartiallySorted([0, 1])	0.579	0.553	0.587	764	0	16	50.1	24	56.0	
+sorted-15-target10	original	0/10		0					760						Resources exhausted: Additional allocation failed for FinalHashAggregateStream[6] with top memory consumers (across reservations) as:
+sorted-15-target10	accept-groups	10/10	15	0	PartiallySorted([0, 1])	0.343	0.327	0.354	980	0	54	151.4	150	66.6	
+overlap-1000-x-600	original	10/10	2	1	Linear	0.760	0.735	0.801	596	13	10	89.0	0	0.0	
+overlap-1000-x-600	accept-groups	10/10	1000	0	PartiallySorted([0, 1])	0.635	0.621	0.689	1754	0	0	0.0	1	88.3	

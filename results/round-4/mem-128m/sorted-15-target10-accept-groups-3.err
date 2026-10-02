@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+  SortPreservingMergeExec[0]#4(can spill: false) consumed 50.3 MB, peak 53.3 MB,
+  OrderedFinalAggregateStream[9]#38(can spill: true) consumed 9.6 MB, peak 13.0 MB,
+  OrderedFinalAggregateStream[3]#23(can spill: true) consumed 9.6 MB, peak 13.0 MB.
+Error: Failed to allocate additional 3.9 MB for SortPreservingMergeExec[0] with 46.1 MB already allocated for this reservation - 624.0 KB remain available for the total memory pool: fair(pool_size: 128.0 MB)
+BENCH_WALL_SECONDS=0.33 BENCH_MAX_RSS_KB=924120

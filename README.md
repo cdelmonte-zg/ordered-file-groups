@@ -19,9 +19,9 @@ Two builds of `datafusion-cli` 55.1.0 are compared on the same query:
   (`patch/accept-extra-groups.patch`), so that the scan uses as many ordered
   groups as the overlap of the files requires.
 
-The reference measurement is round 3 in `RESULTS.md`: binaries rebuilt from the
-recorded commit and patch, reproducible datasets, ten runs per case, a fair
-memory pool of 128, 256 and 512 MB.
+The reference measurement is round 4 in `RESULTS.md`: binaries rebuilt from the
+recorded commit and patch, datasets produced by this repository's generator
+from fixed seeds, ten runs per case, a fair memory pool of 128, 256 and 512 MB.
 
 ## What the measurements support
 
@@ -51,12 +51,15 @@ chosen, not for removing the check unconditionally.
   `generate_partial_overlap.py`, `generate_earlier_datasets.py`,
   `generate_overlap_12_target_2.py`), the runner (`run_bench.py`), the report
   generator (`make_report.py`) and `build_binaries.sh`.
-- `results/round-3-rebuilt/`: the measurement of record. Build logs, toolchain,
+- `results/round-4/`: the measurement of record. Build logs, toolchain,
   SHA-256 of the binaries, the plans checked before timing, every run's SQL,
   `EXPLAIN ANALYZE` output and stderr, the per-run TSVs and their summaries,
   and the open-file-limit test. The binaries are not in the repository.
-- `results/round-1/`, `results/round-2/`: earlier rounds with binaries of
-  unrecorded source, kept for comparison.
+- `results/round-3-rebuilt/`, `results/round-2/`, `results/round-1/`: the
+  rounds of 2026-09-29 on datasets derived from the issue reporter's
+  generator, kept for comparison; rounds 1 and 2 also used binaries of
+  unrecorded source. Those datasets cannot be regenerated from this
+  repository.
 - `results/manifests/`: rows and per-column min/max of each file of the
   partial-overlap datasets.
 - `exploratory/2026-09-28/`: the first runs and single plans, superseded by
@@ -72,7 +75,7 @@ DataFusion checkout.
     python scripts/generate_earlier_datasets.py
     for m in 128m 256m 512m; do
       python scripts/run_bench.py --runs 10 --memory $m --tag mem-$m \
-        --bin-dir bin --out results/round-4
+        --bin-dir bin --out results/round-5
     done
     python scripts/make_report.py
 
@@ -82,13 +85,14 @@ dataset holds the same 600,000 rows in 12 files sorted by `(col_1, col_2)`;
 `--depth d` makes file *i* overlap files *i+1* to *i+d-1*, so *d* is the
 minimum number of ordered groups. The query, the table definition and the
 settings are in `scripts/run_bench.py`. `make_report.py` reads
-`results/round-3-rebuilt` by default; point `REF` elsewhere to report a new
-round.
+`results/round-4` by default; point `REF` elsewhere to report a new round.
 
-The base generator derives from the one attached to the issue by its reporter;
-the only change is that every file is sorted before it is written (the
-original left some entities sorted by `col_2` descending, which the first
-comment of 2026-09-29 reports).
+`scripts/generate_base.py` is this repository's own generator. It keeps the
+schema of the issue (an entity id, a millisecond timestamp clustered per
+entity, four low-cardinality string columns, a context that is null in about
+five percent of the rows, a double) and produces rows that repeat on
+`(col_1, col_2)` and, in a small share, on all six grouping columns. Its
+cardinalities are parameters at the top of the file.
 
 ## Measured on
 

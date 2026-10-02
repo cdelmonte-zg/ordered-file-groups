@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for FinalHashAggregateStream[2] with top memory consumers (across reservations) as:
+  FinalHashAggregateStream[8]#57(can spill: true) consumed 11.7 MB, peak 11.7 MB,
+  FinalHashAggregateStream[7]#53(can spill: true) consumed 11.7 MB, peak 11.7 MB,
+  ExternalSorterMerge[3]#29(can spill: false) consumed 10.0 MB, peak 10.0 MB.
+Error: Failed to allocate additional 4.8 MB for FinalHashAggregateStream[2] with 3.4 MB already allocated for this reservation - 7.8 MB remain available for the total memory pool: fair(pool_size: 256.0 MB)
+BENCH_WALL_SECONDS=0.23 BENCH_MAX_RSS_KB=746548

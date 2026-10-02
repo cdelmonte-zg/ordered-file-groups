@@ -1,281 +1,178 @@
-# Derived from the generator attached to apache/datafusion discussion #16776
-# (gist by zheniasigayev, 2025): https://gist.github.com/zheniasigayev/2e5e471c9070cfa685d938bced47aa7f
-# Change: every file is fully sorted by (col_1, col_2) before it is written, so
-# that the files satisfy the table's WITH ORDER clause. The original sorted
-# some entities by col_2 descending (see the issue comment of 2026-09-29).
-# The original gist is kept as exploratory/2026-09-28/generate_16919_original.py.
+"""Synthetic rows for the deduplication query of apache/datafusion#16919.
 
-# Run the code:
-# python3 -m venv venv
-# source venv/bin/activate
-# pip install pandas pyarrow
-# python3 generate_fake_data_anon_v4.py --rows 1250000 --files 15`
+Eight columns, the schema of the issue:
 
-# Remove after use:
-# deactivate
-# rm -rf venv/
+    col_1  VARCHAR NOT NULL   entity id, a few dozen distinct values
+    col_2  BIGINT  NOT NULL   timestamp in milliseconds, clustered per entity
+    col_3  VARCHAR            reference code
+    col_4  VARCHAR            instance id
+    col_5  VARCHAR            category
+    col_6  VARCHAR NOT NULL   metric name, ten per category plus five shared
+    col_7  VARCHAR            context, null in about 5 percent of the rows
+    col_8  DOUBLE             value
 
+Rows repeat on (col_1, col_2) because every entity draws its timestamps from a
+few clusters of 500 consecutive milliseconds; a small share repeats on all six
+grouping columns, which is what the deduplication query removes. Everything is
+derived from a seed and a fixed time origin, so a dataset is byte-identical
+when regenerated.
 
-"""Generate synthetic time series data for DataFusion deduplication testing."""
-import argparse, os, random, string, time
-from datetime import datetime, timedelta
-import pandas as pd
+As a script, writes `files` Parquet files of `rows` rows each, every file sorted
+by (col_1, col_2) and all files drawn from the same pools, so that every file
+overlaps every other on the sort key:
+
+    python scripts/generate_base.py --rows 40000 --files 15 --seed 2 \
+        --output-dir /tmp/df-16919-sorted-15-target10
+"""
+import argparse
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-def generate_random_string(length=10):
-    """Generate random string of fixed length."""
-    letters = string.ascii_letters + string.digits + "-_"
-    return ''.join(random.choice(letters) for _ in range(length))
+TIME_ORIGIN = datetime(2026, 9, 29, tzinfo=timezone.utc)
+ORIGIN_MS = int(TIME_ORIGIN.timestamp() * 1000)
+SPAN_MS = 7 * 24 * 60 * 60 * 1000
+CLUSTER_MS = 500
 
-def initialize_pools(size):
-    """Pre-generate pools of values to use for data generation."""
-    # Create entity IDs (col_1) with consistent format
-    entity_ids = []
-    for _ in range(30):  # Limited number of unique entities
-        prefix = f"{random.randint(1000000, 9999999)}"
-        mid = f"{random.randint(10, 99)}-{random.choice('ABCDE')}"
-        suffix = f"{random.choice('XYZ')}{random.randint(10, 19)}{random.choice('ABCDE')}{random.randint(1000000, 9999999)}"
-        entity_ids.append(f"{prefix}-{mid}--{suffix}")
-    
-    # Generate reference codes (col_3)
-    reference_codes = []
-    for _ in range(20):
-        prefix = f"{random.randint(1000000, 9999999)}"
-        suffix = f"{random.randint(10, 99)}-{random.choice('ABCDEFGHIJKLMNOPQRST')}"
-        reference_codes.append(f"{prefix}-{suffix}")
-    
-    # Generate instance IDs (col_4)
-    instance_ids = []
-    for _ in range(50):
-        instance = f"{random.choice('XYZ')}{random.randint(10, 19)}{random.choice('ABCDE')}{random.randint(1000000, 9999999)}"
-        instance_ids.append(instance)
-    
-    # Generic categories (col_5)
-    categories = ["CAT_1", "CAT_2", "CAT_3", "CAT_4", "CAT_5", "CAT_6"]
-    
-    # Generate metric names (col_6) with prefixes matching categories
-    metric_names = []
-    
-    # Create metrics for each category
-    prefixes = {
-        "CAT_1": "M1",
-        "CAT_2": "M2",
-        "CAT_3": "M3",
-        "CAT_4": "M4", 
-        "CAT_5": "M5",
-        "CAT_6": "M6"
-    }
-    
-    # Generate metrics for each category
-    for cat, prefix in prefixes.items():
-        for i in range(1, 11):  # 10 metrics per category
-            metric_names.append(f"{prefix}_{i:02d}")
-    
-    # Add some special cross-category metrics
-    for i in range(1, 6):
-        metric_names.append(f"METRIC_{i:02d}")
-    
-    # Generate timestamps clustered around specific points
-    end_time = int(datetime.now().timestamp() * 1000)
-    start_time = end_time - (7 * 24 * 60 * 60 * 1000)  # 7 days ago
-    
-    # Create clusters of timestamps to match sampling patterns
-    timestamps = []
-    for _ in range(50):  # 50 time clusters
-        base_ts = random.randint(start_time, end_time)
-        for offset in range(0, 500, 1):  # Milliseconds of offset
-            timestamps.append(base_ts + offset)
-    
-    # Generate context values (col_7)
-    context_values = ["CONTEXT_A", "CONTEXT_B", "CONTEXT_C", "CONTEXT_D", 
-                      "CONTEXT_E", "CONTEXT_F", "CONTEXT_G", "CONTEXT_H"]
-    
+N_ENTITIES = 30
+N_CLUSTERS = 50
+N_REFERENCES = 20
+N_INSTANCES = 50
+N_CATEGORIES = 6
+METRICS_PER_CATEGORY = 10
+N_SHARED_METRICS = 5
+N_CONTEXTS = 8
+# (prefix, digits, letters) of the generated codes: ENT-1234567-ABC and so on
+ENTITY_CODE = ("ENT", 7, 3)
+REFERENCE_CODE = ("REF", 7, 2)
+INSTANCE_CODE = ("INS", 6, 2)
+NULL_CONTEXT_SHARE = 0.05
+
+SCHEMA = pa.schema([
+    ("col_1", pa.string(), False),
+    ("col_2", pa.int64(), False),
+    ("col_3", pa.string(), True),
+    ("col_4", pa.string(), True),
+    ("col_5", pa.string(), True),
+    ("col_6", pa.string(), False),
+    ("col_7", pa.string(), True),
+    ("col_8", pa.float64(), True),
+])
+
+SORT_KEY = [("col_1", "ascending"), ("col_2", "ascending")]
+
+LETTERS = np.array(list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+
+
+def _codes(rng, n, prefix, digits, letters):
+    """n distinct strings like PREFIX-1234567-KQZ."""
+    seen = set()
+    while len(seen) < n:
+        number = rng.integers(10 ** (digits - 1), 10 ** digits)
+        tail = "".join(rng.choice(LETTERS, letters))
+        seen.add(f"{prefix}-{number}-{tail}" if letters else f"{prefix}-{number}")
+    return np.array(sorted(seen))
+
+
+def make_pools(rng):
+    """Value pools shared by every file of a dataset."""
+    categories = np.array([f"CAT_{i + 1}" for i in range(N_CATEGORIES)])
+    metrics = [f"M{c + 1}_{i + 1:02d}" for c in range(N_CATEGORIES)
+               for i in range(METRICS_PER_CATEGORY)]
+    shared = [f"METRIC_{i + 1:02d}" for i in range(N_SHARED_METRICS)]
+    cluster_base = rng.integers(ORIGIN_MS - SPAN_MS, ORIGIN_MS - CLUSTER_MS, N_CLUSTERS)
+    # Each entity samples its timestamps from 5 to 10 of the clusters.
+    entity_clusters = [rng.choice(cluster_base, rng.integers(5, 11), replace=False)
+                       for _ in range(N_ENTITIES)]
     return {
-        "col_1": entity_ids,
-        "col_2": timestamps,
-        "col_3": reference_codes,
-        "col_4": instance_ids, 
-        "col_5": categories,
-        "col_6": metric_names,
-        "col_7": context_values
+        "entities": _codes(rng, N_ENTITIES, *ENTITY_CODE),
+        "references": _codes(rng, N_REFERENCES, *REFERENCE_CODE),
+        "instances": _codes(rng, N_INSTANCES, *INSTANCE_CODE),
+        "categories": categories,
+        "metrics": np.array(metrics),
+        "shared_metrics": np.array(shared),
+        "contexts": np.array([f"CONTEXT_{letter}" for letter in LETTERS[:N_CONTEXTS]]),
+        "entity_clusters": entity_clusters,
     }
 
-def generate_time_series_data(num_rows, pools):
-    """Generate time series data with realistic patterns."""
-    # Initialize data dictionary
-    data = {col: [] for col in ["col_1", "col_2", "col_3", "col_4", "col_5", "col_6", "col_7", "col_8"]}
-    
-    # Generate data with realistic clustering patterns
-    entity_timestamps = {}  # Track timestamps per entity
-    
-    # Set up the relationship between categories and metrics
-    category_to_metrics = {
-        "CAT_1": [m for m in pools["col_6"] if m.startswith("M1_")],
-        "CAT_2": [m for m in pools["col_6"] if m.startswith("M2_")],
-        "CAT_3": [m for m in pools["col_6"] if m.startswith("M3_")],
-        "CAT_4": [m for m in pools["col_6"] if m.startswith("M4_")],
-        "CAT_5": [m for m in pools["col_6"] if m.startswith("M5_")],
-        "CAT_6": [m for m in pools["col_6"] if m.startswith("M6_")]
-    }
-    
-    # Cross-category metrics can be used by any category
-    cross_metrics = [m for m in pools["col_6"] if m.startswith("METRIC_")]
-    for cat in category_to_metrics:
-        category_to_metrics[cat].extend(cross_metrics)
-    
-    for _ in range(num_rows):
-        # Pick an entity
-        entity_id = random.choice(pools["col_1"])
-        
-        # Get or create timestamps for this entity
-        if entity_id not in entity_timestamps:
-            # Pick 5-10 timestamp clusters for this entity
-            num_clusters = random.randint(5, 10)
-            timestamp_clusters = sorted(random.sample(pools["col_2"], num_clusters))
-            entity_timestamps[entity_id] = timestamp_clusters
-        
-        # Pick a timestamp from this entity's clusters
-        timestamp = random.choice(entity_timestamps[entity_id])
-        
-        # For the same entity/timestamp, randomly select other attributes
-        category = random.choice(pools["col_5"])
-        
-        # Select a metric appropriate for this category
-        metric_name = random.choice(category_to_metrics.get(category, pools["col_6"]))
-            
-        # Add the row
-        data["col_1"].append(entity_id)
-        data["col_2"].append(timestamp)
-        data["col_3"].append(random.choice(pools["col_3"]))
-        data["col_4"].append(random.choice(pools["col_4"]))
-        data["col_5"].append(category)
-        data["col_6"].append(metric_name)
-        data["col_7"].append(random.choice(pools["col_7"]) if random.random() > 0.05 else None)
-        
-        # Generate values using metric-specific ranges to create variation
-        # But keep the ranges generic without suggesting specific physical quantities
-        metric_id = int(metric_name.split('_')[-1]) if '_' in metric_name else 0
-        
-        if metric_id % 5 == 0:
-            # Large range values
-            data["col_8"].append(random.uniform(-50000, 50000))
-        elif metric_id % 5 == 1:
-            # Medium positive values
-            data["col_8"].append(random.uniform(0, 1000))
-        elif metric_id % 5 == 2:
-            # Small precise values
-            data["col_8"].append(random.uniform(-1, 1))
-        elif metric_id % 5 == 3:
-            # Binary-like values
-            data["col_8"].append(random.choice([0, 1]))
-        else:
-            # Medium range values
-            data["col_8"].append(random.uniform(-100, 100))
-            
-    return pd.DataFrame(data)
 
-def save_with_schema(df, file_path, compression):
-    """Save dataframe to parquet with explicit schema and large row groups."""
-    # Define schema with proper NOT NULL constraints
-    schema = pa.schema([
-        ('col_1', pa.string(), False),  # NOT NULL
-        ('col_2', pa.int64(), False),   # NOT NULL
-        ('col_3', pa.string(), True),   # NULLABLE
-        ('col_4', pa.string(), True),   # NULLABLE
-        ('col_5', pa.string(), True),   # NULLABLE
-        ('col_6', pa.string(), False),  # NOT NULL
-        ('col_7', pa.string(), True),   # NULLABLE
-        ('col_8', pa.float64(), True),  # NULLABLE
-    ])
-    
-    # Convert pandas DataFrame to Arrow Table with explicit schema
-    table = pa.Table.from_pandas(df, schema=schema)
-    
-    # Write with optimized settings for performance
+def generate_rows(rows, rng, pools, cluster_ms=CLUSTER_MS):
+    """`rows` rows as a pyarrow Table, not sorted.
+
+    `cluster_ms` is the width of a timestamp cluster: with 500, an entity has up
+    to 5,000 distinct timestamps; with 1, only its 5 to 10 cluster bases.
+    """
+    entity = rng.integers(N_ENTITIES, size=rows)
+    col_2 = np.empty(rows, dtype=np.int64)
+    for e in range(N_ENTITIES):
+        mask = entity == e
+        clusters = pools["entity_clusters"][e]
+        base = clusters[rng.integers(len(clusters), size=mask.sum())]
+        col_2[mask] = base + rng.integers(cluster_ms, size=mask.sum())
+
+    category = rng.integers(N_CATEGORIES, size=rows)
+    # Nine times out of ten a metric of the row's category, otherwise a shared one.
+    own = rng.random(rows) < 0.9
+    metric_index = category * METRICS_PER_CATEGORY + rng.integers(METRICS_PER_CATEGORY, size=rows)
+    col_6 = np.where(own, pools["metrics"][metric_index],
+                     pools["shared_metrics"][rng.integers(N_SHARED_METRICS, size=rows)])
+
+    context = pools["contexts"][rng.integers(N_CONTEXTS, size=rows)].astype(object)
+    context[rng.random(rows) < NULL_CONTEXT_SHARE] = None
+
+    return pa.table({
+        "col_1": pools["entities"][entity],
+        "col_2": col_2,
+        "col_3": pools["references"][rng.integers(N_REFERENCES, size=rows)],
+        "col_4": pools["instances"][rng.integers(N_INSTANCES, size=rows)],
+        "col_5": pools["categories"][category],
+        "col_6": col_6,
+        "col_7": pa.array(context, type=pa.string()),
+        "col_8": rng.uniform(-1000.0, 1000.0, size=rows),
+    }, schema=SCHEMA)
+
+
+def generate_table(rows, seed, cluster_ms=CLUSTER_MS):
+    """One table of `rows` rows from `seed`, not sorted."""
+    rng = np.random.default_rng(seed)
+    return generate_rows(rows, rng, make_pools(rng), cluster_ms)
+
+
+def write_sorted(table, path):
+    """Sort by (col_1, col_2) and write with statistics, one row group per MiB of rows."""
+    table = table.sort_by(SORT_KEY)
     pq.write_table(
-        table, 
-        file_path,
-        compression=compression,
-        write_statistics=True,
-        use_dictionary=True,
-        row_group_size=1048576,  # Default DataFusion row group size
-        data_page_size=1048576   # Default DataFusion data page size
+        table, path, compression="zstd", write_statistics=True,
+        use_dictionary=True, row_group_size=1_048_576, data_page_size=1_048_576,
     )
+    return table
+
 
 def main():
-    """Parse arguments and generate data."""
-    parser = argparse.ArgumentParser(description='Generate synthetic data for deduplication testing')
-    parser.add_argument('--rows', type=int, default=1_250_000, help='Number of rows per file')
-    parser.add_argument('--files', type=int, default=15, help='Number of output parquet files')
-    parser.add_argument('--output-dir', type=str, default='datav4', help='Directory to save output files')
-    parser.add_argument('--compression', type=str, default='zstd', 
-                       choices=['zstd', 'snappy', 'gzip', 'none'], 
-                       help='Compression algorithm for parquet files')
-    args = parser.parse_args()
-    
-    # Create output directory
-    os.makedirs(args.output_dir, exist_ok=True)
-    
-    # Set up compression
-    compression = args.compression if args.compression != 'none' else None
-    compression_info = f" with {compression} compression" if compression else " without compression"
-    
-    # Initialize value pools
-    print(f"Initializing value pools...")
-    pools = initialize_pools(1000)
-    
-    # Calculate total rows to generate
-    total_rows = args.rows * args.files
-    start_time = time.time()
-    print(f"Generating {total_rows:,} total rows{compression_info}")
-    print("Using schema with NOT NULL constraints on col_1, col_2, and col_6")
-    
-    # Process files individually to avoid memory issues
+    p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    p.add_argument("--rows", type=int, required=True, help="rows per file")
+    p.add_argument("--files", type=int, default=1)
+    p.add_argument("--seed", type=int, required=True)
+    p.add_argument("--output-dir", type=Path, required=True)
+    p.add_argument("--cluster-ms", type=int, default=CLUSTER_MS,
+                   help="width of a timestamp cluster in milliseconds (default 500)")
+    args = p.parse_args()
+
+    rng = np.random.default_rng(args.seed)
+    pools = make_pools(rng)
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    for old in args.output_dir.glob("*.parquet"):
+        old.unlink()
+    width = len(str(args.files - 1))
     for i in range(args.files):
-        file_start = time.time()
-        print(f"Generating file {i+1}/{args.files}: {args.rows:,} rows...")
-        
-        # Sort only partially - this forces external sorting during queries
-        df = generate_time_series_data(args.rows, pools)
+        table = generate_rows(args.rows, rng, pools, args.cluster_ms)
+        write_sorted(table, args.output_dir / f"reproducible_data_{i:0{width}d}.parquet")
+    print(f"{args.output_dir}: {args.files} files of {args.rows} rows, seed {args.seed}, "
+          f"cluster width {args.cluster_ms} ms")
 
-        df = df.sort_values(
-            by=["col_1", "col_2"],
-            ascending=[True, True],
-        ).reset_index(drop=True)
-
-        assert pd.MultiIndex.from_frame(
-            df[["col_1", "col_2"]]
-        ).is_monotonic_increasing
-
-        # Save to parquet with schema enforcement
-        file_path = os.path.join(
-            args.output_dir, f"reproducible_data_{i}.parquet"
-        )
-        
-        # Save to parquet with schema enforcement
-        file_path = os.path.join(args.output_dir, f"reproducible_data_{i}.parquet")
-        print(f"Saving {len(df):,} rows to {file_path}{compression_info}...")
-        
-        try:
-            save_with_schema(df, file_path, compression)
-        except Exception as e:
-            if "zstd" in str(e) and compression == 'zstd':
-                print(f"Warning: zstd compression not available. Falling back to snappy compression.")
-                save_with_schema(df, file_path, 'snappy')
-            else:
-                raise
-        
-        file_duration = time.time() - file_start
-        print(f"File {i+1}/{args.files} completed in {file_duration:.1f} seconds ({args.rows/file_duration:.1f} rows/sec)")
-        
-        # Help free memory
-        del df
-    
-    total_duration = time.time() - start_time
-    print(f"All done! Generated {args.files} files with {args.rows:,} rows each ({total_rows:,} total rows)")
-    print(f"Total time: {total_duration:.1f} seconds ({total_rows/total_duration:.1f} rows/sec)")
-    print(f"Files are structured to reproduce memory-intensive query patterns")
 
 if __name__ == "__main__":
     main()
