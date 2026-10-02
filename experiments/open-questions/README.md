@@ -56,6 +56,46 @@ reaches its limit sooner and spills. The test above shows that removing the
 views removes the spills; it does not separate the repartition's share from
 other consumers'.
 
+### Both plans, string views on and off (`string-view-both/`)
+
+The test above touched only the ordered plan. This one runs both plans, five
+runs each after a warm-up, configurations interleaved. Median elapsed seconds
+and median final-aggregate spills; `results.tsv` has every run.
+
+| shape | pool | original, views | original, Utf8 | ordered, views | ordered, Utf8 |
+|---|---|---|---|---|---|
+| S0 | 128 MB | 0.649 (22) | 0.729 (19) | 0.365 (0) | 0.380 (0) |
+| S0 | 512 MB | 0.609 (6) | 0.655 (6) | 0.339 (0) | 0.384 (0) |
+| S2 | 128 MB | 0.756 (28), 4/5 completed | 0.708 (22) | 0.668 (14) | 0.405 (0) |
+| S2 | 512 MB | 0.686 (6) | 0.619 (6) | 0.417 (0) | 0.425 (0) |
+
+Gain of the ordered plan over the original:
+
+| shape | pool | with string views | with plain Utf8 |
+|---|---|---|---|
+| S0 | 128 MB | 44 % | 48 % |
+| S0 | 512 MB | 44 % | 41 % |
+| S2 | 128 MB | 12 % | 43 % |
+| S2 | 512 MB | 39 % | 31 % |
+
+What it shows:
+
+- The collapse of the gain on wide strings at 128 MB belongs to the string
+  views. With plain strings the ordered plan keeps 43 percent there.
+- String views on wide strings hurt the original plan too: at 128 MB its sort
+  spills 34 times instead of 8 and one run of five failed. They hurt the
+  ordered plan more, whose order-preserving repartition reports 592 MB of
+  output against 325 for the original's.
+- Where nothing is counted twice, string views are not a cost: on S0 both
+  plans are as fast or faster with them.
+- At 512 MB the original plan is faster with plain strings on S2 (0.619
+  against 0.686 s), which narrows the gain to 31 percent. Not investigated.
+
+The conclusion of round 5 changes accordingly: the width of the strings does
+not by itself decide whether the ordered plan spills. What decides is how the
+engine accounts the memory of its string representation, and that is a
+property of this version of DataFusion, not of the data.
+
 ## 2. The memory of the many-stream plan (partly explained)
 
 Round 5: with 1196 ordered groups the process uses about 2 GB at every pool

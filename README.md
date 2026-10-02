@@ -42,19 +42,22 @@ sort key at this size, and nothing at all for a `GROUP BY` without it, where
 the optimizer projects the ordering away and the plans are identical. More
 ordered groups cost memory and spills in the order-preserving repartition
 before they cost time: twelve groups keep the gain at 256 MB, 1196 groups lose
-at 128 MB and win at 256 and 512 MB with about 2 GB of RSS throughout. The
-width of the string columns decides whether the ordered plan spills at all:
-above the 12-byte inline limit of Arrow string views on two grouping columns,
-the bytes above the scan more than double and the gain at 128 MB falls from
-46 to 11 percent. Raising `target_partitions` instead, the workaround, is the
+at 128 MB and win at 256 and 512 MB with about 2 GB of RSS throughout. With
+strings longer than 12 bytes, the 128 MB gain falls from 46 to 11 percent.
+The cause is not the width of the data but its representation: Arrow string
+views share their data buffers among the fragments the repartition sends, and
+the repartition reserves memory for each fragment as if those buffers were its
+own. Read as plain strings, the same data keeps a 43 percent gain at 128 MB
+(`experiments/open-questions/`). Raising `target_partitions` instead, the workaround, is the
 fastest variant in most cases and the most memory-hungry; it falls behind on
 the base data at 128 MB and at twelve groups, and stays ahead on the wide
 strings at 128 MB even while spilling.
 
 None of this is an argument for removing the check unconditionally. It is
 evidence for choosing the number of ordered groups from the overlap, the
-memory budget and the width of the rows, which the engine today compares with
-the parallelism target only.
+memory budget and the expected cost per stream, which the engine today
+compares with the parallelism target only; and such a choice is only as good
+as the memory accounting it relies on.
 
 ## Layout
 

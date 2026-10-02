@@ -69,7 +69,9 @@ number of rows with half of them copies.
 | df-16919-partial-12-depth-4-S2 | 12 | 4 | entity | S2 | 600000 | 599976 | 24 | 4 | 8,757,705 | 12 |
 | df-16919-partial-12-depth-4-dup0.5 | 12 | 4 | entity | S1 | 600000 | 299991 | 300,009 | 4 | 8,687,866 | 12 |
 | df-16919-partial-12-depth-4 | 12 | 4 | entity | S1 | 600000 | 599976 | 24 | 4 | 8,755,288 | 12 |
+| df-16919-partial-120-depth-1-entity-rank | 120 | 1 | entity-rank | S1 | 600000 | 599976 | 24 | 2 | 8,334,363 | 120 |
 | df-16919-partial-120-depth-120-rank | 120 | 120 | rank | S1 | 600000 | 599976 | 24 | 120 | 9,383,156 | 120 |
+| df-16919-partial-120-depth-2-entity-rank | 120 | 2 | entity-rank | S1 | 600000 | 599976 | 24 | 3 | 8,512,578 | 120 |
 | df-16919-partial-120-depth-4-entity-rank | 120 | 4 | entity-rank | S1 | 600000 | 599976 | 24 | 4 | 8,640,157 | 120 |
 | df-16919-partial-1200-depth-1200-rank | 1200 | 1200 | rank | S1 | 600000 | 599976 | 24 | 1196 | 12,792,661 | 1200 |
 | df-16919-partial-1200-depth-4-entity-rank | 1200 | 4 | entity-rank | S1 | 600000 | 599976 | 24 | 5 | 11,614,838 | 1200 |
@@ -301,6 +303,14 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
    limit on `col_1` alone (S0 to S1) raises the reported bytes, adds small
    spills in the repartition at 128 MB (7 spills, 4.2 MB, against none in S0)
    and none in the final aggregate, and costs 0.02 s.
+   A follow-up after the round (`experiments/open-questions/`) locates the
+   cause in the string representation, not in the width of the data: read as
+   plain `Utf8` instead of Arrow string views, S2 at 128 MB does not spill in
+   the ordered plan and the gain returns to 43 percent (0.405 against
+   0.708 s). With string views, the hash repartition shares every data buffer
+   among the fragments it sends and reserves memory for each fragment as if
+   the buffers were its own; strings of up to 12 bytes have no data buffer,
+   hence the threshold. The original plan is affected too, less.
 6. A5. With depth 4 and one entity per file, going from 12 to 120 to 1200 files
    costs both variants: the original 0.647, 0.679, 0.771 s, `accept-groups`
    0.376, 0.348, 0.475 s, that is +19 and +26 percent; the gap between them
@@ -345,13 +355,14 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
   the ordered plan never spills in the final aggregate at any pool and the
   original always does. The second part holds: at 128 MB the ordered plan wins
   on Q3.
-- **H4, supported as an observed effect.** Crossing the limit on `col_3` and
-  `col_4` raises the output bytes the operators report (the repartition's most,
-  471 to 1157 MB at 256 MB), brings spills to the ordered plan at 128 MB and
-  shrinks its gain there; at 512 MB the ranking is unchanged. S0 against S1
-  shows the effect of `col_1` on the reported bytes, small repartition spills
-  at 128 MB and almost no effect on time. What the reported bytes measure, and
-  how a longer string produces them, is in "Not measured".
+- **H4, supported as an observed effect; its cause revised by the
+  follow-up.** Crossing the limit on `col_3` and `col_4` raises the output
+  bytes the operators report (the repartition's most, 471 to 1157 MB at
+  256 MB), brings spills to the ordered plan at 128 MB and shrinks its gain
+  there; at 512 MB the ranking is unchanged. The hypothesis attributed this to
+  the width of the rows. The follow-up shows that it belongs to the string-view
+  representation and to how the repartition accounts its memory: with plain
+  `Utf8` strings the same wide data keeps the gain at 128 MB.
 - **H5, partly supported.** Depth 4: the per-file costs are not small (+19
   percent for the original, +26 for `accept-groups` from 12 to 1200 files) and
   the groups are five, not four, so the control on the number of streams is
@@ -378,9 +389,12 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
   the batches an operator emitted, as Arrow accounts for their buffers): it is
   not peak resident memory and not necessarily unique bytes, and in the
   original plan the partial aggregate of S0 reports 521, 975 and 424 MB at
-  the three pools for the same rows. How a string above 12 bytes turns into
-  the measured rise; the threshold coincides with the inline limit of Arrow
-  string views, the mechanism was not traced in the code.
+  the three pools for the same rows. With string views it counts the shared
+  data buffers once per batch (see `experiments/open-questions/README.md`).
+- How much of the final-aggregate spills of S2 at 128 MB comes from the
+  repartition's inflated reservations and how much from other consumers of
+  the fair pool; removing the string views removes them, the shares were not
+  separated.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
 - Why depth 1 is slower than depth 2 with the same plan.
