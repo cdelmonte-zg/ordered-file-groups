@@ -291,8 +291,8 @@ Base data with half the rows copied.
    shape. Crossing the 12-byte limit on `col_3` and `col_4` (S2) is what brings
    spills to the ordered plan at 128 MB (final aggregate 14 spills, 92 MB) and
    shrinks its gain there to 11 percent (0.641 against 0.720 s), where S0 and S1
-   gain 46 percent; at 256 and 512 MB S2 gains 39 and 41 percent, less than the
-   42 to 44 of S0 and S1. The original plan on S2 at 128 MB fails in 2 runs of
+   gain 46 percent; at 256 and 512 MB S2 gains 39 and 41 percent, S0 and S1 41
+   to 43. The original plan on S2 at 128 MB fails in 2 runs of
    10 with an allocation error in `SortPreservingMergeExec[0]`. Crossing the
    limit on `col_1` alone (S0 to S1) raises the bytes but brings no spill at
    any pool and costs 0.02 s.
@@ -329,7 +329,7 @@ Base data with half the rows copied.
   spills and the RSS grow, the time does not. The prediction was wrong about
   where the extra groups show up.
 - **H3, not supported in its first part.** The gain does not grow with the pool:
-  it is 45 percent at 128, 42 at 256, 43 at 512 MB, because with the base data
+  it is 46 percent at 128, 42 at 256, 43 at 512 MB, because with the base data
   the ordered plan never spills in the final aggregate at any pool and the
   original always does. The second part holds: at 128 MB the ordered plan wins
   on Q3.
@@ -343,7 +343,7 @@ Base data with half the rows copied.
   with about 2 GB of RSS throughout. Qualification: at 1200 files with depth 4
   the statistics produce five groups, not four.
 - **H6, measured.** The ordered plan profits more from the duplicates than the
-  hash plan: its time halves, the original's falls by 38 percent.
+  hash plan: its time falls by 48 percent, the original's by 38.
 - **H7, supported.** `original-target` has the operator kinds of `accept-groups`
   with four partitions above the scan, a different time (faster at the base
   case, slower at 128 MB and at twelve groups) and more RSS everywhere; on Q1
