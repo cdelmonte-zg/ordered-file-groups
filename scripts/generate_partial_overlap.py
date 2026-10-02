@@ -172,7 +172,8 @@ def main():
     share = 1 - keys / table.num_rows
     header = [f"# dataset\t{name}", f"# files\t{args.files}", f"# depth\t{args.depth}",
               f"# assign\t{args.assign}", f"# shape\t{args.shape}", f"# rows\t{table.num_rows}",
-              f"# distinct_grouping_keys\t{keys}", f"# duplicate_share\t{share:.4f}",
+              f"# distinct_grouping_keys\t{keys}", f"# duplicate_rows\t{table.num_rows - keys}",
+              f"# duplicate_share\t{share:.6f}",
               f"# groups_by_bounds\t{len(groups)}\t{groups}"]
     if "origin" in table.column_names:
         origin = table["origin"].to_numpy()
@@ -184,7 +185,7 @@ def main():
         "\n".join(header) + "\nfile\trows\tbytes\trow_groups\tmin_col_1\tmin_col_2\tmax_col_1\tmax_col_2\n"
         + "\n".join(lines) + "\n")
     print(f"{out}: {args.files} files, depth {args.depth}, {args.assign}, shape {args.shape}, "
-          f"{table.num_rows} rows, {keys} distinct keys (duplicate share {share:.3f}), "
+          f"{table.num_rows} rows, {keys} distinct keys ({table.num_rows - keys} duplicate rows), "
           f"rows per file {min(sizes)}..{max(sizes)}, groups by bounds {len(groups)} "
           f"(target {args.target})")
 

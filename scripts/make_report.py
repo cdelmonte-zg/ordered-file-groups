@@ -25,7 +25,7 @@ AXES = [
     ("A3", "A3: the memory budget", "Base data and query at 128 and 512 MB (256 MB is the base case)."),
     ("A4", "A4 and A4 x A3: the width of the rows", "Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base case and A3."),
     ("A5", "A5 and A5 x A3: the number of files for the same rows", "120 and 1200 files, with depth 4 (one entity per file) and with depth equal to the files (total overlap); the 12-file points are the base case and A2 at depth 12."),
-    ("A6", "A6: the share of duplicates", "Base data with half the rows copied."),
+    ("A6", "A6: the share of duplicates", "Base data with half the rows copied. The base data itself has 24 duplicate rows out of 600,000 (share 0.00004), so the axis compares almost no duplicates with half."),
 ]
 
 VARIANT_ORDER = ["original", "accept-groups", "original-target", "original-split-off"]
@@ -82,7 +82,7 @@ def table(summary, axis, with_bytes=False):
 
 
 def datasets():
-    lines = ["| dataset | files | depth | assignment | shape | rows | distinct keys | duplicate share | groups by bounds | bytes | row groups |",
+    lines = ["| dataset | files | depth | assignment | shape | rows | distinct keys | duplicate rows | groups by bounds | bytes | row groups |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
     for path in sorted(MANIFESTS.glob("*.tsv")):
         text = path.read_text().splitlines()
@@ -99,7 +99,7 @@ def datasets():
         rgs = sum(int(b[3]) for b in body)
         lines.append(f'| {meta["dataset"]} | {meta["files"]} | {meta["depth"]} | {meta["assign"]} '
                      f'| {meta["shape"]} | {meta["rows"]} | {meta["distinct_grouping_keys"]} '
-                     f'| {meta["duplicate_share"]} | {meta["groups_by_bounds"]} | {size:,} | {rgs} |')
+                     f'| {int(meta["rows"]) - int(meta["distinct_grouping_keys"]):,} | {meta["groups_by_bounds"]} | {size:,} | {rgs} |')
     return "\n".join(lines)
 
 
@@ -181,7 +181,10 @@ number of rows with half of them copies.
 ## Results by axis
 
 Spill cells: count / spilled MB (medians over completed runs). Modes: of the
-final aggregate, or partial / final when they differ.
+final aggregate, or partial / final when they differ. "Out MB" columns: the
+cumulative `output_bytes` an operator reports in its metrics, the bytes of
+the batches it emitted as Arrow accounts for their buffers; not peak resident
+memory, and not necessarily unique bytes.
 
 {axis_tables}
 
@@ -232,35 +235,43 @@ OBSERVATIONS = """\
    final aggregate and only lightly in the repartition at 128 MB (7 spills,
    4.2 MB). `original-target` loses its edge at 128 MB (0.382 s, with spills in
    the final aggregate).
-5. A4 x A3. The width of the strings sets the volume above the scan: the output
-   of the partial aggregate in the ordered plan is 136 MB in S0, 248 MB in S1
-   and 453 MB in S2 for the same 600,000 rows; the output of the
-   order-preserving repartition 64, 471 and 1157 MB; the scan is 68 MB in every
-   shape. Crossing the 12-byte limit on `col_3` and `col_4` (S2) is what brings
+5. A4 x A3. The width of the strings changes the output bytes the operators
+   above the scan report: at 256 MB, the partial aggregate of the ordered plan
+   reports 136 MB in S0, 248 MB in S1 and 453 MB in S2 for the same 600,000
+   rows; the order-preserving repartition 64, 471 and 1157 MB; the scan 68 MB
+   in every shape. Crossing the 12-byte limit on `col_3` and `col_4` (S2) is what brings
    spills to the ordered plan at 128 MB (final aggregate 14 spills, 92 MB) and
    shrinks its gain there to 11 percent (0.641 against 0.720 s), where S0 and S1
    gain 46 percent; at 256 and 512 MB S2 gains 39 and 41 percent, S0 and S1 41
    to 43. The original plan on S2 at 128 MB fails in 2 runs of
    10 with an allocation error in `SortPreservingMergeExec[0]`. Crossing the
-   limit on `col_1` alone (S0 to S1) raises the bytes but brings no spill at
-   any pool and costs 0.02 s.
+   limit on `col_1` alone (S0 to S1) raises the reported bytes, adds small
+   spills in the repartition at 128 MB (7 spills, 4.2 MB, against none in S0)
+   and none in the final aggregate, and costs 0.02 s.
 6. A5. With depth 4 and one entity per file, going from 12 to 120 to 1200 files
    costs both variants: the original 0.647, 0.679, 0.771 s, `accept-groups`
-   0.376, 0.348, 0.475 s (five groups at 1200 files, the placement rule not
-   being first-fit); the gap between them stays between 0.27 and 0.33 s. The
-   `CREATE EXTERNAL TABLE` statement takes 0.002, 0.007 and 0.030 s. With depth
-   equal to the files, 120 ordered groups win at 256 MB (0.410 against 0.665 s)
+   0.376, 0.348, 0.475 s, that is +19 and +26 percent; the gap between them
+   stays between 0.27 and 0.33 s. At 1200 files the statistics produce five
+   groups, not four: a first-fit on the recorded bounds also gives five, so the
+   fifth is in the bounds, not in the placement rule. Files 6 and 10 of the
+   first entity touch, the maximum of one equal to the minimum of the other (a
+   repeated timestamp on the boundary), and the placement requires a strictly
+   greater minimum; 248 pairs of files touch in that layout. The
+   `CREATE EXTERNAL TABLE` statement takes 0.002, 0.007 and 0.030 s. With the
+   intended total overlap, 120 ordered groups win at 256 MB (0.410 against 0.665 s)
    with 125 spills (39 MB) in the repartition and 1035 MB of RSS against 657;
-   1196 groups lose at 128 MB (0.845 against 0.743 s, 26 spills and 94 MB in the
+   1196 groups (of 1200 intended) lose at 128 MB (0.845 against 0.743 s, 26 spills and 94 MB in the
    final aggregate), win at 256 MB (0.656 against 0.751) and at 512 MB (0.649
    against 0.692), with about 2 GB of RSS at every pool against 0.55 to 0.65.
 7. A6. With half the rows duplicated both plans get faster, the original from
    0.647 to 0.400 s, `accept-groups` from 0.376 to 0.196 s; the ratio between
    them moves from 0.58 to 0.49, and the original's spills halve in size.
-8. The workaround (`original-target`) is the fastest variant wherever memory
-   allows (base, 512 MB, S0, S2 at 256 and 512 MB, the duplicate dataset), at
-   the price of more RSS; at 128 MB and at twelve groups it spills in the final
-   aggregate and falls back to the time of `accept-groups` or behind it.
+8. The workaround (`original-target`) is the fastest variant in most cases
+   (base, 512 MB, S0 at every pool, S2 at every pool, the duplicate dataset),
+   at the price of more RSS; it keeps that edge on S2 at 128 MB even while
+   spilling in the final aggregate (0.478 against 0.641 s). It loses it in two
+   cases: the base data at 128 MB (0.382 against 0.367 s) and twelve groups
+   (0.362 against 0.354 s), both with spills in the final aggregate.
 9. Not explained, as in the earlier rounds: depth 1 is slower than depth 2 with
    the same plan (0.506 against 0.433 s)."""
 
@@ -280,15 +291,20 @@ HYPOTHESES = """\
   the ordered plan never spills in the final aggregate at any pool and the
   original always does. The second part holds: at 128 MB the ordered plan wins
   on Q3.
-- **H4, supported.** Crossing the limit on `col_3` and `col_4` raises the bytes
-  above the scan (the repartition's output most, 471 to 1157 MB), brings spills
-  to the ordered plan at 128 MB and shrinks its gain there; at 512 MB the
-  ranking is unchanged. S0 against S1 shows the effect of `col_1` on the bytes
-  and almost none on time or spills.
-- **H5, supported.** Depth 4: both variants pay per-file costs and the gap stays.
-  Depth equal to files: 1196 groups lose at 128 MB and win at 256 and 512 MB,
-  with about 2 GB of RSS throughout. Qualification: at 1200 files with depth 4
-  the statistics produce five groups, not four.
+- **H4, supported as an observed effect.** Crossing the limit on `col_3` and
+  `col_4` raises the output bytes the operators report (the repartition's most,
+  471 to 1157 MB at 256 MB), brings spills to the ordered plan at 128 MB and
+  shrinks its gain there; at 512 MB the ranking is unchanged. S0 against S1
+  shows the effect of `col_1` on the reported bytes, small repartition spills
+  at 128 MB and almost no effect on time. What the reported bytes measure, and
+  how a longer string produces them, is in "Not measured".
+- **H5, partly supported.** Depth 4: the per-file costs are not small (+19
+  percent for the original, +26 for `accept-groups` from 12 to 1200 files) and
+  the groups are five, not four, so the control on the number of streams is
+  imperfect; what holds is that the gap between the variants stays. Intended
+  total overlap: 1196 groups lose at 128 MB and win at 256 and 512 MB, with
+  about 2 GB of RSS throughout; the distinction between a few streams and
+  about 1200 is the result that stands.
 - **H6, measured.** The ordered plan profits more from the duplicates than the
   hash plan: its time falls by 48 percent, the original's by 38.
 - **H7, supported.** `original-target` has the operator kinds of `accept-groups`
@@ -303,9 +319,13 @@ NOT_MEASURED = """\
 - Which allocations push the final aggregate of the ordered plan into spilling
   at 128 MB with shape S2, and not with S0 or S1; the spill counts and bytes
   are measured, the cause is not attributed.
-- How a string above 12 bytes turns into the measured rise of `output_bytes`
-  in the operators above the scan; the threshold coincides with the inline
-  limit of Arrow string views, the mechanism was not traced in the code.
+- What `output_bytes` measures beyond its definition (the cumulative bytes of
+  the batches an operator emitted, as Arrow accounts for their buffers): it is
+  not peak resident memory and not necessarily unique bytes, and in the
+  original plan the partial aggregate of S0 reports 521, 975 and 424 MB at
+  the three pools for the same rows. How a string above 12 bytes turns into
+  the measured rise; the threshold coincides with the inline limit of Arrow
+  string views, the mechanism was not traced in the code.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
 - Why depth 1 is slower than depth 2 with the same plan.

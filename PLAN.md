@@ -3,6 +3,8 @@
 Written on 2026-10-02, before any run of round 5, and revised the same day
 after an external review (crossings declared, `original-target` reframed, Q4
 and Q2 reworded, A4 and A6 made precise, A5 instrumented, names corrected).
+One correction after the runs, on the data and not on the design: the
+duplicate share of the base data (see the base case and A6).
 Rounds 1 to 4 measured a single scenario, the deduplication query of the
 issue, and round 4 showed that one unplanned property of the data (the width
 of two string columns) changes the picture at 128 MB. Round 5 replaces the
@@ -46,7 +48,10 @@ and the fair pool are set explicitly in every run.
 - String codes in shape S1: `col_1` above 12 bytes, `col_3` and `col_4` at
   most 12 bytes. This is the shape of the reporter's data and the one where
   the ordered plan does not spill at 128 MB (`experiments/README.md`).
-- Natural share of duplicates on the six grouping columns, about 1.6 percent.
+- Duplicates on the six grouping columns: 24 rows out of 600,000 (share
+  0.00004); the base data is almost entirely distinct. The first version of
+  this plan said "about 1.6 percent", which is the share in the reporter's
+  data of rounds 1 to 4, not in this generator's.
 - Fair memory pool of 256 MB.
 - Query Q3, the deduplication of the issue: `GROUP BY` on six columns of which
   the first two are the sort key, `first_value` on the other two, `ORDER BY`
@@ -110,8 +115,9 @@ reported too.
 
 **A6, the share of duplicates,** defined as
 `duplicate_share = 1 - distinct_grouping_keys / total_rows`
-over the six grouping columns of Q3. Two values: about 0.016 (base) and 0.5,
-at the same 600,000 rows, so the 0.5 dataset has about 300,000 distinct keys.
+over the six grouping columns of Q3. Two values: 0.00004 (base, 24 duplicate
+rows) and 0.5, at the same 600,000 rows, so the 0.5 dataset has about 300,000
+distinct keys; the axis compares almost no duplicates with half.
 Copies of a key carry new values in `col_7` and `col_8`, and are assigned to
 files like any other row, independently of the original, so a share of them
 lands in a different file from their original; the manifest reports the share
