@@ -8,8 +8,6 @@ the observations and of the hypothesis verdicts is in this file and was
 written after reading the tables; every figure in it is taken from them.
 """
 import csv
-import platform
-import subprocess
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -115,10 +113,9 @@ def plan_check():
 
 def main():
     summary = read_tsv(REF / "summary.tsv")
-    cpu = next(l.split(":", 1)[1].strip() for l in
-               subprocess.run(["lscpu"], capture_output=True, text=True).stdout.splitlines()
-               if l.startswith("Model name"))
-    threads = subprocess.run(["nproc"], capture_output=True, text=True).stdout.strip()
+    machine = dict(l.split("\t", 1) for l in (REF / "machine.txt").read_text().splitlines()
+                   if "\t" in l)
+    cpu, threads, kernel = machine["cpu"], machine["threads"], machine["kernel"]
     hashes = (PROVENANCE / "binaries.sha256").read_text().strip()
     toolchain = (PROVENANCE / "toolchain.txt").read_text().splitlines()
     patch = (PROVENANCE / "accept-extra-groups.patch").read_text().strip()
@@ -152,7 +149,8 @@ scenario, are reported in `results/round-4/REPORT.md`.
 {hashes}
 ```
 
-- {cpu}, {threads} threads, Linux {platform.release()}; `datafusion-cli
+- {cpu}, {threads} threads, {kernel} (`results/round-5/machine.txt`, recorded
+  on the machine that ran the round); `datafusion-cli
   --mem-pool-type fair --memory-limit <pool>`; `target_partitions = 2` except
   for `original-target`, where it equals the ordered groups the overlap needs;
   `split_file_groups_by_statistics = true` except for `original-split-off`.

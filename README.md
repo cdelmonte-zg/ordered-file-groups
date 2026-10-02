@@ -35,8 +35,9 @@ judged against the tables. Ten runs per case, pool and variant.
 
 Keeping the file order removes the sort and, for a `GROUP BY` whose key
 begins with the sort key, lets the aggregate emit groups early; on the base
-case that is 0.376 s against 0.647 s with no spills, at every pool size from
-128 to 512 MB. The order buys nothing measurable for a `GROUP BY` on the whole
+case that is 0.376 s against 0.647 s with no spill in the final aggregate at
+any pool size from 128 to 512 MB, and a few small spills in the
+order-preserving repartition at 128 MB. The order buys nothing measurable for a `GROUP BY` on the whole
 sort key at this size, and nothing at all for a `GROUP BY` without it, where
 the optimizer projects the ordering away and the plans are identical. More
 ordered groups cost memory and spills in the order-preserving repartition
@@ -46,8 +47,9 @@ width of the string columns decides whether the ordered plan spills at all:
 above the 12-byte inline limit of Arrow string views on two grouping columns,
 the bytes above the scan more than double and the gain at 128 MB falls from
 46 to 11 percent. Raising `target_partitions` instead, the workaround, is the
-fastest variant wherever memory allows and the most memory-hungry, and it
-falls behind at 128 MB and at twelve groups.
+fastest variant in most cases and the most memory-hungry; it falls behind on
+the base data at 128 MB and at twelve groups, and stays ahead on the wide
+strings at 128 MB even while spilling.
 
 None of this is an argument for removing the check unconditionally. It is
 evidence for choosing the number of ordered groups from the overlap, the
@@ -99,7 +101,9 @@ Datasets are written from fixed seeds and a fixed time origin
 (2026-09-29T00:00:00Z); regenerating gives byte-identical files. Every
 dataset holds the same 600,000 rows in files sorted by `(col_1, col_2)`;
 `--depth d` makes file *i* overlap files *i+1* to *i+d-1*, so *d* is the
-minimum number of ordered groups; `--shape` renders the same integer ids at
+intended minimum number of ordered groups; the groups the statistics produce
+are in the manifest and can differ (5 at 1200 files with depth 4, where two
+files touch on a repeated timestamp; 1196 with depth 1200); `--shape` renders the same integer ids at
 three string widths; `--duplicate-share` copies rows; `--assign` chooses how
 rows go to files when there are more files than entities. The queries, the
 variants and the matrix are in `scripts/run_matrix.py`.
@@ -107,5 +111,7 @@ variants and the matrix are in `scripts/run_matrix.py`.
 ## Measured on
 
 AMD Ryzen 9 7950X3D, 32 threads, Linux 7.0.0-34, rustc 1.98.1, DataFusion
-commit `e1aa7d956` (2026-09-28). Absolute times are specific to this machine;
-the plan shapes and the spill counts per operator are not.
+commit `e1aa7d956` (2026-09-28). Absolute times are specific to this machine.
+The plan shapes follow from the commit and the settings; the spill counts
+depend on the pool size and on the data and were not checked on another
+machine.

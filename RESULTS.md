@@ -41,7 +41,8 @@ index 3ff86662f..c9c952c08 100644
 ed7ee0d11f8c609e4d559ffb7bebac27ded445edb71b32a30fac4ae7a5e8faca  bin/datafusion-cli-original-release
 ```
 
-- AMD Ryzen 9 7950X3D 16-Core Processor, 32 threads, Linux 7.0.0-34-generic; `datafusion-cli
+- AMD Ryzen 9 7950X3D 16-Core Processor, 32 threads, Linux 7.0.0-34-generic (`results/round-5/machine.txt`, recorded
+  on the machine that ran the round); `datafusion-cli
   --mem-pool-type fair --memory-limit <pool>`; `target_partitions = 2` except
   for `original-target`, where it equals the ordered groups the overlap needs;
   `split_file_groups_by_statistics = true` except for `original-split-off`.

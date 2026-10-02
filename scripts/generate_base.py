@@ -144,8 +144,9 @@ def add_duplicates(table, rows, rng, pools):
     """Grow `table` to `rows` rows by copying rows with new col_7 and col_8.
 
     Copies are drawn with replacement from the original rows, so a key may be
-    copied more than once. The `origin` column holds the index of the original
-    row for copies and -1 for originals; it is dropped before writing.
+    copied more than once. Every row gets a stable id in `rid`; `origin` holds
+    the rid of the original for copies and -1 for originals. Both survive any
+    later sorting and are dropped by `render`.
     """
     n = table.num_rows
     extra = rows - n
@@ -155,16 +156,18 @@ def add_duplicates(table, rows, rng, pools):
                                pa.array(_contexts(extra, rng, pools), type=pa.string()))
     copies = copies.set_column(copies.schema.get_field_index("col_8"), "col_8",
                                pa.array(rng.uniform(-1000.0, 1000.0, size=extra)))
+    rid = np.arange(n + extra, dtype=np.int64)
     origin = np.concatenate([np.full(n, -1, dtype=np.int64), source.astype(np.int64)])
-    return pa.concat_tables([table, copies]).append_column("origin", pa.array(origin))
+    return (pa.concat_tables([table, copies])
+            .append_column("rid", pa.array(rid)).append_column("origin", pa.array(origin)))
 
 
 def generate_table(rows, seed, cluster_ms=CLUSTER_MS, duplicate_share=0.0):
     """One table of `rows` rows from `seed`, not sorted, not rendered.
 
     With `duplicate_share` s > 0, about rows * (1 - s) rows are generated and
-    the rest are copies (see `add_duplicates`); the table then carries an
-    `origin` column.
+    the rest are copies (see `add_duplicates`); the table then carries the
+    `rid` and `origin` columns.
     """
     rng = np.random.default_rng(seed)
     pools = make_pools(rng)

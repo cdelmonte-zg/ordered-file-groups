@@ -14,9 +14,13 @@ row per case, pool and variant with medians and quartiles.
 """
 import argparse
 import csv
+import os
 import re
+import signal
 import statistics
 import subprocess
+import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -192,10 +196,15 @@ def sql_for(case, variant, explain="EXPLAIN ANALYZE"):
 def run(binary, sql_path, out_path, err_path, memory, timeout):
     cmd = ["/usr/bin/time", "-f", "BENCH_WALL_SECONDS=%e BENCH_MAX_RSS_KB=%M",
            str(binary), "--memory-limit", memory, "--mem-pool-type", "fair", "-f", str(sql_path)]
+    # A session of its own, so that a timeout kills datafusion-cli and not only
+    # /usr/bin/time, which is the process that subprocess would stop.
     with open(out_path, "w") as out, open(err_path, "w") as err:
+        proc = subprocess.Popen(cmd, stdout=out, stderr=err, start_new_session=True)
         try:
-            status = subprocess.run(cmd, stdout=out, stderr=err, timeout=timeout).returncode
+            status = proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            proc.wait()
             status = 124
     out_text, err_text = Path(out_path).read_text(), Path(err_path).read_text()
     row = parse(out_text)
@@ -208,6 +217,10 @@ def run(binary, sql_path, out_path, err_path, memory, timeout):
     row["result"] = "failed" if failed else "ok"
     messages = [l for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH_")]
     row["error"] = messages[0][:160] if failed and messages else ""
+    if status == 124:
+        row["error"] = f"timeout after {timeout} s, process group killed"
+    if failed:
+        row["elapsed_seconds"] = ""   # a failed statement prints no Elapsed of its own
     return row
 
 
@@ -215,8 +228,22 @@ def binary_of(variant):
     return BIN / f"datafusion-cli-{VARIANTS[variant][0]}-release"
 
 
+def expected_plan(case, variant):
+    """(SortExec count, output_ordering advertised) the plan must show."""
+    if case.query == "Q4":
+        return (0, 0)                 # the ordering is projected away, no sort needed
+    _, split, target = VARIANTS[variant]
+    ordered = split and (target == "groups" or case.groups <= DEFAULT_TARGET
+                         or variant == "accept-groups")
+    return (0, 1) if ordered else (1, 0)
+
+
 def plan_check(cases, out):
-    """EXPLAIN FORMAT INDENT once per case and variant, and a table of plan features."""
+    """EXPLAIN FORMAT INDENT once per case and variant, validated against expectations.
+
+    Writes plan-check.tsv with a `check` column ("ok" or what differs) and exits
+    with status 1 when any plan is missing, failed or unexpected.
+    """
     rows = []
     for case in cases:
         d = out / case.name / "plan-check"
@@ -225,20 +252,62 @@ def plan_check(cases, out):
             sql_path = d / f"{variant}.sql"
             sql_path.write_text(sql_for(case, variant, "EXPLAIN FORMAT INDENT"))
             with open(d / f"{variant}.out", "w") as o, open(d / f"{variant}.err", "w") as e:
-                subprocess.run([str(binary_of(variant)), "-f", str(sql_path)], stdout=o, stderr=e)
+                status = subprocess.run([str(binary_of(variant)), "-f", str(sql_path)],
+                                        stdout=o, stderr=e).returncode
             text = (d / f"{variant}.out").read_text()
+            err = (d / f"{variant}.err").read_text()
             feats = parse(text)
+            ordering = int("output_ordering=" in text)
+            problems = []
+            if status != 0:
+                problems.append(f"exit {status}")
+            if "physical_plan" not in text:
+                problems.append("no physical plan")
+            if re.search(r"Error|error:", err):
+                problems.append("stderr: " + err.strip().splitlines()[0][:80])
+            want = expected_plan(case, variant)
+            if (feats["sort_exec"], ordering) != want:
+                problems.append(f"expected sort={want[0]} ordering={want[1]}")
             rows.append({"case": case.name, "variant": variant, "query": case.query,
                          "scan_groups": feats["scan_groups"], "sort_exec": feats["sort_exec"],
                          "preserve_order": feats["preserve_order"],
                          "partial_mode": feats["partial_mode"], "final_mode": feats["final_mode"],
-                         "output_ordering": int("output_ordering=" in text)})
+                         "output_ordering": ordering,
+                         "check": "ok" if not problems else "; ".join(problems)})
             print("\t".join(str(rows[-1][k]) for k in rows[-1]), flush=True)
     columns = list(rows[0].keys())
     with (out / "plan-check.tsv").open("w") as f:
         w = csv.DictWriter(f, fieldnames=columns, delimiter="\t")
         w.writeheader()
         w.writerows(rows)
+    bad = [r for r in rows if r["check"] != "ok"]
+    if bad:
+        print(f"{len(bad)} plan(s) not as expected", file=sys.stderr)
+        sys.exit(1)
+
+
+def plan_check_passed(cases, out):
+    """True when plan-check.tsv covers every case and variant with check == ok."""
+    path = out / "plan-check.tsv"
+    if not path.exists():
+        return False
+    checked = {(r["case"], r["variant"]): r.get("check", "") for r in
+               csv.DictReader(path.open(), delimiter="\t")}
+    return all(checked.get((c.name, v)) == "ok" for c in cases for v in c.variants)
+
+
+def record_machine(out):
+    """What the measurements ran on, read later by make_report.py."""
+    cpu = next((l.split(":", 1)[1].strip() for l in
+                subprocess.run(["lscpu"], capture_output=True, text=True).stdout.splitlines()
+                if l.startswith("Model name")), "unknown CPU")
+    threads = subprocess.run(["nproc"], capture_output=True, text=True).stdout.strip()
+    kernel = subprocess.run(["uname", "-r"], capture_output=True, text=True).stdout.strip()
+    hashes = subprocess.run(["sha256sum"] + sorted(str(p) for p in BIN.glob("datafusion-cli-*")),
+                            capture_output=True, text=True).stdout
+    (out / "machine.txt").write_text(
+        f"cpu\t{cpu}\nthreads\t{threads}\nkernel\tLinux {kernel}\n"
+        f"date\t{time.strftime('%Y-%m-%d %H:%M %Z')}\nbinaries\n{hashes}")
 
 
 COLUMNS = ["case", "axis", "query", "dataset", "pool", "variant", "run", "result", "scan_groups",
@@ -298,7 +367,7 @@ def summarize(rows, path):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--runs", type=int, default=10)
-    p.add_argument("--timeout", type=int, default=300)
+    p.add_argument("--timeout", type=float, default=300)
     p.add_argument("--only", nargs="*", help="case names")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--plan-check", action="store_true")
@@ -316,8 +385,15 @@ def main():
         plan_check(cases, args.out)
         return
 
-    rows = []
     results = args.out / "results.tsv"
+    if results.exists():
+        raise SystemExit(f"{results} exists: a run would overwrite the summary of the whole "
+                         f"round; use a new --out directory")
+    if not plan_check_passed(cases, args.out):
+        raise SystemExit(f"run the plan check first and let it pass: "
+                         f"python scripts/run_matrix.py --plan-check --out {args.out}")
+    record_machine(args.out)
+    rows = []
     for case in cases:
         for pool in case.pools:
             d = args.out / case.name / pool

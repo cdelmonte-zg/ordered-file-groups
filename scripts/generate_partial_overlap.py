@@ -176,9 +176,13 @@ def main():
               f"# duplicate_share\t{share:.6f}",
               f"# groups_by_bounds\t{len(groups)}\t{groups}"]
     if "origin" in table.column_names:
+        # rid and origin are stable ids assigned before the sort; map rid -> file
+        rid = table["rid"].to_numpy()
         origin = table["origin"].to_numpy()
+        file_of_rid = np.empty(rid.max() + 1, dtype=np.int64)
+        file_of_rid[rid] = file_of_row
         copies = origin >= 0
-        same = (file_of_row[copies] == file_of_row[origin[copies]]).mean()
+        same = (file_of_row[copies] == file_of_rid[origin[copies]]).mean()
         header.append(f"# copies\t{int(copies.sum())}\t# same_file_share\t{same:.4f}")
     MANIFESTS.mkdir(exist_ok=True)
     (MANIFESTS / f"{name}.tsv").write_text(
