@@ -1,4 +1,11 @@
 """One variable: the length of the string codes in col_1, col_3 and col_4.
+
+Record of 2026-10-02. It ran against the generator of commit 80e8a52, which drew
+the codes at random with (prefix, digits, letters); the current generator renders
+ids with the shapes S0/S1/S2 of PLAN.md and no longer has ENTITY_CODE and the
+like, so this script does not run as is. The runs and results.tsv in runs/ are
+the record.
+
 Everything else fixed: same seed, 2 files of 300,000 rows, target 2, fair pool,
 one binary. Variants:
 

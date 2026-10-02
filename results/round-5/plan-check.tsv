@@ -1,0 +1,41 @@
+case	variant	query	scan_groups	sort_exec	preserve_order	partial_mode	final_mode	output_ordering
+base	original	Q3	2	1	0	Linear	Linear	0
+base	accept-groups	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+base	original-target	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+base	original-split-off	Q3	2	1	0	Linear	Linear	0
+A1-Q1	original	Q1	2	1	0			0
+A1-Q1	accept-groups	Q1	4	0	0			1
+A1-Q1	original-target	Q1	4	0	0			1
+A1-Q2	original	Q2	2	1	0	Linear	Linear	0
+A1-Q2	accept-groups	Q2	4	0	1	Sorted	Sorted	1
+A1-Q2	original-target	Q2	4	0	1	Sorted	Sorted	1
+A1-Q4	original	Q4	2	0	0	Linear	Linear	0
+A1-Q4	accept-groups	Q4	2	0	0	Linear	Linear	0
+A1-Q4	original-target	Q4	4	0	0	Linear	Linear	0
+A2-depth-1	original	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A2-depth-1	accept-groups	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A2-depth-2	original	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A2-depth-2	accept-groups	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A2-depth-12	original	Q3	2	1	0	Linear	Linear	0
+A2-depth-12	accept-groups	Q3	12	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A2-depth-12	original-target	Q3	12	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A3	original	Q3	2	1	0	Linear	Linear	0
+A3	accept-groups	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A3	original-target	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A4-S0	original	Q3	2	1	0	Linear	Linear	0
+A4-S0	accept-groups	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A4-S0	original-target	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A4-S2	original	Q3	2	1	0	Linear	Linear	0
+A4-S2	accept-groups	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A4-S2	original-target	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A5-120-depth-4	original	Q3	2	1	0	Linear	Linear	0
+A5-120-depth-4	accept-groups	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A5-1200-depth-4	original	Q3	2	1	0	Linear	Linear	0
+A5-1200-depth-4	accept-groups	Q3	5	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A5-120-depth-120	original	Q3	2	1	0	Linear	Linear	0
+A5-120-depth-120	accept-groups	Q3	120	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A5-1200-depth-1200	original	Q3	2	1	0	Linear	Linear	0
+A5-1200-depth-1200	accept-groups	Q3	1196	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A6-dup-0.5	original	Q3	2	1	0	Linear	Linear	0
+A6-dup-0.5	accept-groups	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1
+A6-dup-0.5	original-target	Q3	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1

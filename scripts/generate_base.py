@@ -1,6 +1,4 @@
-"""Synthetic rows for the deduplication query of apache/datafusion#16919.
-
-Eight columns, the schema of the issue:
+"""Synthetic rows for the queries of PLAN.md, with the schema of apache/datafusion#16919.
 
     col_1  VARCHAR NOT NULL   entity id, a few dozen distinct values
     col_2  BIGINT  NOT NULL   timestamp in milliseconds, clustered per entity
@@ -11,11 +9,23 @@ Eight columns, the schema of the issue:
     col_7  VARCHAR            context, null in about 5 percent of the rows
     col_8  DOUBLE             value
 
+The three code columns are generated as integer ids and rendered to strings
+with a *shape* (PLAN.md, axis A4): a constant prefix and a zero-padded
+number, so that key equality and lexicographic order are the same in every
+shape and only the byte length changes. Twelve bytes is the inline limit of
+Arrow string views.
+
+    shape  col_1 (entity)        col_3 (reference)      col_4 (instance)
+    S0     E-00001        (7)    R-0001         (6)     I-0001         (6)
+    S1     ENTITY-0000001 (14)   R-0001         (6)     I-0001         (6)
+    S2     ENTITY-0000001 (14)   REFERENCE-0000001 (17) INSTANCE-00000001 (17)
+
 Rows repeat on (col_1, col_2) because every entity draws its timestamps from a
-few clusters of 500 consecutive milliseconds; a small share repeats on all six
-grouping columns, which is what the deduplication query removes. Everything is
-derived from a seed and a fixed time origin, so a dataset is byte-identical
-when regenerated.
+few clusters of consecutive milliseconds; a small share repeats on all six
+grouping columns by chance. `duplicate_share` (axis A6) adds deliberate
+copies: with share s and n rows, the table holds about n * (1 - s) distinct
+grouping keys; a copy keeps the six grouping columns of its original and draws
+new col_7 and col_8. Everything derives from a seed and a fixed time origin.
 
 As a script, writes `files` Parquet files of `rows` rows each, every file sorted
 by (col_1, col_2) and all files drawn from the same pools, so that every file
@@ -45,11 +55,15 @@ N_CATEGORIES = 6
 METRICS_PER_CATEGORY = 10
 N_SHARED_METRICS = 5
 N_CONTEXTS = 8
-# (prefix, digits, letters) of the generated codes: ENT-1234567-ABC and so on
-ENTITY_CODE = ("ENT", 7, 3)
-REFERENCE_CODE = ("REF", 7, 2)
-INSTANCE_CODE = ("INS", 6, 2)
 NULL_CONTEXT_SHARE = 0.05
+
+# shape -> (prefix, digits) for entity, reference, instance
+SHAPES = {
+    "S0": (("E-", 5), ("R-", 4), ("I-", 4)),
+    "S1": (("ENTITY-", 7), ("R-", 4), ("I-", 4)),
+    "S2": (("ENTITY-", 7), ("REFERENCE-", 7), ("INSTANCE-", 8)),
+}
+DEFAULT_SHAPE = "S1"
 
 SCHEMA = pa.schema([
     ("col_1", pa.string(), False),
@@ -63,18 +77,9 @@ SCHEMA = pa.schema([
 ])
 
 SORT_KEY = [("col_1", "ascending"), ("col_2", "ascending")]
+ID_SORT_KEY = [("entity", "ascending"), ("col_2", "ascending")]
 
 LETTERS = np.array(list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
-
-
-def _codes(rng, n, prefix, digits, letters):
-    """n distinct strings like PREFIX-1234567-KQZ."""
-    seen = set()
-    while len(seen) < n:
-        number = rng.integers(10 ** (digits - 1), 10 ** digits)
-        tail = "".join(rng.choice(LETTERS, letters))
-        seen.add(f"{prefix}-{number}-{tail}" if letters else f"{prefix}-{number}")
-    return np.array(sorted(seen))
 
 
 def make_pools(rng):
@@ -88,9 +93,6 @@ def make_pools(rng):
     entity_clusters = [rng.choice(cluster_base, rng.integers(5, 11), replace=False)
                        for _ in range(N_ENTITIES)]
     return {
-        "entities": _codes(rng, N_ENTITIES, *ENTITY_CODE),
-        "references": _codes(rng, N_REFERENCES, *REFERENCE_CODE),
-        "instances": _codes(rng, N_INSTANCES, *INSTANCE_CODE),
         "categories": categories,
         "metrics": np.array(metrics),
         "shared_metrics": np.array(shared),
@@ -99,8 +101,14 @@ def make_pools(rng):
     }
 
 
+def _contexts(rows, rng, pools):
+    context = pools["contexts"][rng.integers(N_CONTEXTS, size=rows)].astype(object)
+    context[rng.random(rows) < NULL_CONTEXT_SHARE] = None
+    return context
+
+
 def generate_rows(rows, rng, pools, cluster_ms=CLUSTER_MS):
-    """`rows` rows as a pyarrow Table, not sorted.
+    """`rows` rows with integer ids for the code columns, not sorted, not rendered.
 
     `cluster_ms` is the width of a timestamp cluster: with 500, an entity has up
     to 5,000 distinct timestamps; with 1, only its 5 to 10 cluster bases.
@@ -120,25 +128,77 @@ def generate_rows(rows, rng, pools, cluster_ms=CLUSTER_MS):
     col_6 = np.where(own, pools["metrics"][metric_index],
                      pools["shared_metrics"][rng.integers(N_SHARED_METRICS, size=rows)])
 
-    context = pools["contexts"][rng.integers(N_CONTEXTS, size=rows)].astype(object)
-    context[rng.random(rows) < NULL_CONTEXT_SHARE] = None
-
     return pa.table({
-        "col_1": pools["entities"][entity],
+        "entity": entity.astype(np.int64),
         "col_2": col_2,
-        "col_3": pools["references"][rng.integers(N_REFERENCES, size=rows)],
-        "col_4": pools["instances"][rng.integers(N_INSTANCES, size=rows)],
+        "reference": rng.integers(N_REFERENCES, size=rows).astype(np.int64),
+        "instance": rng.integers(N_INSTANCES, size=rows).astype(np.int64),
         "col_5": pools["categories"][category],
         "col_6": col_6,
-        "col_7": pa.array(context, type=pa.string()),
+        "col_7": pa.array(_contexts(rows, rng, pools), type=pa.string()),
         "col_8": rng.uniform(-1000.0, 1000.0, size=rows),
+    })
+
+
+def add_duplicates(table, rows, rng, pools):
+    """Grow `table` to `rows` rows by copying rows with new col_7 and col_8.
+
+    Copies are drawn with replacement from the original rows, so a key may be
+    copied more than once. The `origin` column holds the index of the original
+    row for copies and -1 for originals; it is dropped before writing.
+    """
+    n = table.num_rows
+    extra = rows - n
+    source = rng.integers(n, size=extra)
+    copies = table.take(pa.array(source))
+    copies = copies.set_column(copies.schema.get_field_index("col_7"), "col_7",
+                               pa.array(_contexts(extra, rng, pools), type=pa.string()))
+    copies = copies.set_column(copies.schema.get_field_index("col_8"), "col_8",
+                               pa.array(rng.uniform(-1000.0, 1000.0, size=extra)))
+    origin = np.concatenate([np.full(n, -1, dtype=np.int64), source.astype(np.int64)])
+    return pa.concat_tables([table, copies]).append_column("origin", pa.array(origin))
+
+
+def generate_table(rows, seed, cluster_ms=CLUSTER_MS, duplicate_share=0.0):
+    """One table of `rows` rows from `seed`, not sorted, not rendered.
+
+    With `duplicate_share` s > 0, about rows * (1 - s) rows are generated and
+    the rest are copies (see `add_duplicates`); the table then carries an
+    `origin` column.
+    """
+    rng = np.random.default_rng(seed)
+    pools = make_pools(rng)
+    if duplicate_share <= 0:
+        return generate_rows(rows, rng, pools, cluster_ms)
+    base = generate_rows(int(round(rows * (1 - duplicate_share))), rng, pools, cluster_ms)
+    return add_duplicates(base, rows, rng, pools)
+
+
+def render(table, shape=DEFAULT_SHAPE):
+    """Replace the integer ids with strings of the given shape; columns in schema order."""
+    (ep, ed), (rp, rd), (ip, idg) = SHAPES[shape]
+
+    def code(ids, prefix, digits):
+        return pa.array([f"{prefix}{i:0{digits}d}" for i in ids.to_numpy()], type=pa.string())
+
+    return pa.table({
+        "col_1": code(table["entity"], ep, ed),
+        "col_2": table["col_2"],
+        "col_3": code(table["reference"], rp, rd),
+        "col_4": code(table["instance"], ip, idg),
+        "col_5": table["col_5"],
+        "col_6": table["col_6"],
+        "col_7": table["col_7"],
+        "col_8": table["col_8"],
     }, schema=SCHEMA)
 
 
-def generate_table(rows, seed, cluster_ms=CLUSTER_MS):
-    """One table of `rows` rows from `seed`, not sorted."""
-    rng = np.random.default_rng(seed)
-    return generate_rows(rows, rng, make_pools(rng), cluster_ms)
+def distinct_keys(table):
+    """Number of distinct values of the six grouping columns (ids or rendered)."""
+    names = table.column_names
+    cols = [c for c in ("entity", "col_1", "col_2", "reference", "col_3", "instance", "col_4",
+                        "col_5", "col_6") if c in names]
+    return table.select(cols).group_by(cols).aggregate([]).num_rows
 
 
 def write_sorted(table, path):
@@ -157,6 +217,7 @@ def main():
     p.add_argument("--files", type=int, default=1)
     p.add_argument("--seed", type=int, required=True)
     p.add_argument("--output-dir", type=Path, required=True)
+    p.add_argument("--shape", choices=sorted(SHAPES), default=DEFAULT_SHAPE)
     p.add_argument("--cluster-ms", type=int, default=CLUSTER_MS,
                    help="width of a timestamp cluster in milliseconds (default 500)")
     args = p.parse_args()
@@ -168,10 +229,10 @@ def main():
         old.unlink()
     width = len(str(args.files - 1))
     for i in range(args.files):
-        table = generate_rows(args.rows, rng, pools, args.cluster_ms)
+        table = render(generate_rows(args.rows, rng, pools, args.cluster_ms), args.shape)
         write_sorted(table, args.output_dir / f"reproducible_data_{i:0{width}d}.parquet")
     print(f"{args.output_dir}: {args.files} files of {args.rows} rows, seed {args.seed}, "
-          f"cluster width {args.cluster_ms} ms")
+          f"shape {args.shape}, cluster width {args.cluster_ms} ms")
 
 
 if __name__ == "__main__":
