@@ -53,10 +53,17 @@ MANIFESTS = HERE.parent / "results" / "manifests"
 
 def base_table(rows, seed, duplicate_share, cache):
     """The one table every variant redistributes: integer ids, sorted, cached."""
-    if not cache.exists():
-        cache.parent.mkdir(parents=True, exist_ok=True)
-        table = generate_table(rows, seed, duplicate_share=duplicate_share)
-        pq.write_table(table.sort_by(ID_SORT_KEY), cache, compression="zstd")
+    if cache.exists():
+        names = pq.read_schema(cache).names
+        # a cache of the duplicate table written before the stable row ids were
+        # added has `origin` but not `rid`: regenerate it (the rows are the same)
+        stale = ("origin" in names) != ("rid" in names)
+        if not stale:
+            return pq.read_table(cache)
+        cache.unlink()
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    table = generate_table(rows, seed, duplicate_share=duplicate_share)
+    pq.write_table(table.sort_by(ID_SORT_KEY), cache, compression="zstd")
     return pq.read_table(cache)
 
 
