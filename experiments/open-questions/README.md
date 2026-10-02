@@ -182,9 +182,10 @@ expensive in memory, not cheaper. What exactly the repartition holds per pair
 (a buffered batch per channel, the merge cursors, the spill pools) was not
 traced in the code.
 
-## 3. Why depth 1 is slower than depth 2 (not explained)
+## 3. Why depth 1 is slower than depth 2 (explained)
 
-Same plan in both, two ordered groups. Tests (`depth/`), 6 runs each, 256 MB:
+Same plan in both, two ordered groups. At depth 1 the process does about the
+same CPU work as at depth 2 and uses fewer cores (6 runs each, 256 MB):
 
 | case | wall (s) | CPU seconds | cores used |
 |---|---|---|---|
@@ -195,16 +196,51 @@ Same plan in both, two ordered groups. Tests (`depth/`), 6 runs each, 256 MB:
 | depth 1, 12 files, files split by name | 0.517 | 0.760 | 1.47 |
 | depth 1, 12 files, files split by statistics | 0.500 | 0.788 | 1.58 |
 
-Measured: at depth 1 the process does about the same CPU work and uses fewer
-cores; the repartition reports more time waiting to send (`send_time` 524
-against 387 ms in round 5). Two explanations were tested and failed:
+The first probes rejected serialization because splitting the files by name
+was not slower than interleaving them. That reasoning was wrong: at depth 1
+the two partitions read disjoint key ranges at every moment in both splits,
+so the test could not discriminate (see `depth/PLAN.md`).
 
-- *Coarse alternation.* At depth 1 the two groups cover disjoint key ranges in
-  alternation, so the merge might take them in turns. With 120 smaller files
-  the gap in cores stays (0.37 at 12 files, 0.39 at 120).
-- *Serialization of disjoint partitions.* Splitting the files by name, so
-  that one partition holds the first half of the keys and the other the
-  second, should then be much slower. It is about the same (0.517 against
-  0.500 s).
+### Three explanations, tested (`depth/PLAN.md`, written before the runs)
 
-The cause of the lower parallelism at depth 1 remains open.
+- **H1, serialization by backpressure, supported.** In the order-preserving
+  repartition every input partition has its own channels, one per output,
+  behind a gate that closes once all of them hold data
+  (`repartition/distributor_channels.rs`). At depth 1 the merge in each
+  output can take rows from only one input at a time, because the two inputs'
+  current key ranges never overlap; the other input runs ahead by about one
+  batch per output and waits. The batch size sets how far it can run ahead:
+
+  | batch size | depth 1 | depth 2 | gap in cores |
+  |---|---|---|---|
+  | 2048 | 0.533 s, 1.45 cores | 0.425 s, 1.91 cores | 0.46 |
+  | 8192 (default) | 0.500 s, 1.55 cores | 0.432 s, 1.92 cores | 0.37 |
+  | 32768 | 0.422 s, 1.97 cores | 0.418 s, 2.01 cores | 0.04 |
+  | 131072 | 0.707 s, 2.13 cores | 0.752 s, 2.06 cores | -0.07 |
+
+  The gap falls as the batches grow and closes at 32768 rows; depth 2 barely
+  moves until the largest batch, where both slow down because the CPU work
+  doubles. Six runs per cell after a warm-up, interleaved; every run in
+  `depth/batch/`.
+- **H2, unequal groups, not supported as the cause.** The imbalance is real:
+  at depth 1 one group holds 60 percent of the rows (the generator gives the
+  even files three entities and the odd ones two), at depth 2 the split is
+  52/48. Its arithmetic even matches the observed ratio (0.60 against 0.52 of
+  the work, 1.16; 0.50 against 0.43 s, 1.16). But at 32768 rows depth 1
+  keeps the same imbalance and runs as fast as depth 2, so the imbalance does
+  not produce the gap. The decision criterion written in the plan, "the rows
+  per group differ more", was too weak: it checks that the imbalance exists,
+  not that it acts.
+- **H3, more and smaller batches, rejected.** The partial aggregate emits 106
+  batches and the repartition 74 at both depths, in all ten round-5 runs.
+
+One tension remains: with 120 files of about 5000 rows each, smaller than one
+batch, the waiting input should be able to run a whole file ahead, yet the
+gap in cores stayed (0.39). The 120-file depth-2 case had three groups instead
+of two, so that comparison is confounded; it was not pursued.
+
+What it means beyond this dataset: when the files of different ordered groups
+cover disjoint key ranges at the same time, the order-preserving repartition
+lets only one group advance at a time, and the parallelism of the scan is
+lost; the more the groups' ranges overlap in time, the less this matters.
+The default batch size of 8192 rows is in the range where the effect shows.
