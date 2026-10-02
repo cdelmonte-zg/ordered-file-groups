@@ -1,0 +1,6 @@
+   Compiling datafusion-catalog-listing v55.1.0 (/home/sp4/Workspace/datafusion-16919-rebuild/datafusion/catalog-listing)
+   Compiling datafusion v55.1.0 (/home/sp4/Workspace/datafusion-16919-rebuild/datafusion/core)
+   Compiling datafusion-spark v55.1.0 (/home/sp4/Workspace/datafusion-16919-rebuild/datafusion/spark)
+   Compiling datafusion-cli v55.1.0 (/home/sp4/Workspace/datafusion-16919-rebuild/datafusion-cli)
+    Finished `release` profile [optimized] target(s) in 7m 10s
+exit=0

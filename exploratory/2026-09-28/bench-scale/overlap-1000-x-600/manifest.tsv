@@ -1,0 +1,7 @@
+variant	run	exit_code	result
+original	1	0	ok
+accept-groups	1	0	ok
+accept-groups	2	0	ok
+original	2	0	ok
+original	3	0	ok
+accept-groups	3	0	ok

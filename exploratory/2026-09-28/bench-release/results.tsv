@@ -1,0 +1,13 @@
+dataset	variant	run	elapsed_seconds	file_groups
+repro_medium	original	1	0.848	2
+repro_medium	accept-groups	1	0.430	3
+repro_medium	accept-groups	2	0.450	3
+repro_medium	original	2	0.716	2
+repro_medium	original	3	0.738	2
+repro_medium	accept-groups	3	0.407	3
+repro_overlap_12_target_2	original	1	0.695	2
+repro_overlap_12_target_2	accept-groups	1	0.659	12
+repro_overlap_12_target_2	accept-groups	2	0.689	12
+repro_overlap_12_target_2	original	2	0.743	2
+repro_overlap_12_target_2	original	3	0.724	2
+repro_overlap_12_target_2	accept-groups	3	0.618	12

@@ -1,0 +1,201 @@
+dataset	target	variant	run	memory	result	scan_groups	sort_exec	ordering_mode	elapsed_seconds	wall_seconds	max_rss_mb	sort_spills	sort_spill_mb	final_agg_spills	final_agg_spill_mb	partial_agg_spills	partial_agg_spill_mb	repartition_spills	repartition_spill_mb	error
+partial-12-depth-1	2	original	1	128m	ok	2	0	PartiallySorted([0, 1])	0.524	0.53	358	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	1	128m	ok	2	0	PartiallySorted([0, 1])	0.518	0.52	351	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	2	128m	ok	2	0	PartiallySorted([0, 1])	0.510	0.52	351	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	2	128m	ok	2	0	PartiallySorted([0, 1])	0.533	0.54	328	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	3	128m	ok	2	0	PartiallySorted([0, 1])	0.527	0.53	318	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	3	128m	ok	2	0	PartiallySorted([0, 1])	0.499	0.51	312	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	4	128m	ok	2	0	PartiallySorted([0, 1])	0.500	0.51	314	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	4	128m	ok	2	0	PartiallySorted([0, 1])	0.519	0.52	348	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	5	128m	ok	2	0	PartiallySorted([0, 1])	0.539	0.54	335	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	5	128m	ok	2	0	PartiallySorted([0, 1])	0.479	0.49	310	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	6	128m	ok	2	0	PartiallySorted([0, 1])	0.518	0.53	314	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	6	128m	ok	2	0	PartiallySorted([0, 1])	0.502	0.51	349	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	7	128m	ok	2	0	PartiallySorted([0, 1])	0.481	0.49	296	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	7	128m	ok	2	0	PartiallySorted([0, 1])	0.488	0.49	322	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	8	128m	ok	2	0	PartiallySorted([0, 1])	0.503	0.51	324	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	8	128m	ok	2	0	PartiallySorted([0, 1])	0.494	0.50	340	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	9	128m	ok	2	0	PartiallySorted([0, 1])	0.527	0.53	358	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	9	128m	ok	2	0	PartiallySorted([0, 1])	0.492	0.50	317	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	accept-groups	10	128m	ok	2	0	PartiallySorted([0, 1])	0.492	0.50	307	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-1	2	original	10	128m	ok	2	0	PartiallySorted([0, 1])	0.530	0.54	326	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	1	128m	ok	2	0	PartiallySorted([0, 1])	0.486	0.49	334	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	1	128m	ok	2	0	PartiallySorted([0, 1])	0.476	0.48	335	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	2	128m	ok	2	0	PartiallySorted([0, 1])	0.472	0.48	304	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	2	128m	ok	2	0	PartiallySorted([0, 1])	0.457	0.46	328	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	3	128m	ok	2	0	PartiallySorted([0, 1])	0.451	0.46	302	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	3	128m	ok	2	0	PartiallySorted([0, 1])	0.459	0.47	311	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	4	128m	ok	2	0	PartiallySorted([0, 1])	0.434	0.44	316	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	4	128m	ok	2	0	PartiallySorted([0, 1])	0.397	0.40	334	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	5	128m	ok	2	0	PartiallySorted([0, 1])	0.438	0.44	342	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	5	128m	ok	2	0	PartiallySorted([0, 1])	0.454	0.46	312	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	6	128m	ok	2	0	PartiallySorted([0, 1])	0.450	0.46	313	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	6	128m	ok	2	0	PartiallySorted([0, 1])	0.441	0.45	342	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	7	128m	ok	2	0	PartiallySorted([0, 1])	0.475	0.48	329	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	7	128m	ok	2	0	PartiallySorted([0, 1])	0.456	0.46	343	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	8	128m	ok	2	0	PartiallySorted([0, 1])	0.403	0.41	306	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	8	128m	ok	2	0	PartiallySorted([0, 1])	0.503	0.51	326	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	9	128m	ok	2	0	PartiallySorted([0, 1])	0.454	0.46	334	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	9	128m	ok	2	0	PartiallySorted([0, 1])	0.473	0.48	314	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	accept-groups	10	128m	ok	2	0	PartiallySorted([0, 1])	0.478	0.48	344	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-2	2	original	10	128m	ok	2	0	PartiallySorted([0, 1])	0.466	0.47	316	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	1	128m	ok	2	1	Linear	0.657	0.66	444	13	77.7	24	157.1	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	1	128m	ok	3	0	PartiallySorted([0, 1])	0.392	0.40	389	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	2	128m	ok	3	0	PartiallySorted([0, 1])	0.388	0.39	384	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	2	128m	ok	2	1	Linear	0.704	0.71	466	13	77.7	24	157.1	0	0.0	0	0.0	
+partial-12-depth-3	2	original	3	128m	ok	2	1	Linear	0.716	0.72	429	13	77.7	26	178.4	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	3	128m	ok	3	0	PartiallySorted([0, 1])	0.409	0.42	363	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	4	128m	ok	3	0	PartiallySorted([0, 1])	0.392	0.40	344	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	4	128m	ok	2	1	Linear	0.710	0.72	459	13	77.7	24	157.1	0	0.0	0	0.0	
+partial-12-depth-3	2	original	5	128m	ok	2	1	Linear	0.700	0.71	457	13	77.7	24	157.1	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	5	128m	ok	3	0	PartiallySorted([0, 1])	0.440	0.45	379	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	6	128m	ok	3	0	PartiallySorted([0, 1])	0.398	0.40	337	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	6	128m	ok	2	1	Linear	0.711	0.72	432	13	77.7	24	157.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	7	128m	ok	2	1	Linear	0.704	0.71	452	13	77.7	24	157.0	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	7	128m	ok	3	0	PartiallySorted([0, 1])	0.420	0.43	365	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	8	128m	ok	3	0	PartiallySorted([0, 1])	0.375	0.38	362	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	8	128m	ok	2	1	Linear	0.650	0.66	397	14	77.7	24	157.1	0	0.0	0	0.0	
+partial-12-depth-3	2	original	9	128m	ok	2	1	Linear	0.724	0.73	435	13	77.7	26	179.3	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	9	128m	ok	3	0	PartiallySorted([0, 1])	0.393	0.40	359	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	accept-groups	10	128m	ok	3	0	PartiallySorted([0, 1])	0.430	0.44	348	0	0.0	0	0.0	0	0.0	0	0.0	
+partial-12-depth-3	2	original	10	128m	ok	2	1	Linear	0.704	0.71	434	13	77.7	25	179.0	0	0.0	0	0.0	
+partial-12-depth-4	2	original	1	128m	ok	2	1	Linear	0.713	0.72	441	13	77.7	25	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	accept-groups	1	128m	ok	4	0	PartiallySorted([0, 1])	0.403	0.41	387	0	0.0	0	0.0	0	0.0	7	5.8	
+partial-12-depth-4	2	accept-groups	2	128m	ok	4	0	PartiallySorted([0, 1])	0.395	0.40	445	0	0.0	0	0.0	0	0.0	6	4.8	
+partial-12-depth-4	2	original	2	128m	ok	2	1	Linear	0.626	0.63	408	13	77.7	24	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	original	3	128m	ok	2	1	Linear	0.681	0.69	432	14	77.7	24	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	accept-groups	3	128m	ok	4	0	PartiallySorted([0, 1])	0.398	0.40	417	0	0.0	0	0.0	0	0.0	6	3.9	
+partial-12-depth-4	2	accept-groups	4	128m	ok	4	0	PartiallySorted([0, 1])	0.408	0.41	415	0	0.0	0	0.0	0	0.0	5	3.8	
+partial-12-depth-4	2	original	4	128m	ok	2	1	Linear	0.649	0.66	467	13	77.7	26	179.2	0	0.0	0	0.0	
+partial-12-depth-4	2	original	5	128m	ok	2	1	Linear	0.685	0.69	423	13	77.7	24	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	accept-groups	5	128m	ok	4	0	PartiallySorted([0, 1])	0.418	0.42	416	0	0.0	0	0.0	0	0.0	7	5.2	
+partial-12-depth-4	2	accept-groups	6	128m	ok	4	0	PartiallySorted([0, 1])	0.382	0.39	406	0	0.0	0	0.0	0	0.0	5	2.9	
+partial-12-depth-4	2	original	6	128m	ok	2	1	Linear	0.711	0.72	418	14	77.7	25	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	original	7	128m	ok	2	1	Linear	0.649	0.65	453	13	77.7	24	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	accept-groups	7	128m	ok	4	0	PartiallySorted([0, 1])	0.384	0.39	412	0	0.0	0	0.0	0	0.0	5	3.3	
+partial-12-depth-4	2	accept-groups	8	128m	ok	4	0	PartiallySorted([0, 1])	0.420	0.43	406	0	0.0	0	0.0	0	0.0	6	3.2	
+partial-12-depth-4	2	original	8	128m	ok	2	1	Linear	0.704	0.71	435	13	77.7	26	178.3	0	0.0	0	0.0	
+partial-12-depth-4	2	original	9	128m	ok	2	1	Linear	0.651	0.66	452	14	77.7	24	157.4	0	0.0	0	0.0	
+partial-12-depth-4	2	accept-groups	9	128m	ok	4	0	PartiallySorted([0, 1])	0.372	0.38	434	0	0.0	0	0.0	0	0.0	5	3.4	
+partial-12-depth-4	2	accept-groups	10	128m	ok	4	0	PartiallySorted([0, 1])	0.383	0.39	393	0	0.0	0	0.0	0	0.0	6	2.7	
+partial-12-depth-4	2	original	10	128m	ok	2	1	Linear	0.636	0.64	454	13	77.7	24	157.4	0	0.0	0	0.0	
+partial-12-depth-6	2	original	1	128m	ok	2	1	Linear	0.654	0.66	449	13	77.7	25	180.5	0	0.0	0	0.0	
+partial-12-depth-6	2	accept-groups	1	128m	ok	6	0	PartiallySorted([0, 1])	0.633	0.64	513	0	0.0	20	90.9	0	0.0	12	21.3	
+partial-12-depth-6	2	accept-groups	2	128m	ok	6	0	PartiallySorted([0, 1])	0.568	0.57	488	0	0.0	11	54.0	0	0.0	10	29.6	
+partial-12-depth-6	2	original	2	128m	ok	2	1	Linear	0.730	0.74	398	13	77.7	26	182.7	0	0.0	0	0.0	
+partial-12-depth-6	2	original	3	128m	ok	2	1	Linear	0.670	0.68	455	14	77.7	26	157.7	0	0.0	0	0.0	
+partial-12-depth-6	2	accept-groups	3	128m	ok	6	0	PartiallySorted([0, 1])	0.620	0.63	492	0	0.0	11	54.0	0	0.0	10	29.6	
+partial-12-depth-6	2	accept-groups	4	128m	ok	6	0	PartiallySorted([0, 1])	0.614	0.62	458	0	0.0	11	54.0	0	0.0	9	28.6	
+partial-12-depth-6	2	original	4	128m	ok	2	1	Linear	0.713	0.72	462	14	77.7	25	157.6	0	0.0	0	0.0	
+partial-12-depth-6	2	original	5	128m	ok	2	1	Linear	0.739	0.75	440	13	77.7	24	157.7	0	0.0	0	0.0	
+partial-12-depth-6	2	accept-groups	5	128m	ok	6	0	PartiallySorted([0, 1])	0.576	0.58	478	0	0.0	11	54.0	0	0.0	10	29.6	
+partial-12-depth-6	2	accept-groups	6	128m	ok	6	0	PartiallySorted([0, 1])	0.616	0.62	471	0	0.0	11	54.0	0	0.0	10	29.6	
+partial-12-depth-6	2	original	6	128m	ok	2	1	Linear	0.698	0.70	430	14	77.7	25	179.4	0	0.0	0	0.0	
+partial-12-depth-6	2	original	7	128m	ok	2	1	Linear	0.688	0.69	463	14	77.7	24	157.6	0	0.0	0	0.0	
+partial-12-depth-6	2	accept-groups	7	128m	ok	6	0	PartiallySorted([0, 1])	0.587	0.59	460	0	0.0	20	90.9	0	0.0	12	22.6	
+partial-12-depth-6	2	accept-groups	8	128m	ok	6	0	PartiallySorted([0, 1])	0.607	0.61	476	0	0.0	11	54.0	0	0.0	10	30.0	
+partial-12-depth-6	2	original	8	128m	ok	2	1	Linear	0.754	0.76	441	13	77.7	24	157.6	0	0.0	0	0.0	
+partial-12-depth-6	2	original	9	128m	ok	2	1	Linear	0.711	0.72	448	14	77.7	26	166.2	0	0.0	0	0.0	
+partial-12-depth-6	2	accept-groups	9	128m	ok	6	0	PartiallySorted([0, 1])	0.609	0.62	461	0	0.0	11	55.1	0	0.0	9	27.8	
+partial-12-depth-6	2	accept-groups	10	128m	ok	6	0	PartiallySorted([0, 1])	0.625	0.63	468	0	0.0	11	54.0	0	0.0	10	29.6	
+partial-12-depth-6	2	original	10	128m	ok	2	1	Linear	0.698	0.70	466	14	77.7	24	157.6	0	0.0	0	0.0	
+partial-12-depth-12	2	original	1	128m	ok	2	1	Linear	0.708	0.71	430	14	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	accept-groups	1	128m	ok	12	0	PartiallySorted([0, 1])	0.658	0.67	668	0	0.0	35	131.8	0	0.0	23	43.0	
+partial-12-depth-12	2	accept-groups	2	128m	ok	12	0	PartiallySorted([0, 1])	0.658	0.67	633	0	0.0	34	143.6	0	0.0	22	37.3	
+partial-12-depth-12	2	original	2	128m	ok	2	1	Linear	0.676	0.68	429	13	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	original	3	128m	ok	2	1	Linear	0.767	0.77	436	13	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	accept-groups	3	128m	ok	12	0	PartiallySorted([0, 1])	0.661	0.67	596	0	0.0	34	140.4	0	0.0	23	45.7	
+partial-12-depth-12	2	accept-groups	4	128m	ok	12	0	PartiallySorted([0, 1])	0.660	0.67	647	0	0.0	34	138.2	0	0.0	23	41.3	
+partial-12-depth-12	2	original	4	128m	ok	2	1	Linear	0.727	0.73	446	13	77.7	25	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	original	5	128m	ok	2	1	Linear	0.718	0.72	478	13	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	accept-groups	5	128m	ok	12	0	PartiallySorted([0, 1])	0.671	0.68	604	0	0.0	34	143.6	0	0.0	24	45.6	
+partial-12-depth-12	2	accept-groups	6	128m	ok	12	0	PartiallySorted([0, 1])	0.653	0.66	651	0	0.0	34	138.2	0	0.0	23	40.5	
+partial-12-depth-12	2	original	6	128m	ok	2	1	Linear	0.719	0.72	393	13	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	original	7	128m	ok	2	1	Linear	0.683	0.69	439	13	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	accept-groups	7	128m	ok	12	0	PartiallySorted([0, 1])	0.716	0.72	650	0	0.0	35	136.1	0	0.0	22	45.1	
+partial-12-depth-12	2	accept-groups	8	128m	ok	12	0	PartiallySorted([0, 1])	0.688	0.70	634	0	0.0	35	146.3	0	0.0	23	35.5	
+partial-12-depth-12	2	original	8	128m	ok	2	1	Linear	0.696	0.70	420	14	77.7	26	179.4	0	0.0	0	0.0	
+partial-12-depth-12	2	original	9	128m	ok	2	1	Linear	0.688	0.69	449	13	77.7	24	157.8	0	0.0	0	0.0	
+partial-12-depth-12	2	accept-groups	9	128m	ok	12	0	PartiallySorted([0, 1])	0.687	0.69	622	0	0.0	34	138.2	0	0.0	22	47.6	
+partial-12-depth-12	2	accept-groups	10	128m	ok	12	0	PartiallySorted([0, 1])	0.668	0.67	648	0	0.0	35	136.1	0	0.0	24	44.0	
+partial-12-depth-12	2	original	10	128m	ok	2	1	Linear	0.716	0.72	453	14	77.7	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	original	1	128m	ok	2	1	Linear	0.774	0.78	415	16	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	accept-groups	1	128m	ok	3	0	PartiallySorted([0, 1])	0.384	0.39	359	0	0.0	0	0.0	0	0.0	4	2.7	
+sorted-medium-3	2	accept-groups	2	128m	ok	3	0	PartiallySorted([0, 1])	0.401	0.41	333	0	0.0	0	0.0	0	0.0	3	1.1	
+sorted-medium-3	2	original	2	128m	ok	2	1	Linear	0.736	0.74	429	16	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	original	3	128m	ok	2	1	Linear	0.771	0.78	412	15	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	accept-groups	3	128m	ok	3	0	PartiallySorted([0, 1])	0.445	0.45	332	0	0.0	0	0.0	0	0.0	5	2.8	
+sorted-medium-3	2	accept-groups	4	128m	ok	3	0	PartiallySorted([0, 1])	0.445	0.45	346	0	0.0	0	0.0	0	0.0	4	1.7	
+sorted-medium-3	2	original	4	128m	ok	2	1	Linear	0.734	0.74	414	15	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	original	5	128m	ok	2	1	Linear	0.764	0.77	401	15	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	accept-groups	5	128m	ok	3	0	PartiallySorted([0, 1])	0.376	0.38	340	0	0.0	0	0.0	0	0.0	2	2.1	
+sorted-medium-3	2	accept-groups	6	128m	ok	3	0	PartiallySorted([0, 1])	0.389	0.39	344	0	0.0	0	0.0	0	0.0	5	3.3	
+sorted-medium-3	2	original	6	128m	ok	2	1	Linear	0.680	0.68	376	15	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	original	7	128m	ok	2	1	Linear	0.701	0.71	401	15	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	accept-groups	7	128m	ok	3	0	PartiallySorted([0, 1])	0.421	0.43	370	0	0.0	0	0.0	0	0.0	4	3.2	
+sorted-medium-3	2	accept-groups	8	128m	ok	3	0	PartiallySorted([0, 1])	0.381	0.39	341	0	0.0	0	0.0	0	0.0	3	1.6	
+sorted-medium-3	2	original	8	128m	ok	2	1	Linear	0.697	0.70	419	15	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	original	9	128m	ok	2	1	Linear	0.800	0.81	391	14	78.6	24	157.8	0	0.0	0	0.0	
+sorted-medium-3	2	accept-groups	9	128m	ok	3	0	PartiallySorted([0, 1])	0.411	0.42	375	0	0.0	0	0.0	0	0.0	4	2.7	
+sorted-medium-3	2	accept-groups	10	128m	ok	3	0	PartiallySorted([0, 1])	0.399	0.40	333	0	0.0	0	0.0	0	0.0	2	2.1	
+sorted-medium-3	2	original	10	128m	ok	2	1	Linear	0.758	0.76	429	15	78.6	24	157.8	0	0.0	0	0.0	
+overlap-medium-12	2	original	1	128m	ok	2	1	Linear	0.701	0.71	439	15	78.5	24	157.6	0	0.0	0	0.0	
+overlap-medium-12	2	accept-groups	1	128m	ok	12	0	PartiallySorted([0, 1])	0.663	0.67	634	0	0.0	40	137.3	0	0.0	24	54.7	
+overlap-medium-12	2	accept-groups	2	128m	ok	12	0	PartiallySorted([0, 1])	0.647	0.65	589	0	0.0	40	137.3	0	0.0	24	59.2	
+overlap-medium-12	2	original	2	128m	ok	2	1	Linear	0.793	0.80	441	15	78.5	27	179.4	0	0.0	0	0.0	
+overlap-medium-12	2	original	3	128m	ok	2	1	Linear	0.683	0.69	442	15	78.5	24	157.6	0	0.0	0	0.0	
+overlap-medium-12	2	accept-groups	3	128m	ok	12	0	PartiallySorted([0, 1])	0.642	0.65	608	0	0.0	40	137.3	0	0.0	24	60.8	
+overlap-medium-12	2	accept-groups	4	128m	ok	12	0	PartiallySorted([0, 1])	0.662	0.67	624	0	0.0	40	137.3	0	0.0	24	61.3	
+overlap-medium-12	2	original	4	128m	ok	2	1	Linear	0.686	0.69	462	15	78.5	24	157.6	0	0.0	0	0.0	
+overlap-medium-12	2	original	5	128m	ok	2	1	Linear	0.712	0.72	427	15	78.5	24	157.6	0	0.0	0	0.0	
+overlap-medium-12	2	accept-groups	5	128m	ok	12	0	PartiallySorted([0, 1])	0.647	0.65	609	0	0.0	40	137.3	0	0.0	24	53.7	
+overlap-medium-12	2	accept-groups	6	128m	ok	12	0	PartiallySorted([0, 1])	0.630	0.64	676	0	0.0	40	137.3	0	0.0	24	56.5	
+overlap-medium-12	2	original	6	128m	ok	2	1	Linear	0.686	0.69	442	15	78.5	24	157.6	0	0.0	0	0.0	
+overlap-medium-12	2	original	7	128m	ok	2	1	Linear	0.718	0.72	463	16	78.5	26	179.4	0	0.0	0	0.0	
+overlap-medium-12	2	accept-groups	7	128m	ok	12	0	PartiallySorted([0, 1])	0.626	0.63	623	0	0.0	40	137.3	0	0.0	24	59.2	
+overlap-medium-12	2	accept-groups	8	128m	ok	12	0	PartiallySorted([0, 1])	0.630	0.64	629	0	0.0	40	137.3	0	0.0	24	55.0	
+overlap-medium-12	2	original	8	128m	ok	2	1	Linear	0.695	0.70	429	15	78.5	27	180.0	0	0.0	0	0.0	
+overlap-medium-12	2	original	9	128m	ok	2	1	Linear	0.666	0.67	421	16	78.5	24	157.6	0	0.0	0	0.0	
+overlap-medium-12	2	accept-groups	9	128m	ok	12	0	PartiallySorted([0, 1])	0.635	0.64	680	0	0.0	40	137.3	0	0.0	24	57.3	
+overlap-medium-12	2	accept-groups	10	128m	ok	12	0	PartiallySorted([0, 1])	0.633	0.64	604	0	0.0	40	137.3	0	0.0	24	57.9	
+overlap-medium-12	2	original	10	128m	ok	2	1	Linear	0.677	0.68	450	15	78.5	24	157.6	0	0.0	0	0.0	
+sorted-15-target10	10	original	1	128m	failed		0		0.002	0.22	606	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[7] with top memory consumers (across reservations) as:
+sorted-15-target10	10	accept-groups	1	128m	ok	15	0	PartiallySorted([0, 1])	0.352	0.36	946	0	0.0	123	220.2	0	0.0	150	67.9	
+sorted-15-target10	10	accept-groups	2	128m	ok	15	0	PartiallySorted([0, 1])	0.337	0.35	880	0	0.0	109	197.5	0	0.0	150	70.3	
+sorted-15-target10	10	original	2	128m	failed		0		0.003	0.24	671	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[3] with top memory consumers (across reservations) as:
+sorted-15-target10	10	original	3	128m	failed		0		0.003	0.23	674	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[2] with top memory consumers (across reservations) as:
+sorted-15-target10	10	accept-groups	3	128m	ok	15	0	PartiallySorted([0, 1])	0.340	0.35	872	0	0.0	119	214.8	0	0.0	150	67.3	
+sorted-15-target10	10	accept-groups	4	128m	ok	15	0	PartiallySorted([0, 1])	0.378	0.39	892	0	0.0	125	218.1	0	0.0	150	68.8	
+sorted-15-target10	10	original	4	128m	failed		0		0.003	0.23	612	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:
+sorted-15-target10	10	original	5	128m	failed		0		0.002	0.25	620	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[3] with top memory consumers (across reservations) as:
+sorted-15-target10	10	accept-groups	5	128m	ok	15	0	PartiallySorted([0, 1])	0.347	0.36	927	0	0.0	123	221.3	0	0.0	150	66.5	
+sorted-15-target10	10	accept-groups	6	128m	failed		0		0.002	0.33	889	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+sorted-15-target10	10	original	6	128m	failed		0		0.003	0.23	611	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[3] with top memory consumers (across reservations) as:
+sorted-15-target10	10	original	7	128m	failed		0		0.003	0.22	625	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[7] with top memory consumers (across reservations) as:
+sorted-15-target10	10	accept-groups	7	128m	ok	15	0	PartiallySorted([0, 1])	0.345	0.35	907	0	0.0	119	215.9	0	0.0	150	68.2	
+sorted-15-target10	10	accept-groups	8	128m	ok	15	0	PartiallySorted([0, 1])	0.349	0.36	922	0	0.0	119	212.7	0	0.0	150	67.8	
+sorted-15-target10	10	original	8	128m	failed		0		0.003	0.24	656	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[5] with top memory consumers (across reservations) as:
+sorted-15-target10	10	original	9	128m	failed		0		0.002	0.23	603	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[0] with top memory consumers (across reservations) as:
+sorted-15-target10	10	accept-groups	9	128m	ok	15	0	PartiallySorted([0, 1])	0.341	0.35	930	0	0.0	122	215.9	0	0.0	150	68.5	
+sorted-15-target10	10	accept-groups	10	128m	ok	15	0	PartiallySorted([0, 1])	0.385	0.39	926	0	0.0	120	212.7	0	0.0	150	66.0	
+sorted-15-target10	10	original	10	128m	failed		0		0.003	0.24	599	0	0.0	0	0.0	0	0.0	0	0.0	Resources exhausted: Additional allocation failed for FinalHashAggregateStream[5] with top memory consumers (across reservations) as:
+overlap-1000-x-600	2	original	1	128m	ok	2	1	Linear	0.788	0.83	538	15	79.0	25	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	accept-groups	1	128m	ok	1000	0	PartiallySorted([0, 1])	0.818	0.87	1741	0	0.0	82	154.1	0	0.0	1	79.5	
+overlap-1000-x-600	2	accept-groups	2	128m	ok	1000	0	PartiallySorted([0, 1])	0.829	0.88	1809	0	0.0	83	155.1	0	0.0	1	80.5	
+overlap-1000-x-600	2	original	2	128m	ok	2	1	Linear	0.731	0.77	490	16	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	original	3	128m	ok	2	1	Linear	0.764	0.80	550	16	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	accept-groups	3	128m	ok	1000	0	PartiallySorted([0, 1])	0.825	0.87	1503	0	0.0	83	155.1	0	0.0	1	79.4	
+overlap-1000-x-600	2	accept-groups	4	128m	ok	1000	0	PartiallySorted([0, 1])	0.812	0.85	1262	0	0.0	82	155.1	0	0.0	1	80.5	
+overlap-1000-x-600	2	original	4	128m	ok	2	1	Linear	0.735	0.77	492	15	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	original	5	128m	ok	2	1	Linear	0.770	0.81	513	15	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	accept-groups	5	128m	ok	1000	0	PartiallySorted([0, 1])	0.815	0.86	1954	0	0.0	82	155.1	0	0.0	1	79.9	
+overlap-1000-x-600	2	accept-groups	6	128m	ok	1000	0	PartiallySorted([0, 1])	0.818	0.87	1665	0	0.0	82	155.1	0	0.0	1	80.6	
+overlap-1000-x-600	2	original	6	128m	ok	2	1	Linear	0.756	0.79	503	15	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	original	7	128m	ok	2	1	Linear	0.734	0.77	523	15	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	accept-groups	7	128m	ok	1000	0	PartiallySorted([0, 1])	0.834	0.88	1736	0	0.0	82	155.1	0	0.0	1	80.5	
+overlap-1000-x-600	2	accept-groups	8	128m	ok	1000	0	PartiallySorted([0, 1])	0.823	0.87	1560	0	0.0	82	155.1	0	0.0	1	78.6	
+overlap-1000-x-600	2	original	8	128m	ok	2	1	Linear	0.727	0.76	516	16	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	original	9	128m	ok	2	1	Linear	0.739	0.77	494	16	79.0	24	158.6	0	0.0	0	0.0	
+overlap-1000-x-600	2	accept-groups	9	128m	ok	1000	0	PartiallySorted([0, 1])	0.854	0.90	1982	0	0.0	83	155.1	0	0.0	1	80.3	
+overlap-1000-x-600	2	accept-groups	10	128m	ok	1000	0	PartiallySorted([0, 1])	0.850	0.90	1840	0	0.0	84	177.5	0	0.0	1	80.4	
+overlap-1000-x-600	2	original	10	128m	ok	2	1	Linear	0.728	0.76	544	16	79.0	24	158.6	0	0.0	0	0.0	
