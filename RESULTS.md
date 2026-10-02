@@ -75,6 +75,9 @@ number of rows with half of them copies.
 | df-16919-partial-120-depth-4-entity-rank | 120 | 4 | entity-rank | S1 | 600000 | 599976 | 24 | 4 | 8,640,157 | 120 |
 | df-16919-partial-1200-depth-1200-rank | 1200 | 1200 | rank | S1 | 600000 | 599976 | 24 | 1196 | 12,792,661 | 1200 |
 | df-16919-partial-1200-depth-4-entity-rank | 1200 | 4 | entity-rank | S1 | 600000 | 599976 | 24 | 5 | 11,614,838 | 1200 |
+| df-16919-partial-150-depth-150-rank | 150 | 150 | rank | S1 | 600000 | 599976 | 24 | 150 | 9,493,636 | 150 |
+| df-16919-partial-300-depth-300-rank | 300 | 300 | rank | S1 | 600000 | 599976 | 24 | 300 | 9,963,558 | 300 |
+| df-16919-partial-600-depth-600-rank | 600 | 600 | rank | S1 | 600000 | 599976 | 24 | 599 | 10,898,662 | 600 |
 
 ## Plans, checked before timing
 
@@ -194,9 +197,9 @@ Base data and query at 128 and 512 MB (256 MB is the base case).
 | A3 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.373 [0.362..0.381] | 359.0 | 0 | 0 | 0 | 0 |
 | A3 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.297 [0.295..0.302] | 418.0 | 0 | 0 | 0 | 0 |
 
-### A4 and A4 x A3: the width of the rows
+### A4 and A4 x A3: the width of the strings
 
-Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base case and A3.
+Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base case and A3. The follow-up attributes the effect to the string-view representation, not to the width as such (observation 5).
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition | scan out MB | partial out MB | repartition out MB | final out MB |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -334,9 +337,17 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
    at the price of more RSS; it keeps that edge on S2 at 128 MB even while
    spilling in the final aggregate (0.478 against 0.641 s). It loses it in two
    cases: the base data at 128 MB (0.382 against 0.367 s) and twelve groups
-   (0.362 against 0.354 s), both with spills in the final aggregate.
-9. Not explained, as in the earlier rounds: depth 1 is slower than depth 2 with
-   the same plan (0.506 against 0.433 s).
+   (0.362 against 0.354 s), both with spills in the final aggregate. With
+   many ordered streams it costs more memory, not less: in the follow-up, at
+   1196 inputs, going from 2 to 8 output partitions raises the RSS from about
+   1.8 to 3.5 GB.
+9. Depth 1 is slower than depth 2 with the same plan (0.506 against
+   0.433 s). Not explained in the round; the follow-up
+   (`experiments/open-questions/depth/`) traces it to backpressure in the
+   order-preserving repartition: at depth 1 the two groups read disjoint key
+   ranges at every moment, the merge downstream can consume one at a time,
+   and the other stops after about one batch per output. With batches of
+   32768 rows instead of 8192 the gap closes (0.422 against 0.418 s).
 
 ## Hypotheses
 
@@ -369,7 +380,11 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
   imperfect; what holds is that the gap between the variants stays. Intended
   total overlap: 1196 groups lose at 128 MB and win at 256 and 512 MB, with
   about 2 GB of RSS throughout; the distinction between a few streams and
-  about 1200 is the result that stands.
+  about 1200 is the result that stands. The follow-up
+  (`experiments/open-questions/many-streams/`) decomposes that memory: about
+  0.38 MB per open stream in the scan and about 0.24 MB per pair of input and
+  output partition in the order-preserving repartition; allocator retention
+  is ruled out.
 - **H6, measured.** The ordered plan profits more from the duplicates than the
   hash plan: its time falls by 48 percent, the original's by 38.
 - **H7, supported.** `original-target` has the operator kinds of `accept-groups`
@@ -380,11 +395,10 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
 
 ## Not measured
 
-- What the RSS of the many-group plans is made of (about 2 GB with 1196
-  groups at every pool size).
-- Which allocations push the final aggregate of the ordered plan into spilling
-  at 128 MB with shape S2, and not with S0 or S1; the spill counts and bytes
-  are measured, the cause is not attributed.
+- What the order-preserving repartition holds for each pair of input and
+  output partition, and about 0.2 GB of the many-stream RSS that neither the
+  scan nor the repartition accounts for; the partial aggregates were not
+  isolated (`experiments/open-questions/README.md`, section 2).
 - What `output_bytes` measures beyond its definition (the cumulative bytes of
   the batches an operator emitted, as Arrow accounts for their buffers): it is
   not peak resident memory and not necessarily unique bytes, and in the
@@ -397,7 +411,6 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
   separated.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
-- Why depth 1 is slower than depth 2 with the same plan.
 - Q2 at a size where the hash aggregate would spill; here it does not.
 - The open-file limit was not repeated in round 5; the round-4 result stands
   (`results/round-4/fd-limit/`).

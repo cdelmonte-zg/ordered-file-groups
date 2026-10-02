@@ -53,6 +53,15 @@ fastest variant in most cases and the most memory-hungry; it falls behind on
 the base data at 128 MB and at twelve groups, and stays ahead on the wide
 strings at 128 MB even while spilling.
 
+A follow-up after the round (`experiments/open-questions/`) explains the
+three points the round left open, and they share one operator: the
+order-preserving repartition. It holds memory for every pair of input and
+output partition (about 0.24 MB per pair, on top of about 0.38 MB per open
+stream in the scan); it serializes ordered groups that read disjoint key
+ranges at the same moment, which is why depth 1 is slower than depth 2; and it
+counts shared string-view buffers once per fragment, which is the wide-string
+result above.
+
 None of this is an argument for removing the check unconditionally. It is
 evidence for choosing the number of ordered groups from the overlap, the
 memory budget and the expected cost per stream, which the engine today
@@ -85,7 +94,9 @@ as the memory accounting it relies on.
   and min/max of the sort key, the distinct grouping keys, the duplicate
   share and the groups the statistics produce.
 - `experiments/`: two one-variable tests of 2026-10-02 (prefix cardinality,
-  string width) that led to axis A4.
+  string width) that led to axis A4, and `experiments/open-questions/`, the
+  follow-up on the three points round 5 left open, with its own plans
+  written before the runs.
 - `exploratory/2026-09-28/`: the first runs and single plans, superseded;
   see the README there.
 
