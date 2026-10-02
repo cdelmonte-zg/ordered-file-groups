@@ -96,11 +96,12 @@ not by itself decide whether the ordered plan spills. What decides is how the
 engine accounts the memory of its string representation, and that is a
 property of this version of DataFusion, not of the data.
 
-## 2. The memory of the many-stream plan (partly explained)
+## 2. The memory of the many-stream plan (mostly explained)
 
-Round 5: with 1196 ordered groups the process uses about 2 GB at every pool
-size, against about 0.6 GB without order. Tests (`many-streams/`), 3 runs
-each, 256 MB, ordered plan unless stated:
+Round 5: with about 1200 ordered streams the deduplication query uses about
+2 GB of process RSS, against about 0.6 GB for the original plan.
+
+### First probes (`many-streams/`, 3 runs each, 256 MB, ordered plan)
 
 | variant | process RSS (MB) | elapsed (s) |
 |---|---|---|
@@ -110,14 +111,76 @@ each, 256 MB, ordered plan unless stated:
 | `ORDER BY` only, 1196 streams into the final merge | 784, 855, 824 | 0.22 |
 | `ORDER BY` only, original plan (2 groups and a sort) | 346, 368, 349 | 0.22 |
 
-The RSS is noisy, but neither the string representation nor the batch size
-moves it: the memory is not data in transit. Without repartition and
-aggregates, 1196 open streams cost about 0.45 GB over the original. With the
-deduplication the excess is about 1.4 GB, so most of it appears above the
-scan, where the plan has one partial aggregate per stream (1196 of them) and
-an order-preserving repartition whose two outputs each merge 1196 inputs.
-Which of these holds the memory was not attributed: there is no heap profiler
-on this machine.
+Neither the string representation nor the batch size moves the RSS. Without
+repartition and aggregates the excess is about 0.45 GB; with the
+deduplication about 1.4 GB.
+
+### Four explanations, tested (`many-streams/PLAN.md`, written before the runs)
+
+S, the scan holds a fixed amount per open stream; P, one partial aggregate per
+stream; R, the order-preserving repartition holds memory per pair of input and
+output partition; A, the allocator keeps freed memory. Datasets of 150, 300,
+600 and 1200 files with total overlap, the same 600,000 rows; five runs per
+ordered configuration and three per original baseline, interleaved; peak RSS
+from `/usr/bin/time`, peak commit from mimalloc's statistics. Raw runs in
+`results.tsv`, analysis in `analyze.py` and `analysis.txt`. No run failed.
+
+**E1, excess RSS over the original plan regressed on the number of ordered
+groups** (20 runs per query; 95 percent interval on the slope):
+
+| query | columns read | slope per stream | 95 % interval | R² |
+|---|---|---|---|---|
+| Q1, `ORDER BY` only | 8 | 383 KB | 330 to 437 KB | 0.93 |
+| Q2, `GROUP BY col_1, col_2` | 3 | -15 KB | -63 to 34 KB | 0.02 |
+| Q3, deduplication | 8 | 973 KB | 767 to 1179 KB | 0.85 |
+
+**E2, Q3 at 1200 files, number of output partitions:**
+
+| outputs | median RSS (MB) | runs (MB) | median peak commit (MB) |
+|---|---|---|---|
+| 2 | 1843 | 1755 to 2173 | 2458 |
+| 4 | 2451 | 2217 to 2458 | 3277 |
+| 8 | 3540 | 3459 to 3626 | 3994 |
+
+**E3, 1200 files, mimalloc purge delay:**
+
+| query | purge delay | median RSS (MB) | median peak commit (MB) |
+|---|---|---|---|
+| Q1 | default | 811 | 586 |
+| Q1 | 0 | 743 | 580 |
+| Q3 | default | 1843 | 2458 |
+| Q3 | 0 | 1952 | 3072 |
+
+Verdicts:
+
+- **S, supported.** With the `ORDER BY`-only query the excess grows by about
+  0.38 MB per open stream, linearly (R² 0.93, intercept about 17 MB): about
+  0.45 GB at 1196 streams.
+- **R, supported, and the largest part.** At a fixed 1196 inputs, going from 2
+  to 8 outputs adds about 1.7 GB, roughly 0.24 MB for each additional pair of
+  input and output partition; at 2 outputs that is about 0.57 GB. Raising the
+  outputs also adds final aggregates and merges, but their number grows with
+  the outputs only, while the measured increase matches the number of pairs.
+- **P, not decided.** The test planned for it does not isolate it: Q2 reads 3
+  columns instead of 8, so it differs from Q3 in the scan as well as in the
+  aggregate state. Its flat slope suggests that the per-stream scan cost
+  depends on the columns read (inference). After S and R, about 0.2 GB of the
+  1.2 GB excess of Q3 at 1196 streams remains unattributed; that is the most
+  the partial aggregates can account for.
+- **A, not supported as a major part.** Eager purging lowers the RSS of Q1 by
+  about 70 MB and does not lower that of Q3; the peak commit does not fall.
+  The run-to-run spread of Q3 is bimodal in both RSS and peak commit (commit
+  2355 or 3072 MB), which points at the allocator's commit steps rather than
+  at the plan; not investigated further.
+
+In short, of the roughly 1.2 GB that 1196 ordered streams add to the
+deduplication query: about 0.45 GB are the open streams of the scan, about
+0.57 GB the order-preserving repartition with its channel pairs, and about
+0.2 GB remain unattributed. The repartition's share grows with streams times
+outputs, so raising `target_partitions` makes the many-stream plan more
+expensive in memory, not cheaper. What exactly the repartition holds per pair
+(a buffered batch per channel, the merge cursors, the spill pools) was not
+traced in the code.
 
 ## 3. Why depth 1 is slower than depth 2 (not explained)
 
