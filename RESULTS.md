@@ -7,7 +7,7 @@ scenario, are reported in `results/round-4/REPORT.md`.
 Keeping file order can remove a sort and help some ordered aggregations, but
 accepting extra ordered groups is not beneficial in every case. It trades
 sorting for merging, buffering, spills, memory and open streams. The
-binaries are the same verified files as in rounds 3 and 4 (see Provenance).
+binaries are the same files as in rounds 3 and 4, by SHA-256 (see Provenance).
 
 ## Provenance
 
@@ -39,7 +39,8 @@ index 3ff86662f..c9c952c08 100644
 ```
 
 - SHA-256 of the binaries (`results/round-4/binaries.sha256`, the same files as
-  in rounds 3 and 4, verified with `sha256sum -c` before the run):
+  in rounds 3 and 4; no `sha256sum -c` was recorded before this round, the
+  hashes in `results/round-5/machine.txt`, written after the round, match):
 
 ```
 6542a3b7fb3d8a1cf8285fc4366fe89781f48f84b88ba14019a656d48cf3bf2c  bin/datafusion-cli-accept-groups-release
@@ -284,12 +285,18 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
    pre-run expectation was that Q4 would produce different scan groupings,
    four ordered groups of whole files against two byte-range groups. The plan
    check shows two byte-range groups in both binaries, with the same
-   operators; only the assignment of the files differs (by name in the
-   original, in the order of the statistics groups in `accept-groups`, a
-   different file split between the two partitions). The times are the same,
-   0.018 s, so no difference is attributed to the scan for this query. Only
-   `original-target`, with four groups, differs, by 1 ms and 64 MB of RSS.
-3. A2. At depth 1 and 2 the variants have the same plan and the same time. At
+   operators. The assignment of the files differs: EXPLAIN prints five
+   entries per group, and the second group opens with file 06 split at a
+   byte offset in the original and with file 02 in `accept-groups`, so the
+   original takes the files by name and `accept-groups` in the order of the
+   statistics groups, with a different split point; the full assignment is
+   not in the recorded output. The times are the same, 0.018 s, so no
+   difference is attributed to the scan for this query. `original-target`,
+   with four groups, has a median 1 ms higher within overlapping quartiles
+   and 64 MB more RSS.
+3. A2. At depth 1 and 2 the variants have the same plan; at depth 2 the times
+   match (0.434 against 0.433 s), at depth 1 the medians are 0.520 against
+   0.506 s with overlapping quartiles (0.496 to 0.524 against 0.502 to 0.530). At
    depth 12 the gain of `accept-groups` is the same as at depth 4 (0.354 against
    0.622 s, a 43 percent reduction, against 42 percent at depth 4); what grows
    is the cost beside the time: 18 spills (18.9 MB) in the order-preserving
@@ -332,10 +339,11 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
    costs both variants: the original 0.647, 0.679, 0.771 s, `accept-groups`
    0.376, 0.348, 0.475 s, that is +19 and +26 percent; the gap between them
    stays between 0.27 and 0.33 s. At 1200 files the statistics produce five
-   groups, not four. The fifth group is caused by touching boundary values and
-   the strict `min > previous_max` condition, not by an artifact of the
-   least-loaded placement heuristic: a first-fit on the recorded bounds also
-   gives five. Files 6 and 10 of the
+   groups, not four. The fifth group is forced by the bounds, not by the
+   placement heuristic: on the recorded bounds five closed key intervals share
+   one point, so no placement under the strict `min > previous_max` condition
+   can do with four, and the non-strict `min >= previous_max` gives four.
+   Files 6 and 10 of the
    first entity touch, the maximum of one equal to the minimum of the other (a
    repeated timestamp on the boundary), and the placement requires a strictly
    greater minimum; 248 pairs of files touch in that layout. The
@@ -373,8 +381,9 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
   `original` and `accept-groups` have the same operators and two byte-range
   groups each, with a different assignment of the files, and the same time;
   no scan effect is attributed. The four-group scan of `original-target`
-  costs 1 ms and 64 MB.
-- **H2, half supported.** Depth 1 and 2 identical, as predicted. The gain does
+  costs 64 MB of RSS and no time outside the quartiles.
+- **H2, half supported.** Depth 1 and 2 equal within the quartiles, as
+  predicted. The gain does
   not shrink at depth 12 at 256 MB (43 percent against 42); the repartition's
   spills and the RSS grow, the time does not. The prediction was wrong about
   where the extra groups show up.
@@ -389,8 +398,9 @@ Base data with half the rows copied. The base data itself has 24 duplicate rows 
   256 MB), brings spills to the ordered plan at 128 MB and shrinks its gain
   there; at 512 MB the ranking is unchanged. The hypothesis attributed this to
   the width of the rows. The follow-up shows that it belongs to the string-view
-  representation and to how the repartition accounts its memory: with plain
-  `Utf8` strings the same wide data keeps the gain at 128 MB.
+  representation: with plain `Utf8` strings the same wide data keeps the gain
+  at 128 MB. That the repartition's memory accounting is the mechanism is an
+  inference (observation 5).
 - **H5, partly supported.** Depth 4: the per-file costs are not small (+19
   percent for the original, +26 for `accept-groups` from 12 to 1200 files) and
   the groups are five, not four, so the control on the number of streams is

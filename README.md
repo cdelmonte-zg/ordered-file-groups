@@ -118,8 +118,9 @@ Datasets are written from fixed seeds and a fixed time origin
 dataset holds the same 600,000 rows in files sorted by `(col_1, col_2)`;
 `--depth d` makes file *i* overlap files *i+1* to *i+d-1*, so *d* is the
 intended minimum number of ordered groups; the groups the statistics produce
-are in the manifest and can differ (5 at 1200 files with depth 4, where two
-files touch on a repeated timestamp; 1196 with depth 1200); `--shape` renders the same integer ids at
+are in the manifest and can differ (5 at 1200 files with depth 4, where the
+entity-rank assignment makes 248 pairs of files touch on a boundary timestamp
+and five intervals share one point; 1196 with depth 1200); `--shape` renders the same integer ids at
 three string widths; `--duplicate-share` copies rows; `--assign` chooses how
 rows go to files when there are more files than entities. The queries, the
 variants and the matrix are in `scripts/run_matrix.py`.

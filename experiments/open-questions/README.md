@@ -194,7 +194,7 @@ traced in the code.
 ## 3. Why depth 1 is slower than depth 2 (explained)
 
 Same plan in both, two ordered groups. At depth 1 the process does about the
-same CPU work as at depth 2 and uses fewer cores (6 runs each, 256 MB):
+same CPU work as at depth 2 and uses fewer cores (means of 6 runs each, 256 MB):
 
 | case | wall (s) | CPU seconds | cores used |
 |---|---|---|---|
@@ -218,7 +218,8 @@ so the test could not discriminate (see `depth/PLAN.md`).
   (`repartition/distributor_channels.rs`). At depth 1 the merge in each
   output can take rows from only one input at a time, because the two inputs'
   current key ranges never overlap; the other input runs ahead by about one
-  batch per output and waits. The batch size sets how far it can run ahead:
+  batch per output and waits. The batch size sets how far it can run ahead
+  (means of 6 runs each):
 
   | batch size | depth 1 | depth 2 | gap in cores |
   |---|---|---|---|
