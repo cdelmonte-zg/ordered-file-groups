@@ -77,12 +77,12 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
         if not huge_pages:
             without_huge_pages()
 
-    status = rm.run_process(cmd, f"{stem}.out", f"{stem}.err", timeout,
+    status, timed_out = rm.run_process(cmd, f"{stem}.out", f"{stem}.err", timeout,
                             env=dict(os.environ, **(env or {})),
                             preexec_fn=before_exec if nofile or not huge_pages else None)
     out, err = Path(f"{stem}.out").read_text(), Path(f"{stem}.err").read_text()
     tm = TIME.search(err)
-    failed = rm.run_failed(status, out, err)
+    failed, error = rm.outcome(status, timed_out, out, err, timeout)
     # no BENCH line (a killed process): the times are unknown, not zero
     wall, user, system = (float(tm.group(i)) for i in (1, 2, 3)) if tm else ("", "", "")
     feats = rm.parse(out, statements=Path(sql_path).read_text().count(";"))
@@ -93,8 +93,8 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
            "rss_mb": round(int(tm.group(4)) / 1024) if tm else "",
            "minor_faults": int(tm.group(5)) if tm else "",
            "elapsed_s": "" if failed else feats["elapsed_seconds"],
-           "scan_groups": feats["scan_groups"],
-           "error": rm.error_of(status, err, failed, timeout)}
+           "scan_groups": "" if failed else feats["scan_groups"],
+           "error": error}
     for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb"):
         row[key] = "" if failed else feats.get(key, "")
     # how long the repartition's inputs waited to hand their batches to the outputs

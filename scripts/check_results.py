@@ -54,7 +54,7 @@ def rows_of(case, variant, pool, timeout, scratch):
     out.unlink(missing_ok=True)
     query = rm.QUERIES[case.query]
     copy = f"COPY ({query.rstrip().rstrip(';')}) TO '{out}' STORED AS PARQUET;"
-    base = [str(rm.binary_of(variant)), "-q", "--memory-limit", pool, "--mem-pool-type", "fair"]
+    base = rm.cli_command(rm.binary_of(variant), pool) + ["-q"]
     # The COPY is another statement than the timed one: check that the plan under
     # its sink has the properties the matrix expects of this case and variant.
     explain = rm.sql_for(case, variant, explain="EXPLAIN FORMAT INDENT").replace(query, copy)
@@ -67,10 +67,11 @@ def rows_of(case, variant, pool, timeout, scratch):
         res = subprocess.run(base + ["-c", rm.sql_for(case, variant, explain="").replace(query, copy)],
                              capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
-        return None, f"timeout after {timeout} s"
+        return None, rm.timeout_message(timeout)
     err = res.stderr.strip()
     if res.returncode != 0 or rm.FAILURE.search(err) or not out.is_file():
-        return None, (err.splitlines()[0][:160] if err else f"exit {res.returncode}, no rows")
+        return None, (err.splitlines()[0][:160] if err
+                      else rm.exit_message(res.returncode) + ", no rows")
     table = pq.read_table(out)
     out.unlink()
     return table, ""

@@ -94,16 +94,16 @@ def one(query, variant, run):
                 break
             time.sleep(EVERY)
         status = proc.wait()
-        if killed:
-            status = 124                      # as rm.run_process reports a timeout
+        timed_out = killed and status == -signal.SIGKILL    # not if it ended by itself first
         duration = time.monotonic() - start
     out_text, err_text = Path(f"{stem}.out").read_text(), Path(f"{stem}.err").read_text()
-    failed = rm.run_failed(status, out_text, err_text)
-    feats = rm.parse(out_text, statements=sql_path.read_text().count(";"))
-    row = {"query": query, "variant": variant, "run": run, "ok": int(not failed and bool(samples)),
-           "duration_s": round(duration, 3),
-           "samples": len(samples), "scan_groups": feats["scan_groups"],
-           "error": rm.error_of(status, err_text, failed, TIMEOUT)}
+    failed, error = rm.outcome(status, timed_out, out_text, err_text, TIMEOUT)
+    if not failed and not samples:
+        failed, error = True, "the run left no sample"
+    row = {"query": query, "variant": variant, "run": run, "ok": int(not failed),
+           "duration_s": round(duration, 3), "samples": len(samples),
+           "scan_groups": "" if failed else rm.parse(out_text)["scan_groups"],
+           "error": error}
     if samples:
         peak = max(samples, key=lambda s: s["rss_mb"])
         most_files = max(samples, key=lambda s: s["fd_parquet"])

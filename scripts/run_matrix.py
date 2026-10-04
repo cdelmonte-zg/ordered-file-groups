@@ -290,12 +290,12 @@ FAILURE = re.compile(r"Resources exhausted|\*\*Error\*\*|^Error:|^IO error", re.
 
 
 def run_failed(status, out_text, err_text):
-    """True when a timed EXPLAIN ANALYZE run did not complete. Used by every runner."""
+    """True when a timed EXPLAIN ANALYZE run did not complete."""
     return bool(status != 0 or "Plan with Metrics" not in out_text or FAILURE.search(err_text))
 
 
 def run_process(cmd, out_path, err_path, timeout, env=None, preexec_fn=None):
-    """Run a command with its output in files; returns the exit status, 124 on timeout.
+    """Run a command with its output in files; returns (exit status, timed out).
 
     A session of its own, so that a timeout kills datafusion-cli and not only
     /usr/bin/time, which is the process that subprocess would stop.
@@ -304,39 +304,54 @@ def run_process(cmd, out_path, err_path, timeout, env=None, preexec_fn=None):
         proc = subprocess.Popen(cmd, stdout=out, stderr=err, start_new_session=True,
                                 env=env, preexec_fn=preexec_fn)
         try:
-            return proc.wait(timeout=timeout)
+            return proc.wait(timeout=timeout), False
         except subprocess.TimeoutExpired:
             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            proc.wait()
-            return 124
+            return proc.wait(), True
 
 
-def cli_command(binary, memory, sql_path):
-    """The datafusion-cli command of a timed run. Used by every runner."""
-    return [str(binary), "--memory-limit", memory, "--mem-pool-type", "fair", "-f", str(sql_path)]
+def cli_command(binary, memory, sql_path=None):
+    """datafusion-cli under a memory limit, as every runner starts it; with -f for a SQL file."""
+    cmd = [str(binary), "--memory-limit", memory, "--mem-pool-type", "fair"]
+    return cmd + ["-f", str(sql_path)] if sql_path else cmd
 
 
-def error_of(status, err_text, failed, timeout):
-    """What a failed run said: its first line on stderr, or the timeout. '' when it completed."""
-    if status == 124:
-        return f"timeout after {timeout} s, process group killed"
+def timeout_message(timeout):
+    return f"timeout after {timeout} s, killed"
+
+
+def exit_message(status):
+    return f"killed by signal {-status}" if status < 0 else f"exit status {status}"
+
+
+def outcome(status, timed_out, out_text, err_text, timeout):
+    """(failed, error) of a timed EXPLAIN ANALYZE run. Used by every runner.
+
+    The error of a failed run is never empty: the timeout, the first line on
+    stderr, or how the process ended when it said nothing.
+    """
+    if timed_out:
+        return True, timeout_message(timeout)
+    if not run_failed(status, out_text, err_text):
+        return False, ""
     messages = [l for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH")]
-    return messages[0][:160] if failed and messages else ""
+    if messages:
+        return True, messages[0][:160]
+    return True, exit_message(status) + ("" if status else ", no plan with metrics in the output")
 
 
 def run(binary, sql_path, out_path, err_path, memory, timeout):
     cmd = ["/usr/bin/time", "-f", "BENCH_WALL_SECONDS=%e BENCH_MAX_RSS_KB=%M",
            *cli_command(binary, memory, sql_path)]
-    status = run_process(cmd, out_path, err_path, timeout)
+    status, timed_out = run_process(cmd, out_path, err_path, timeout)
     out_text, err_text = Path(out_path).read_text(), Path(err_path).read_text()
     row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
     wall = re.search(r"BENCH_WALL_SECONDS=([\d.]+)", err_text)
     rss = re.search(r"BENCH_MAX_RSS_KB=(\d+)", err_text)
     row["wall_seconds"] = wall.group(1) if wall else ""
     row["max_rss_mb"] = round(int(rss.group(1)) / 1024) if rss else ""
-    failed = run_failed(status, out_text, err_text)
+    failed, row["error"] = outcome(status, timed_out, out_text, err_text, timeout)
     row["result"] = "failed" if failed else "ok"
-    row["error"] = error_of(status, err_text, failed, timeout)
     if failed:
         row["elapsed_seconds"] = ""   # a failed statement prints no Elapsed of its own
     return row

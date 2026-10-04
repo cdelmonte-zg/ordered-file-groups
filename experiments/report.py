@@ -588,8 +588,9 @@ def process(out, figures):
             sel = select(rows, query=query, variant=variant)
             ok = completed(sel)
             v = seen[query, variant] = {k: median(ok, k) for k in keys}
-            groups = sorted({r.get("scan_groups", "") for r in ok})
-            lines.append(f"| {qlabel} | {plabel} | {n_of(sel)} | {', '.join(groups)} | "
+            groups = sorted({int(r["scan_groups"]) for r in ok if r["scan_groups"]})
+            lines.append(f"| {qlabel} | {plabel} | {n_of(sel)} | "
+                         f"{', '.join(map(str, groups)) or 'n/a'} | "
                          f"{num(v['peak_rss_mb'], 0)} | "
                          f"{num(v['peak_at_share_of_run'], 2)} | {num(v['parquet_open_at_peak'], 0)} | "
                          f"{num(v['max_parquet_open'], 0)} | {num(v['rss_mb_when_most_parquet_open'], 0)} | "
