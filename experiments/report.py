@@ -656,8 +656,9 @@ def huge_pages(out, figures):
                    f"- As the machine is set the ordered plan at 1200 files takes {num(faults_on, 0)} minor "
                    f"page faults, without huge pages {num(faults_off, 0)}: huge pages are in use in the "
                    f"first arm." if in_use else
-                   f"- The minor page faults of the two arms differ by less than a factor of two "
-                   f"({num(faults_on, 0)} and {num(faults_off, 0)}): huge pages were NOT in use as the machine is set, and the "
+                   f"- Without huge pages the ordered plan at 1200 files does not take more than twice "
+                   f"the minor page faults ({num(faults_on, 0)} as set, {num(faults_off, 0)} "
+                   f"without): huge pages were NOT in use as the machine is set, and the "
                    f"two arms measure the same thing.")]
     lines += [f"- With about 1200 ordered streams the ordered plan peaks at {num(a['on'], 0)} MB as "
               f"the machine is set and at {num(a['off'], 0)} MB without huge pages; the original plan "

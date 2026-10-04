@@ -444,7 +444,7 @@ def findings(m, manifests, figures):
              f"{m.compare((c120, P, 'accept-groups'), (c120, P, 'original'))}, with "
              f"{spilled(c120, P, 'accept-groups', 'repartition')} spills in the repartition and "
              f"{m.rss(c120, P, 'accept-groups'):.0f} MB of RSS against {m.rss(c120, P, 'original'):.0f}. "
-             f"With {m.by[many, P, 'accept-groups']['groups']} groups: ")
+             f"With {m.by[many, P, 'accept-groups']['groups'] or 'n/a'} groups: ")
     parts, rss_a, rss_o = [], [], []
     for pool in ("128m", "256m", "512m"):
         a, o = (many, pool, "accept-groups"), (many, pool, "original")

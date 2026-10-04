@@ -133,7 +133,6 @@ MATRIX = [
     Case("A6-dup-0.5", "A6", "df-16919-partial-12-depth-4-dup0.5", 4),
 ]
 
-UNITS = {"B": 1, "KB": 1 << 10, "MB": 1 << 20, "GB": 1 << 30}
 OPERATORS = {  # column prefix -> operator name as displayed
     "scan": "DataSourceExec",
     "partial_agg": "AggregateExec.Partial",
@@ -144,11 +143,6 @@ OPERATORS = {  # column prefix -> operator name as displayed
 }
 
 
-def to_bytes(text):
-    m = re.fullmatch(r"([\d.]+) ?([KMG]?B)", text.strip())
-    return int(float(m.group(1)) * UNITS[m.group(2)]) if m else 0
-
-
 def operator(line):
     m = re.search(r"\|\s+([A-Za-z]+Exec)\b:? ?(mode=\w+)?", line)   # with or without arguments
     if not m:
@@ -157,6 +151,63 @@ def operator(line):
     if name == "AggregateExec":
         name += "." + (m.group(2) or "mode=unknown").split("=")[1]
     return name
+
+
+METRICS = re.compile(r"metrics=\[(.*)\]")
+VALUE = re.compile(r"^(-?[\d.]+)\s*([A-Za-zµ%]*)$")
+SECONDS = {"ns": 1e-9, "µs": 1e-6, "us": 1e-6, "ms": 1e-3, "s": 1.0}
+BYTES = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
+COUNTS = {"": 1, "K": 1e3, "M": 1e6}
+
+
+def number(metric, text):
+    """(value, kind) of a printed metric; ('', 'text') when it is not a number."""
+    m = VALUE.match(text.strip())
+    if not m:
+        return "", "text"
+    value, unit = float(m.group(1)), m.group(2)
+    if unit in SECONDS and (unit != "s" or "time" in metric or "elapsed" in metric):
+        return value * SECONDS[unit], "seconds"
+    # The engine prints sizes with a space and binary units ("8.3 MB", "0.0 B") and
+    # counts with a space and K, M or B for billions ("24.5 M"). "B" alone is the
+    # one ambiguous unit: it is taken as bytes for the size metrics, which the
+    # engine names with "bytes" (output_bytes, bytes_scanned), and as billions otherwise.
+    if unit in BYTES and unit != "B":
+        return value * BYTES[unit], "bytes"
+    if unit == "B":
+        return (value, "bytes") if "bytes" in metric else (value * 1e9, "count")
+    if unit in COUNTS:
+        return value * COUNTS[unit], "count"
+    if unit == "%":
+        return value, "percent"
+    return "", "text"
+
+
+def line_metrics(line):
+    """{metric: (printed, value, kind)} of one operator line of an EXPLAIN ANALYZE output."""
+    found = METRICS.search(line)
+    metrics = {}
+    for item in found.group(1).split(", ") if found else ():
+        metric, _, text = item.partition("=")
+        if text:
+            metrics[metric.strip()] = (text.strip(), *number(metric.strip(), text))
+    return metrics
+
+
+def metrics_of(out_text):
+    """Rows (operator, metric, printed value, number, kind) of one EXPLAIN ANALYZE output."""
+    rows, seen = [], {}
+    for line in out_text.splitlines():
+        name = operator(line)
+        metrics = line_metrics(line)
+        if not name or not metrics:
+            continue
+        seen[name] = seen.get(name, 0) + 1
+        if seen[name] > 1:
+            name = f"{name}#{seen[name]}"
+        rows += [(name, metric, printed, value, kind)
+                 for metric, (printed, value, kind) in metrics.items()]
+    return rows
 
 
 def parse(out_text, statements=None):
@@ -185,22 +236,20 @@ def parse(out_text, statements=None):
             if op == name:
                 m = re.search(r"ordering_mode=(\w+(?:\(\[[\d, ]*\]\))?)", line)
                 row[key] = m.group(1) if m else "Linear"
-        count = re.search(r"\bspill_count=(\d+)", line)
-        size = re.search(r"\bspilled_bytes=([\d.]+ ?[KMG]?B)", line)
-        out = re.search(r"\boutput_bytes=([\d.]+ ?[KMG]?B)", line)
-        batches = re.search(r"\boutput_batches=(\d+)", line)
-        c, b, o, n = metrics.get(op, (0, 0, 0, 0))
-        metrics[op] = (c + (int(count.group(1)) if count else 0),
-                       b + (to_bytes(size.group(1)) if size else 0),
-                       o + (to_bytes(out.group(1)) if out else 0),
-                       n + (int(batches.group(1)) if batches else 0))
+        # read as collect_metrics.py reads them: "2.12 K" is 2120, not 2
+        found = line_metrics(line)
+        sums = metrics.setdefault(op, [0, 0, 0, 0])
+        for i, (metric, kind) in enumerate((("spill_count", "count"), ("spilled_bytes", "bytes"),
+                                            ("output_bytes", "bytes"), ("output_batches", "count"))):
+            if metric in found and found[metric][2] == kind:
+                sums[i] += found[metric][1]
     for key, name in OPERATORS.items():
         c, b, o, n = metrics.get(name, (0, 0, 0, 0))
         if key not in ("scan", "spm"):
-            row[f"{key}_spills"] = c
+            row[f"{key}_spills"] = round(c)
             row[f"{key}_spill_mb"] = round(b / (1 << 20), 1)
         row[f"{key}_out_mb"] = round(o / (1 << 20), 1)
-        row[f"{key}_out_batches"] = n
+        row[f"{key}_out_batches"] = round(n)
     elapsed = re.findall(r"^Elapsed ([\d.]+) seconds\.$", out_text, re.M)
     # statements: SET ..., CREATE EXTERNAL TABLE, EXPLAIN ANALYZE
     if statements is None:
@@ -325,10 +374,11 @@ def exit_message(status):
 
 
 def first_error(err_text):
-    """The line of stderr that says why a run failed, cut to 160 characters; '' when there is none.
+    """What a failed run printed on stderr, cut to 160 characters; '' when nothing.
 
-    The first line that matches FAILURE; without one, the first line that is not
-    the BENCH line of /usr/bin/time.
+    The first line that matches FAILURE (for a memory failure the "Resources
+    exhausted" header, which is the same text for every such run); without one,
+    the first line that is not the BENCH line of /usr/bin/time.
     """
     lines = [l.strip() for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH")]
     return next((l for l in lines if FAILURE.search(l)), lines[0] if lines else "")[:160]

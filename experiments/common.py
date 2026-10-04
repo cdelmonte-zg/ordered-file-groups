@@ -11,7 +11,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import run_matrix as rm  # noqa: E402
-from collect_metrics import metrics_of  # noqa: E402
 
 TIME = re.compile(r"BENCH wall=([\d.]+) user=([\d.]+) sys=([\d.]+) rss_kb=(\d+) minor=(\d+)")
 PR_SET_THP_DISABLE = 41
@@ -47,9 +46,9 @@ def repartition_time(out_text, metric):
     """A time metric summed over the RepartitionExec operators of a plan, in seconds.
 
     Summed as run_matrix.parse sums their spills and output bytes. Read with the
-    parser of scripts/collect_metrics.py; '' when the plan has none.
+    parser of run_matrix.py; '' when the plan has none.
     """
-    times = [value for operator, name, _, value, kind in metrics_of(out_text)
+    times = [value for operator, name, _, value, kind in rm.metrics_of(out_text)
              if operator.split("#")[0] == "RepartitionExec" and name == metric and kind == "seconds"]
     return round(sum(times), 4) if times else ""
 
