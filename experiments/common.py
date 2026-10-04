@@ -44,16 +44,14 @@ def output_dir(name):
 
 
 def repartition_time(out_text, metric):
-    """A time metric of the first RepartitionExec of a plan, in seconds.
+    """A time metric summed over the RepartitionExec operators of a plan, in seconds.
 
-    The first in the printed plan is the one nearest the root; the plans of the
-    experiments have one. Read with the parser of scripts/collect_metrics.py;
-    '' when the plan has none.
+    Summed as run_matrix.parse sums their spills and output bytes. Read with the
+    parser of scripts/collect_metrics.py; '' when the plan has none.
     """
-    for operator, name, _, value, kind in metrics_of(out_text):
-        if operator == "RepartitionExec" and name == metric and kind == "seconds":
-            return round(value, 4)
-    return ""
+    times = [value for operator, name, _, value, kind in metrics_of(out_text)
+             if operator.split("#")[0] == "RepartitionExec" and name == metric and kind == "seconds"]
+    return round(sum(times), 4) if times else ""
 
 
 def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300,
@@ -85,18 +83,18 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
     failed, error = rm.outcome(status, timed_out, out, err, timeout)
     # no BENCH line (a killed process): the times are unknown, not zero
     wall, user, system = (float(tm.group(i)) for i in (1, 2, 3)) if tm else ("", "", "")
-    feats = rm.parse(out, statements=Path(sql_path).read_text().count(";"))
+    feats = rm.features(out, sql_path, failed)
     row = {"ok": int(not failed), "wall_s": wall,
            "cpu_s": round(user + system, 2) if tm else "",
            "user_s": user, "sys_s": system,
            "cores": round((user + system) / wall, 3) if tm and wall else "",
            "rss_mb": round(int(tm.group(4)) / 1024) if tm else "",
            "minor_faults": int(tm.group(5)) if tm else "",
-           "elapsed_s": "" if failed else feats["elapsed_seconds"],
-           "scan_groups": "" if failed else feats["scan_groups"],
+           "elapsed_s": feats["elapsed_seconds"],
+           "scan_groups": feats["scan_groups"],
            "error": error}
     for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb"):
-        row[key] = "" if failed else feats.get(key, "")
+        row[key] = feats.get(key, "")
     # how long the repartition's inputs waited to hand their batches to the outputs
     row["repartition_send_s"] = "" if failed else repartition_time(out, "send_time")
     return row

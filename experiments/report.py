@@ -72,14 +72,14 @@ def select(rows, **where):
 
 
 def missing(name, out):
-    return f"### {name}\n\nNot run: `{out}` has no results.tsv.\n"
+    return f"### {name}\n\nNot run: `{out}` has no results.tsv, or an empty one.\n"
 
 
 # ---------------------------------------------------------------- string views
 
 def string_views(out, figures):
     path = Path(out) / "results.tsv"
-    if not path.is_file():
+    if not path.is_file() or not path.stat().st_size:
         return missing("String views and the repartition's accounting", out)
     rows = read_tsv(path)
 
@@ -200,7 +200,7 @@ def ols(xs, ys):
 
 def many_streams(out, figures):
     path = Path(out) / "results.tsv"
-    if not path.is_file():
+    if not path.is_file() or not path.stat().st_size:
         return missing("The memory of the many-stream plan", out)
     rows = completed(read_tsv(path))
     all_rows = read_tsv(path)
@@ -420,7 +420,7 @@ def group_shares(manifest):
 
 def depth(out, matrix, manifests, figures):
     path = Path(out) / "results.tsv"
-    if not path.is_file():
+    if not path.is_file() or not path.stat().st_size:
         return missing("Depth 1 against depth 2: backpressure", out)
     rows = read_tsv(path)
     sizes = sorted({int(r["batch_size"]) for r in rows if r["kind"] == "batch"})
@@ -458,7 +458,7 @@ def depth(out, matrix, manifests, figures):
     lines += ["", f"- At the default batch size ({default} rows) depth 1 takes {num(d1w)} s against "
               f"{num(d2w)} s at depth 2 and uses {num(gaps[default], 2)} cores less.",
               f"- The time the repartition's inputs spend sending their batches to the outputs "
-              f"(the `send_time` metric, summed over the inputs) is {num(send[default][0], 2)} s at depth 1 "
+              f"(the `send_time` metric, summed over the inputs and over the repartitions of the plan) is {num(send[default][0], 2)} s at depth 1 "
               f"against {num(send[default][1], 2)} s at depth 2 at the default batch size, and "
               f"{num(send[sizes[0]][0], 2)} against {num(send[sizes[0]][1], 2)} s at {sizes[0]} rows.",
               (f"- The gap in cores is below 0.1 at {closed} rows per batch and at every larger size tried."
@@ -519,7 +519,7 @@ def depth(out, matrix, manifests, figures):
 
 def open_files(out, figures):
     path = Path(out) / "results.tsv"
-    if not path.is_file():
+    if not path.is_file() or not path.stat().st_size:
         return missing("The open-file limit", out)
     rows = read_tsv(path)
     limits = sorted({int(r["open_file_limit"]) for r in rows})
@@ -567,7 +567,7 @@ def open_files(out, figures):
 
 def process(out, figures):
     path = Path(out) / "results.tsv"
-    if not path.is_file():
+    if not path.is_file() or not path.stat().st_size:
         return missing("The process from outside: RSS and open files over time", out)
     rows = read_tsv(path)
     queries = {"Q3": "deduplication", "Q1": "`ORDER BY` only"}
@@ -612,7 +612,7 @@ def process(out, figures):
 
 def huge_pages(out, figures):
     path = Path(out) / "results.tsv"
-    if not path.is_file():
+    if not path.is_file() or not path.stat().st_size:
         return missing("How much of the resident memory is transparent huge pages", out)
     rows = read_tsv(path)
     names = []
@@ -649,12 +649,15 @@ def huge_pages(out, figures):
     big = completed(select(rows, name="dedup-1200-accept-groups"))
     faults_on = median(select(big, huge_pages="as set"), "minor_faults")
     faults_off = median(select(big, huge_pages="off"), "minor_faults")
-    in_use = faults_off > 2 * faults_on
-    lines += ["", (f"- As the machine is set the ordered plan at 1200 files takes {num(faults_on, 0)} minor "
+    known = faults_on == faults_on and faults_off == faults_off     # not NaN: both arms completed
+    in_use = known and faults_off > 2 * faults_on
+    lines += ["", ("- One arm of the ordered plan at 1200 files has no completed run: whether huge "
+                   "pages were in use as the machine is set cannot be told." if not known else
+                   f"- As the machine is set the ordered plan at 1200 files takes {num(faults_on, 0)} minor "
                    f"page faults, without huge pages {num(faults_off, 0)}: huge pages are in use in the "
                    f"first arm." if in_use else
-                   f"- The minor page faults are about the same in the two arms ({num(faults_on, 0)} and "
-                   f"{num(faults_off, 0)}): huge pages were NOT in use as the machine is set, and the "
+                   f"- The minor page faults of the two arms differ by less than a factor of two "
+                   f"({num(faults_on, 0)} and {num(faults_off, 0)}): huge pages were NOT in use as the machine is set, and the "
                    f"two arms measure the same thing.")]
     lines += [f"- With about 1200 ordered streams the ordered plan peaks at {num(a['on'], 0)} MB as "
               f"the machine is set and at {num(a['off'], 0)} MB without huge pages; the original plan "

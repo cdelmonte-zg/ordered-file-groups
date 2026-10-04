@@ -155,7 +155,7 @@ def operator(line):
         return None
     name = m.group(1)
     if name == "AggregateExec":
-        name += "." + m.group(2).split("=")[1]
+        name += "." + (m.group(2) or "mode=unknown").split("=")[1]
     return name
 
 
@@ -324,6 +324,25 @@ def exit_message(status):
     return f"killed by signal {-status}" if status < 0 else f"exit status {status}"
 
 
+def first_error(err_text):
+    """The line of stderr that says why a run failed, cut to 160 characters; '' when there is none.
+
+    The first line that matches FAILURE; without one, the first line that is not
+    the BENCH line of /usr/bin/time.
+    """
+    lines = [l.strip() for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH")]
+    return next((l for l in lines if FAILURE.search(l)), lines[0] if lines else "")[:160]
+
+
+def features(out_text, sql_path, failed):
+    """parse() of a run; every feature blank when the run failed.
+
+    A failed run may print part of a plan: none of it enters a table.
+    """
+    row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
+    return {k: "" for k in row} if failed else row
+
+
 def outcome(status, timed_out, out_text, err_text, timeout):
     """(failed, error) of a timed EXPLAIN ANALYZE run. Used by every runner.
 
@@ -334,9 +353,9 @@ def outcome(status, timed_out, out_text, err_text, timeout):
         return True, timeout_message(timeout)
     if not run_failed(status, out_text, err_text):
         return False, ""
-    messages = [l for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH")]
-    if messages:
-        return True, messages[0][:160]
+    message = first_error(err_text)
+    if message:
+        return True, message
     return True, exit_message(status) + ("" if status else ", no plan with metrics in the output")
 
 
@@ -345,15 +364,14 @@ def run(binary, sql_path, out_path, err_path, memory, timeout):
            *cli_command(binary, memory, sql_path)]
     status, timed_out = run_process(cmd, out_path, err_path, timeout)
     out_text, err_text = Path(out_path).read_text(), Path(err_path).read_text()
-    row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
+    failed, error = outcome(status, timed_out, out_text, err_text, timeout)
+    row = features(out_text, sql_path, failed)
     wall = re.search(r"BENCH_WALL_SECONDS=([\d.]+)", err_text)
     rss = re.search(r"BENCH_MAX_RSS_KB=(\d+)", err_text)
     row["wall_seconds"] = wall.group(1) if wall else ""
     row["max_rss_mb"] = round(int(rss.group(1)) / 1024) if rss else ""
-    failed, row["error"] = outcome(status, timed_out, out_text, err_text, timeout)
+    row["error"] = error
     row["result"] = "failed" if failed else "ok"
-    if failed:
-        row["elapsed_seconds"] = ""   # a failed statement prints no Elapsed of its own
     return row
 
 

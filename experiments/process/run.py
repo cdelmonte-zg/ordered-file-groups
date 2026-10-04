@@ -102,7 +102,7 @@ def one(query, variant, run):
         failed, error = True, "the run left no sample"
     row = {"query": query, "variant": variant, "run": run, "ok": int(not failed),
            "duration_s": round(duration, 3), "samples": len(samples),
-           "scan_groups": "" if failed else rm.parse(out_text)["scan_groups"],
+           "scan_groups": rm.features(out_text, sql_path, failed)["scan_groups"],
            "error": error}
     if samples:
         peak = max(samples, key=lambda s: s["rss_mb"])

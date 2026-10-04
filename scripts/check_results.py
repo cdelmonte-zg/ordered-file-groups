@@ -70,7 +70,7 @@ def rows_of(case, variant, pool, timeout, scratch):
         return None, rm.timeout_message(timeout)
     err = res.stderr.strip()
     if res.returncode != 0 or rm.FAILURE.search(err) or not out.is_file():
-        return None, (err.splitlines()[0][:160] if err
+        return None, (rm.first_error(err) if err
                       else rm.exit_message(res.returncode) + ", no rows")
     table = pq.read_table(out)
     out.unlink()

@@ -42,12 +42,11 @@ def number(metric, text):
     # The engine prints sizes with a space and binary units ("8.3 MB", "0.0 B") and
     # counts with a space and K, M or B for billions ("24.5 M"). "B" alone is the
     # one ambiguous unit: it is taken as bytes for the size metrics, which the
-    # engine names *_bytes or spilled/output bytes, and as billions otherwise.
+    # engine names with "bytes" (output_bytes, bytes_scanned), and as billions otherwise.
     if unit in BYTES and unit != "B":
         return value * BYTES[unit], "bytes"
     if unit == "B":
-        size = metric.endswith("_bytes") or metric in ("output_bytes", "spilled_bytes")
-        return (value, "bytes") if size else (value * 1e9, "count")
+        return (value, "bytes") if "bytes" in metric else (value * 1e9, "count")
     if unit in COUNTS:
         return value * COUNTS[unit], "count"
     if unit == "%":
