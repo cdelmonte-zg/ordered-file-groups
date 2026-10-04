@@ -147,8 +147,13 @@ def operator(line):
     return name
 
 
-def parse(out_text):
-    """Plan features and per-operator metrics of an EXPLAIN ANALYZE output."""
+def parse(out_text, statements=None):
+    """Plan features and per-operator metrics of an EXPLAIN ANALYZE output.
+
+    `statements` is the number of statements in the SQL file. The CREATE is the
+    one before the last; it is located by counting, because a failed statement
+    prints no Elapsed line of its own.
+    """
     row = {"scan_groups": "", "sort_exec": 0, "preserve_order": 0,
            "partial_mode": "", "final_mode": ""}
     metrics = {}
@@ -182,9 +187,15 @@ def parse(out_text):
             row[f"{key}_spill_mb"] = round(b / (1 << 20), 1)
         row[f"{key}_out_mb"] = round(o / (1 << 20), 1)
     elapsed = re.findall(r"^Elapsed ([\d.]+) seconds\.$", out_text, re.M)
-    # statements: SET ..., CREATE EXTERNAL TABLE, EXPLAIN ANALYZE. The CREATE is the
-    # statement before the last one, however many SETs precede it.
-    row["create_seconds"] = elapsed[-2] if len(elapsed) >= 4 else ""
+    # statements: SET ..., CREATE EXTERNAL TABLE, EXPLAIN ANALYZE
+    if statements is None:
+        statements = 4                        # the template of this file: two SETs
+    if len(elapsed) == statements:            # every statement completed
+        row["create_seconds"] = elapsed[-2]
+    elif len(elapsed) == statements - 1:      # the last statement failed
+        row["create_seconds"] = elapsed[-1]
+    else:
+        row["create_seconds"] = ""
     row["elapsed_seconds"] = elapsed[-1] if elapsed else ""
     return row
 
@@ -210,7 +221,7 @@ def run(binary, sql_path, out_path, err_path, memory, timeout):
             proc.wait()
             status = 124
     out_text, err_text = Path(out_path).read_text(), Path(err_path).read_text()
-    row = parse(out_text)
+    row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
     wall = re.search(r"BENCH_WALL_SECONDS=([\d.]+)", err_text)
     rss = re.search(r"BENCH_MAX_RSS_KB=(\d+)", err_text)
     row["wall_seconds"] = wall.group(1) if wall else ""
@@ -234,19 +245,21 @@ def binary_of(variant):
 def expected_plan(case, variant):
     """Every plan property the round relies on, as the plan must show it."""
     _, split, target = VARIANTS[variant]
-    raised = case.groups if target == "groups" else DEFAULT_TARGET
+    target = case.groups if target == "groups" else DEFAULT_TARGET
+    if target < 2:
+        raise SystemExit(f"{case.name} {variant}: no plan expectation is defined for "
+                         f"target_partitions = {target}")
     if case.query == "Q4":            # the ordering is projected away, no sort needed
-        return {"sort_exec": 0, "output_ordering": 0, "scan_groups": str(raised),
+        return {"sort_exec": 0, "output_ordering": 0, "scan_groups": str(target),
                 "preserve_order": 0, "partial_mode": "Linear", "final_mode": "Linear"}
-    ordered = split and (target == "groups" or case.groups <= DEFAULT_TARGET
-                         or variant == "accept-groups")
+    needed = case.produced or case.groups     # ordered groups the bounds give
+    ordered = split and (variant == "accept-groups" or needed <= target)
     if not ordered:
         mode = "" if case.query == "Q1" else "Linear"
-        return {"sort_exec": 1, "output_ordering": 0, "scan_groups": str(DEFAULT_TARGET),
+        return {"sort_exec": 1, "output_ordering": 0, "scan_groups": str(target),
                 "preserve_order": 0, "partial_mode": mode, "final_mode": mode}
     mode = {"Q1": "", "Q2": "Sorted", "Q3": "PartiallySorted([0, 1])"}[case.query]
-    groups = case.produced or max(case.groups, DEFAULT_TARGET)
-    return {"sort_exec": 0, "output_ordering": 1, "scan_groups": str(groups),
+    return {"sort_exec": 0, "output_ordering": 1, "scan_groups": str(max(needed, target)),
             "preserve_order": 0 if case.query == "Q1" else 1,
             "partial_mode": mode, "final_mode": mode}
 
@@ -266,8 +279,8 @@ def check_plan(case, variant, text):
     return feats, problems
 
 
-def write_plan_check(rows, out, name="plan-check.tsv"):
-    with (out / name).open("w") as f:
+def write_plan_check(rows, out):
+    with (out / "plan-check.tsv").open("w") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()), delimiter="\t")
         w.writeheader()
         w.writerows(rows)
@@ -314,19 +327,42 @@ def plan_check(cases, out):
     write_plan_check(rows, out)
 
 
+def recorded_plan_problems(case, variant, out, recorded):
+    """Problems of one recorded plan: its output, its stderr and its row in plan-check.tsv."""
+    d = out / case.name / "plan-check"
+    path = d / f"{variant}.out"
+    if not path.is_file():
+        return ["no recorded plan"]
+    _, problems = check_plan(case, variant, path.read_text())
+    err = d / f"{variant}.err"
+    if err.is_file() and re.search(r"Error|error:", err.read_text()):
+        problems.append("stderr: " + err.read_text().strip().splitlines()[0][:80])
+    was = recorded.get((case.name, variant))
+    if was is None:
+        problems.append("not in plan-check.tsv")
+    elif was != "ok" and not problems:
+        problems.append(f"plan-check.tsv says: {was}")
+    return problems
+
+
+def recorded_checks(out):
+    path = out / "plan-check.tsv"
+    if not path.exists():
+        return {}
+    return {(r["case"], r["variant"]): r.get("check", "") for r in
+            csv.DictReader(path.open(), delimiter="\t")}
+
+
 def recheck_plans(cases, out):
-    """Validate the plan outputs already recorded under `out`, without running anything.
+    """Validate the plans already recorded under `out`, without running anything.
 
     Prints one line per plan and exits with status 1 when any differs. Writes nothing.
     """
+    recorded = recorded_checks(out)
     bad = 0
     for case in cases:
         for variant in case.variants:
-            path = out / case.name / "plan-check" / f"{variant}.out"
-            if not path.is_file():
-                feats, problems = {}, ["no recorded plan"]
-            else:
-                feats, problems = check_plan(case, variant, path.read_text())
+            problems = recorded_plan_problems(case, variant, out, recorded)
             bad += bool(problems)
             print(case.name, variant, "ok" if not problems else "; ".join(problems), sep="\t")
     if bad:
@@ -335,13 +371,14 @@ def recheck_plans(cases, out):
 
 
 def plan_check_passed(cases, out):
-    """True when plan-check.tsv covers every case and variant with check == ok."""
-    path = out / "plan-check.tsv"
-    if not path.exists():
-        return False
-    checked = {(r["case"], r["variant"]): r.get("check", "") for r in
-               csv.DictReader(path.open(), delimiter="\t")}
-    return all(checked.get((c.name, v)) == "ok" for c in cases for v in c.variants)
+    """True when every case and variant has a recorded plan that passes today's checks.
+
+    The recorded outputs are validated again, so a plan-check.tsv written by an
+    older check, or before the matrix changed, does not open the measurements.
+    """
+    recorded = recorded_checks(out)
+    return bool(recorded) and all(not recorded_plan_problems(c, v, out, recorded)
+                                  for c in cases for v in c.variants)
 
 
 def record_machine(out):
@@ -424,6 +461,9 @@ def main():
     args = p.parse_args()
 
     cases = [c for c in MATRIX if not args.only or c.name in args.only]
+    unknown = set(args.only or ()) - {c.name for c in MATRIX}
+    if unknown or not cases:
+        raise SystemExit(f"no such case: {', '.join(sorted(unknown)) or '(empty selection)'}")
     if args.recheck_plans:
         recheck_plans(cases, args.out)
         return

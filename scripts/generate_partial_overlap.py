@@ -36,6 +36,7 @@ Run from the repository root:
   python scripts/generate_partial_overlap.py --files 1200 --depth 1200 --assign rank
 """
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -52,25 +53,45 @@ HERE = Path(__file__).resolve().parent
 MANIFESTS = HERE.parent / "results" / "manifests"
 
 
+def cache_record(rows, seed, duplicate_share):
+    """What a cached base table depends on: its parameters and the generator source."""
+    source = (Path(__file__).resolve().parent / "generate_base.py").read_bytes()
+    return {"rows": rows, "seed": seed, "duplicate_share": float(duplicate_share),
+            "generator_sha256": hashlib.sha256(source).hexdigest()}
+
+
 def base_table(rows, seed, duplicate_share, cache):
     """The one table every variant redistributes: integer ids, sorted, cached.
 
-    The parameters of a cache are recorded beside it, in `<cache>.params.json`,
-    so that the Parquet file itself stays byte for byte what it was. A cache
-    whose record is missing or names other parameters is regenerated.
+    What the cache depends on is recorded beside it, in `<cache>.params.json`, so
+    that the Parquet file itself stays byte for byte what it was. A cache whose
+    record is missing, unreadable or different is regenerated. The record is
+    removed before the table is rewritten and written last, and both files are
+    renamed into place, so an interrupted run leaves no cache that looks valid.
     """
-    params = {"rows": rows, "seed": seed, "duplicate_share": float(duplicate_share)}
+    params = cache_record(rows, seed, duplicate_share)
     record = cache.with_name(cache.name + ".params.json")
     if cache.exists():
-        if record.exists() and json.loads(record.read_text()) == params:
-            return pq.read_table(cache)
+        try:
+            recorded = json.loads(record.read_text())
+        except (OSError, ValueError):
+            recorded = None
+        if recorded == params:
+            table = pq.read_table(cache)
+            if table.num_rows == rows:        # a record beside another table
+                return table
         print(f"cache {cache} is not recorded as generated with these parameters: "
               f"regenerating", file=sys.stderr)
-        cache.unlink()
+    record.unlink(missing_ok=True)
+    cache.unlink(missing_ok=True)
     cache.parent.mkdir(parents=True, exist_ok=True)
     table = generate_table(rows, seed, duplicate_share=duplicate_share)
-    pq.write_table(table.sort_by(ID_SORT_KEY), cache, compression="zstd")
-    record.write_text(json.dumps(params, sort_keys=True) + "\n")
+    partial = cache.with_name(cache.name + ".partial")
+    pq.write_table(table.sort_by(ID_SORT_KEY), partial, compression="zstd")
+    partial.replace(cache)
+    partial = record.with_name(record.name + ".partial")
+    partial.write_text(json.dumps(params, sort_keys=True) + "\n")
+    partial.replace(record)
     return pq.read_table(cache)
 
 
