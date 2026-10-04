@@ -1,15 +1,27 @@
 diff --git a/datafusion/physical-plan/src/repartition/mod.rs b/datafusion/physical-plan/src/repartition/mod.rs
-index d2d8ec38d..9ad712ff8 100644
+index d2d8ec38d..bfe60c3a7 100644
 --- a/datafusion/physical-plan/src/repartition/mod.rs
 +++ b/datafusion/physical-plan/src/repartition/mod.rs
-@@ -212,6 +212,32 @@ impl PartitionSpillWriters {
+@@ -156,8 +156,8 @@ use distributor_channels::{
+ /// the state machine that handles reading these batches.
+ #[derive(Debug)]
+ enum RepartitionBatch {
+-    /// Batch held in memory (counts against memory reservation)
+-    Memory(RecordBatch),
++    /// Batch held in memory, with the bytes reserved for it
++    Memory(RecordBatch, usize),
+     /// Marker indicating a batch was spilled to the partition's SpillPool.
+     /// The actual batch can be retrieved by reading from the SpillPoolStream.
+     /// This variant contains no data itself - it's just a signal to the reader
+@@ -212,6 +212,33 @@ impl PartitionSpillWriters {
      }
  }
  
 +/// Measuring instrument, not a proposal: the bytes a batch holds for its own
 +/// rows. A slice is charged for the rows it carries, and a view column for its
 +/// views and the bytes its rows reference, instead of the full capacity of
-+/// every buffer it shares with the other slices of the same batch.
++/// every buffer it shares with the other slices of the same batch. Computed
++/// once per batch, when it is sent; the receiver releases the same amount.
 +fn own_bytes(batch: &RecordBatch) -> usize {
 +    use arrow::array::{Array, AsArray};
 +    batch
@@ -35,7 +47,7 @@ index d2d8ec38d..9ad712ff8 100644
  impl OutputChannel {
      fn coalesce(&mut self, batch: RecordBatch) -> Result<Vec<RecordBatch>> {
          match &self.shared_coalescer {
-@@ -226,7 +252,7 @@ impl OutputChannel {
+@@ -226,13 +253,13 @@ impl OutputChannel {
      ///
      /// Used after [`OutputChannel::coalesce`] for performance purposes.
      async fn send(&mut self, batch: RecordBatch) -> Result<(), SendError<MaybeBatch>> {
@@ -44,12 +56,22 @@ index d2d8ec38d..9ad712ff8 100644
  
          // Decide the payload outside of any await: never hold a MutexGuard
          // across an await point.
-@@ -2549,7 +2575,7 @@ impl PerPartitionStream {
+         let (payload, is_memory_batch) = {
+             match self.reservation.try_grow(size) {
+-                Ok(_) => (Ok(RepartitionBatch::Memory(batch)), true),
++                Ok(_) => (Ok(RepartitionBatch::Memory(batch, size)), true),
+                 Err(_) => match self.spill_writer.push_batch(&batch) {
+                     Ok(()) => (Ok(RepartitionBatch::Spilled), false),
+                     Err(err) => (Err(err), false),
+@@ -2547,9 +2574,9 @@ impl PerPartitionStream {
+ 
+                     match value {
                          Some(Some(v)) => match v {
-                             Ok(RepartitionBatch::Memory(batch)) => {
+-                            Ok(RepartitionBatch::Memory(batch)) => {
++                            Ok(RepartitionBatch::Memory(batch, size)) => {
                                  // Release memory and return batch
 -                                self.reservation.shrink(batch.get_array_memory_size());
-+                                self.reservation.shrink(own_bytes(&batch));
++                                self.reservation.shrink(size);
                                  return Poll::Ready(Some(Ok(batch)));
                              }
                              Ok(RepartitionBatch::Spilled) => {

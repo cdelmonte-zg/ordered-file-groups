@@ -93,7 +93,7 @@ total-overlap series at 1200 files at the three pools). No other crossing.
 
 ## Fixed in every run
 
-The two binaries of `provenance/`, `datafusion-cli` with `--mem-pool-type
+The binaries of `provenance/`, `datafusion-cli` with `--mem-pool-type
 fair`, default batch size, zstd Parquet with statistics, datasets from fixed
 seeds and a fixed time origin. One unrecorded warm-up, ten recorded runs,
 variants in rotating order. Times are the `Elapsed` of `EXPLAIN ANALYZE`; per
@@ -146,7 +146,9 @@ one more patch (`patch/slice-accounting.patch`): the repartition reserves,
 for every slice it sends, the bytes the slice holds for its own rows, and for
 a string-view column its views plus the string bytes its rows reference,
 instead of the full capacity of the buffers the slice shares with the others.
-The strings stay views; only the accounting changes. If the reservations are
+The strings stay views; only the accounting changes, at the price of one
+pass over the views of every batch sent, which the engine's own accounting
+does not make. If the reservations are
 what makes the final aggregate spill on wide strings, the spills go with
 this binary. Like the first patch it is a measuring instrument, not a
 proposal: it was not checked against the engine's own memory safety.
@@ -245,7 +247,7 @@ the resident set is attributed to the part of the engine whose code touched
 it first. It is an attribution observed from outside, where the model of the
 many-stream memory only estimates; it says who brought a page in, not who
 holds it at the peak. It needs perf, the permission to use it
-(`kernel.perf_event_paranoid` at most 1) and binaries with their symbol
+(`kernel.perf_event_paranoid` at most 2) and binaries with their symbol
 table, which the build keeps. Where one is missing the experiment is
 recorded as not run, with the reason.
 

@@ -10,7 +10,7 @@ the stacks are grouped by the part of the engine they belong to. This says
 who brought a page in, not who holds it at the peak.
 
 It needs what the lab does not require elsewhere: perf, the permission to use
-it (kernel.perf_event_paranoid at most 1, or root) and binaries with their
+it (kernel.perf_event_paranoid at most 2, or root) and binaries with their
 symbol table, which scripts/build_binaries.sh keeps. When one of these is
 missing, the script writes the reason to results.tsv and exits with status 0:
 the experiment is recorded as not run.
@@ -32,8 +32,9 @@ PAGE_MB = 4096 / 2**20
 PARTS = [
     ("spill", re.compile(r"spill|IPCStreamWriter|arrow_ipc", re.I)),
     ("repartition", re.compile(r"repartition", re.I)),
-    ("merge", re.compile(r"sorts::|streaming_merge|SortPreservingMerge", re.I)),
-    ("sort", re.compile(r"ExternalSorter|sort::sort|SortExec", re.I)),
+    # the sort before the merge: both live under `sorts::`
+    ("sort", re.compile(r"sorts::sort::|ExternalSorter|SortExec", re.I)),
+    ("merge", re.compile(r"sorts::(merge|streaming_merge|sort_preserving_merge|cursor|stream)", re.I)),
     ("aggregate", re.compile(r"aggregates::|GroupValues|group_values", re.I)),
     ("scan", re.compile(r"parquet|datasource|object_store", re.I)),
 ]
@@ -42,9 +43,13 @@ PARTS = [
 def why_not():
     if not shutil.which("perf"):
         return "perf is not installed"
-    paranoid = int(Path("/proc/sys/kernel/perf_event_paranoid").read_text())
-    if paranoid > 1 and subprocess.run(["id", "-u"], capture_output=True, text=True).stdout.strip() != "0":
-        return f"kernel.perf_event_paranoid is {paranoid}; it must be at most 1"
+    try:
+        paranoid = int(Path("/proc/sys/kernel/perf_event_paranoid").read_text())
+    except (OSError, ValueError):
+        return "kernel.perf_event_paranoid cannot be read"
+    # level 2 still allows a user to sample its own processes in user space
+    if paranoid > 2 and subprocess.run(["id", "-u"], capture_output=True, text=True).stdout.strip() != "0":
+        return f"kernel.perf_event_paranoid is {paranoid}; it must be at most 2"
     symbols = subprocess.run(["nm", str(rm.binary("accept-groups"))], capture_output=True, text=True)
     if symbols.returncode != 0 or "repartition" not in symbols.stdout:
         return "the binaries have no symbol table"
@@ -69,13 +74,18 @@ def profile(variant, sql):
     (OUT / f"{variant}.err").write_text(record.stderr)
     if rm.run_failed(record.returncode, record.stdout, record.stderr) or not data.is_file():
         return None
-    script = subprocess.run(["perf", "script", "-i", str(data), "-F", "sym"],
-                            capture_output=True, text=True).stdout
+    # the call chain is printed only with the ip field: one "address symbol" line per frame
+    script = subprocess.run(["perf", "script", "-i", str(data), "-F", "ip,sym"],
+                            capture_output=True, text=True)
+    if script.returncode != 0:
+        (OUT / f"{variant}.perf-script.err").write_text(script.stderr)
+        return None                           # the profile is kept for inspection
     data.unlink()                             # hundreds of MB; the counts are what is kept
     counts, stack = Counter(), []
-    for line in script.splitlines() + [""]:
-        if line.strip():
-            stack.append(line.strip())
+    for line in script.stdout.splitlines() + [""]:
+        fields = line.split(None, 1)
+        if fields:
+            stack.append(fields[1] if len(fields) > 1 else fields[0])
         elif stack:
             counts[part_of(stack)] += 1
             stack = []
@@ -93,9 +103,10 @@ else:
     sql.write_text(sql_for("df-16919-partial-1200-depth-1200-rank"))
     for variant in ("original", "accept-groups"):
         counts = profile(variant, sql)
-        if counts is None:
+        if not counts:
             rows.append({"variant": variant, "part": "", "page_faults": "", "mb": "",
-                         "share_pct": "", "note": "the run under perf failed"})
+                         "share_pct": "", "note": f"{variant}: " + (
+                             "the run under perf failed" if counts is None else "perf recorded no sample")})
             continue
         total = sum(counts.values())
         for part, n in counts.most_common():

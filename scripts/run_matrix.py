@@ -1,6 +1,6 @@
 """Runner for the matrix of DESIGN.md: cases, variants, pools.
 
-Run from the repository root, with the two binaries in bin/ and the datasets of
+Run from the repository root, with the binaries in bin/ and the datasets of
 scripts/datasets.sh in /tmp (scripts/run_lab.sh does all of this):
 
   python scripts/run_matrix.py --plan-check --out results/matrix   # plans only, once per case and variant
@@ -431,7 +431,7 @@ def record_machine(out):
     memory = next((l.split()[1] for l in Path("/proc/meminfo").read_text().splitlines()
                    if l.startswith("MemTotal")), "0")
     nofile = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
-    # the two binaries the matrix runs, nothing else that may lie in bin/
+    # the binaries of the lab, nothing else that may lie in bin/
     hashes = subprocess.run(["sha256sum"] + sorted(str(binary(b)) for b in BINARIES),
                             capture_output=True, text=True).stdout
     (out / "machine.txt").write_text(

@@ -91,10 +91,14 @@ def string_views(out, figures):
         note = "" if len(ok) == len(sel) else f", {n_of(sel)} completed"
         return f"{num(median(ok, 'elapsed_s'))} ({num(median(ok, 'final_agg_spills'), 0)}{note})"
 
-    def gain(shape, pool, strings):
-        o = median(completed(cell(shape, pool, "original", strings)), "elapsed_s")
-        a = median(completed(cell(shape, pool, "accept-groups", strings)), "elapsed_s")
+    def gain_of(shape, pool, variant, strings, base_strings):
+        """Percent by which a variant is faster than the original with the given strings."""
+        o = median(completed(cell(shape, pool, "original", base_strings)), "elapsed_s")
+        a = median(completed(cell(shape, pool, variant, strings)), "elapsed_s")
         return 100 * (1 - a / o)
+
+    def gain(shape, pool, strings):
+        return gain_of(shape, pool, "accept-groups", strings, strings)
 
     runs = max(len(cell(sh, p, "accept-groups", "views")) for sh in ("S0", "S2") for p in ("128m", "512m"))
     ACC = "accept-groups-accounting"
@@ -103,7 +107,8 @@ def string_views(out, figures):
              "the wide ones (S2), read as Arrow string views and as plain `Utf8`, both plans, "
              f"{runs} runs each. A third binary runs the ordered plan with string views and with "
              "the repartition's reservation changed to the bytes a slice holds for its own rows "
-             "(`patch/slice-accounting.patch`): it changes the accounting and nothing else. Median "
+             "(`patch/slice-accounting.patch`): it changes the accounting, at the price of one pass "
+             "over the views of every batch sent. Median "
              "elapsed seconds, with the median spills of the final aggregate in parentheses.", "",
              "| shape | pool | original, views | original, Utf8 | ordered, views | ordered, Utf8 | "
              "ordered, views, slice accounting |",
@@ -114,11 +119,6 @@ def string_views(out, figures):
     for shape, pool in cells:
         lines.append(f"| {shape} | {pool} | " + " | ".join(
             shown(cell(shape, pool, v, s)) for v, s in columns) + " |")
-
-    def gain_of(shape, pool, variant, strings, base_strings):
-        o = median(completed(cell(shape, pool, "original", base_strings)), "elapsed_s")
-        a = median(completed(cell(shape, pool, variant, strings)), "elapsed_s")
-        return 100 * (1 - a / o)
 
     lines += ["", "Gain of the ordered plan over the original with the same strings (for the slice "
               "accounting, over the original with views):", "",
@@ -156,7 +156,8 @@ def string_views(out, figures):
               f"{num(med('original', 'views', 'sort_spills'), 0)} times with views and "
               f"{num(med('original', 'utf8', 'sort_spills'), 0)} with plain strings, its median is "
               f"{num(med('original', 'views', 'elapsed_s'))} against {num(med('original', 'utf8', 'elapsed_s'))} s"
-              + (f", and {failed} of its five runs with views failed." if failed else "."), ""]
+              + (f", and {failed} of its {len(cell('S2', '128m', 'original', 'views'))} runs with views failed."
+                 if failed else "."), ""]
     figures += [("string_test_gain_views_S2_128_pct", pct(gv)),
                 ("string_test_gain_utf8_S2_128_pct", pct(gu)),
                 ("string_test_gain_views_S0_128_pct", pct(narrow)),
@@ -251,7 +252,7 @@ def many_streams(out, figures):
              "| series | query | slope | 95 % interval | bootstrap interval | R² |", "|---|---|---|---|---|---|"]
     fits = {}
     for s in series:
-        for q, label in (("Q0", "Q0, the scan alone"), ("Q1", "Q1, `ORDER BY`: scan and merge"),
+        for q, label in (("Q0", "Q0, the scan with nothing above it"), ("Q1", "Q1, `ORDER BY`: scan and merge"),
                          ("Q2", "Q2, `GROUP BY` on the sort key, 3 columns read"),
                          ("Q3", "Q3, deduplication")):
             f = fits[s, q] = fit(s, q)
@@ -290,15 +291,15 @@ def many_streams(out, figures):
         original = med_rss(e1(s, "Q3", "1200", "original"))
         pair = (med_rss(t8) - med_rss(base)) / (6 * groups) if groups else float("nan")
         f0, f1 = fits[s, "Q0"], fits[s, "Q1"]
-        scan = f0["slope_kb"] / 1024 * groups if f0 else float("nan")
+        scan = f1["slope_kb"] / 1024 * groups if f1 else float("nan")
         per_series[s] = {
             "groups": groups, "excess": med_rss(base) - original, "pair_mb": pair,
             "added_2_to_8": med_rss(t8) - med_rss(base),
             "predicted_4": med_rss(base) + pair * 2 * groups, "measured_4": med_rss(t4),
             "scan": scan, "repartition": pair * 2 * groups,
             "purge_q3": med_rss(purge3) - med_rss(base), "purge_q1": med_rss(purge1) - med_rss(q1o),
-            "stream_mb": f0["slope_kb"] / 1024 if f0 else float("nan"),
-            "merge_mb": (f1["slope_kb"] - f0["slope_kb"]) / 1024 if f0 and f1 else float("nan"),
+            "stream_mb": f1["slope_kb"] / 1024 if f1 else float("nan"),
+            "bare_mb": f0["slope_kb"] / 1024 if f0 else float("nan"),
             "level": med_rss(base),
         }
 
@@ -334,7 +335,7 @@ def many_streams(out, figures):
               "series** (MB). It is a model, not a measurement of operators: the RSS is the peak "
               "of the whole process, the peaks of two runs can fall in different phases, and "
               "differences of peaks are not the memory of an operator. The per-stream term is the "
-              "slope of the scan alone (Q0); the per-pair term is the increase from 2 to 8 outputs "
+              "slope of the `ORDER BY` query (Q1); the per-pair term is the increase from 2 to 8 outputs "
               "divided by the pairs added; applying it to the pairs at 2 outputs assumes no fixed "
               "cost per input or per output. What the two terms leave is the residual of the "
               "model, not memory observed separately.", "",
@@ -354,7 +355,7 @@ def many_streams(out, figures):
         return (min(v), max(v)) if v else (float("nan"), float("nan"))
 
     stream, pair, rest = across("stream_mb"), across("pair_mb"), across("rest")
-    merge = across("merge_mb")
+    bare = across("bare_mb")
     excess, level = across("excess"), across("level")
     added = across("added_2_to_8")
     lowered = sum(1 for s in series if per_series[s]["purge_q3"] < 0)
@@ -368,10 +369,12 @@ def many_streams(out, figures):
         if o_lo and o_hi and n_lo:
             factors.append((o_hi / o_lo, n_hi / n_lo))
     lines += ["", f"Over the {len(series)} series:", "",
-              f"- with the scan alone (Q0, all eight columns read) the excess RSS grows by "
-              f"{span(*stream)} MB per active read stream; adding the final merge (Q1) changes the "
-              f"slope by {span(*merge)} MB per stream; with three columns read (Q2) the interval of "
-              f"the slope includes zero in {flat} of {len(q2)} series;",
+              f"- with the `ORDER BY` query (Q1, a merge pulling from the streams, all eight "
+              f"columns read) the excess RSS grows by {span(*stream)} MB per stream; with nothing "
+              f"above the scan (Q0, all the streams driven at once) by {span(*bare)} MB per stream; "
+              f"the two differ in how the streams are driven, so their difference is not the cost "
+              f"of the merge; with three columns read (Q2) the interval of the slope includes zero "
+              f"in {flat} of {len(q2)} series;",
               f"- at 1200 files, going from 2 to 8 outputs adds {span(added[0] / 1024, added[1] / 1024, 1)} GB, "
               f"which divided by the pairs added is {span(*pair)} MB per pair of input and output;"]
     if factors:
@@ -392,7 +395,7 @@ def many_streams(out, figures):
                 ("many_streams_rss_gb", span(level[0] / 1024, level[1] / 1024, 1)),
                 ("many_streams_excess_gb", span(excess[0] / 1024, excess[1] / 1024, 1)),
                 ("many_streams_model_residual_mb", f"{rest[0]:.0f} to {rest[1]:.0f}"),
-                ("many_streams_merge_mb_per_stream", span(*merge)),
+                ("many_streams_mb_per_stream_scan_driven_at_once", span(*bare)),
                 ("many_streams_slope_on_outputs_factor", span(*slope_factor, 1) if factors else "n/a"),
                 ("many_streams_streams_factor", f"{factors[0][1]:.1f}" if factors else "n/a"),
                 ("many_streams_purge_lowers_in", f"{lowered} of {len(series)} series"),

@@ -9,8 +9,9 @@ set of experiments is repeated in three independent series, and the report
 gives every coefficient per series.
 
 - E1: the ordered plan (five runs) and the original plan (three runs) at every
-  file count, for the scan alone (Q0), the ORDER BY query (Q1), the GROUP BY
-  on the sort key (Q2) and the deduplication (Q3).
+  file count, for the scan with nothing above it (Q0, where the engine drives
+  all the streams at once), the ORDER BY query (Q1, where the merge pulls
+  from them), the GROUP BY on the sort key (Q2) and the deduplication (Q3).
 - E2: Q3 at every file count with 4 and 8 output partitions (2 is E1), so that
   the streams and the outputs are crossed.
 - E3: Q1 and Q3 at 1200 files with MIMALLOC_PURGE_DELAY=0.
