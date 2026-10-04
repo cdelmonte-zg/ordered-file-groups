@@ -20,6 +20,10 @@ Two builds of `datafusion-cli` 55.1.0 are compared on the same queries:
   groups as the overlap of the files requires. The patch is a measuring
   instrument, not a proposal.
 
+A third build, `accept-groups-accounting`, adds `patch/slice-accounting.patch`
+and is used by one experiment, to change the repartition's memory accounting
+and nothing else.
+
 ## Where things are
 
 - `DESIGN.md`: what is measured, how, and what was predicted. No results.
@@ -41,7 +45,8 @@ Two builds of `datafusion-cli` 55.1.0 are compared on the same queries:
   (`check_results.py`), the report (`make_report.py`) and the driver
   (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
-  `depth`, `open-files`), their shared runner (`common.py`) and the code of
+  `depth`, `open-files`), the two views of the process from outside
+  (`process`, `page-faults`), their shared runner (`common.py`) and the code of
   their report sections (`report.py`).
 
 The repository holds one run. Nothing in it was collected by hand, and no

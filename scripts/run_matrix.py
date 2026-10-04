@@ -31,6 +31,7 @@ ROOT = HERE.parent
 BIN = ROOT / "bin"
 
 QUERIES = {
+    "Q0": "SELECT * FROM example;",          # the scan alone; used by experiments/many-streams
     "Q1": "SELECT * FROM example ORDER BY col_1 ASC, col_2 ASC;",
     "Q2": """SELECT col_1, col_2, count(*) AS n, first_value(col_8) AS col_8
 FROM example
@@ -46,7 +47,15 @@ ORDER BY col_1 ASC, col_2 ASC;""",
     "Q4": """SELECT col_3, col_4, col_5, col_6, count(*) AS n
 FROM example
 GROUP BY col_3, col_4, col_5, col_6;""",
+    # Q3 without its ORDER BY: neither plan needs a sort, so what differs is the aggregation
+    "Q5": """SELECT
+    col_1, col_2, col_3, col_4, col_5, col_6,
+    first_value(col_7) AS col_7,
+    first_value(col_8) AS col_8
+FROM example
+GROUP BY col_1, col_2, col_3, col_4, col_5, col_6;""",
 }
+ORDER_BY = {"Q1", "Q2", "Q3"}             # the queries that ask for sorted rows
 
 # variant -> (binary, split_file_groups_by_statistics, target: None = 2, "groups" = the groups needed)
 VARIANTS = {
@@ -106,6 +115,7 @@ MATRIX = [
     Case("A1-Q1", "A1", BASE, 4, query="Q1"),
     Case("A1-Q2", "A1", BASE, 4, query="Q2"),
     Case("A1-Q4", "A1", BASE, 4, query="Q4"),
+    Case("A1-Q5", "A1", BASE, 4, query="Q5"),
     Case("A2-depth-1", "A2", "df-16919-partial-12-depth-1", 2, variants=TWO,
          note="two groups produced, same plan in both variants"),
     Case("A2-depth-2", "A2", "df-16919-partial-12-depth-2", 2, variants=TWO),
@@ -258,8 +268,16 @@ def run(binary, sql_path, out_path, err_path, memory, timeout):
     return row
 
 
+# the binaries scripts/build_binaries.sh builds; the third is used by experiments/string-views
+BINARIES = ("original", "accept-groups", "accept-groups-accounting")
+
+
+def binary(name):
+    return BIN / f"datafusion-cli-{name}-release"
+
+
 def binary_of(variant):
-    return BIN / f"datafusion-cli-{VARIANTS[variant][0]}-release"
+    return binary(VARIANTS[variant][0])
 
 
 def expected_plan(case, variant):
@@ -276,9 +294,11 @@ def expected_plan(case, variant):
     ordered = split and (variant == "accept-groups" or needed <= target)
     if not ordered:
         mode = "" if case.query == "Q1" else "Linear"
-        return {"sort_exec": 1, "output_ordering": 0, "scan_groups": str(target),
-                "preserve_order": 0, "partial_mode": mode, "final_mode": mode}
-    mode = {"Q1": "", "Q2": "Sorted", "Q3": "PartiallySorted([0, 1])"}[case.query]
+        return {"sort_exec": int(case.query in ORDER_BY), "output_ordering": 0,
+                "scan_groups": str(target), "preserve_order": 0,
+                "partial_mode": mode, "final_mode": mode}
+    mode = {"Q1": "", "Q2": "Sorted", "Q3": "PartiallySorted([0, 1])",
+            "Q5": "PartiallySorted([0, 1])"}[case.query]
     return {"sort_exec": 0, "output_ordering": 1, "scan_groups": str(max(needed, target)),
             "preserve_order": 0 if case.query == "Q1" else 1,
             "partial_mode": mode, "final_mode": mode}
@@ -412,7 +432,7 @@ def record_machine(out):
                    if l.startswith("MemTotal")), "0")
     nofile = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
     # the two binaries the matrix runs, nothing else that may lie in bin/
-    hashes = subprocess.run(["sha256sum"] + sorted({str(binary_of(v)) for v in VARIANTS}),
+    hashes = subprocess.run(["sha256sum"] + sorted(str(binary(b)) for b in BINARIES),
                             capture_output=True, text=True).stdout
     (out / "machine.txt").write_text(
         f"cpu\t{cpu}\nthreads\t{threads}\nmemory_gb\t{int(memory) / 2**20:.0f}\n"
@@ -493,9 +513,9 @@ def main():
     if args.recheck_plans:
         recheck_plans(cases, args.out)
         return
-    for v in VARIANTS.values():
-        if not (BIN / f"datafusion-cli-{v[0]}-release").is_file():
-            raise SystemExit(f"Missing binary for {v[0]} in {BIN}")
+    for name in BINARIES:
+        if not binary(name).is_file():
+            raise SystemExit(f"Missing binary {binary(name)}: run scripts/build_binaries.sh")
     for c in cases:
         if not Path(c.location).is_dir():
             raise SystemExit(f"Missing dataset {c.location}; run scripts/datasets.sh")

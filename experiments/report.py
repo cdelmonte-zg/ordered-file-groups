@@ -96,23 +96,38 @@ def string_views(out, figures):
         a = median(completed(cell(shape, pool, "accept-groups", strings)), "elapsed_s")
         return 100 * (1 - a / o)
 
+    runs = max(len(cell(sh, p, "accept-groups", "views")) for sh in ("S0", "S2") for p in ("128m", "512m"))
+    ACC = "accept-groups-accounting"
     lines = ["### String views and the repartition's accounting", "",
              "`experiments/string-views/run.py`: the deduplication on the narrow strings (S0) and on "
-             "the wide ones (S2), read as Arrow string views and as plain `Utf8`, both plans, five "
-             "runs each. Median elapsed seconds, with the median spills of the final aggregate in "
-             "parentheses.", "",
-             "| shape | pool | original, views | original, Utf8 | ordered, views | ordered, Utf8 |",
-             "|---|---|---|---|---|---|"]
+             "the wide ones (S2), read as Arrow string views and as plain `Utf8`, both plans, "
+             f"{runs} runs each. A third binary runs the ordered plan with string views and with "
+             "the repartition's reservation changed to the bytes a slice holds for its own rows "
+             "(`patch/slice-accounting.patch`): it changes the accounting and nothing else. Median "
+             "elapsed seconds, with the median spills of the final aggregate in parentheses.", "",
+             "| shape | pool | original, views | original, Utf8 | ordered, views | ordered, Utf8 | "
+             "ordered, views, slice accounting |",
+             "|---|---|---|---|---|---|---|"]
     cells = [(s, p) for s in ("S0", "S2") for p in ("128m", "512m")]
+    columns = (("original", "views"), ("original", "utf8"), ("accept-groups", "views"),
+               ("accept-groups", "utf8"), (ACC, "views"))
     for shape, pool in cells:
         lines.append(f"| {shape} | {pool} | " + " | ".join(
-            shown(cell(shape, pool, v, s)) for v in ("original", "accept-groups")
-            for s in ("views", "utf8")) + " |")
-    lines += ["", "Gain of the ordered plan over the original:", "",
-              "| shape | pool | with string views | with plain Utf8 |", "|---|---|---|---|"]
+            shown(cell(shape, pool, v, s)) for v, s in columns) + " |")
+
+    def gain_of(shape, pool, variant, strings, base_strings):
+        o = median(completed(cell(shape, pool, "original", base_strings)), "elapsed_s")
+        a = median(completed(cell(shape, pool, variant, strings)), "elapsed_s")
+        return 100 * (1 - a / o)
+
+    lines += ["", "Gain of the ordered plan over the original with the same strings (for the slice "
+              "accounting, over the original with views):", "",
+              "| shape | pool | with string views | with plain Utf8 | with views and slice accounting |",
+              "|---|---|---|---|---|"]
     for shape, pool in cells:
         lines.append(f"| {shape} | {pool} | {pct(gain(shape, pool, 'views'))} % | "
-                     f"{pct(gain(shape, pool, 'utf8'))} % |")
+                     f"{pct(gain(shape, pool, 'utf8'))} % | "
+                     f"{pct(gain_of(shape, pool, ACC, 'views', 'views'))} % |")
 
     def med(variant, strings, key):
         return median(completed(cell("S2", "128m", variant, strings)), key)
@@ -130,6 +145,13 @@ def string_views(out, figures):
               f"{num(med('accept-groups', 'utf8', 'repartition_out_mb'), 0)} with plain strings; the original "
               f"plan's repartition {num(med('original', 'views', 'repartition_out_mb'), 0)} and "
               f"{num(med('original', 'utf8', 'repartition_out_mb'), 0)}.",
+              f"- With the views kept and only the accounting changed, the ordered plan takes "
+              f"{num(med(ACC, 'views', 'elapsed_s'))} s, a gain of "
+              f"{pct(gain_of('S2', '128m', ACC, 'views', 'views'))} percent; its final aggregate spills "
+              f"{num(med(ACC, 'views', 'final_agg_spills'), 0)} times and its repartition "
+              f"{num(med(ACC, 'views', 'repartition_spills'), 0)}, against "
+              f"{num(med('accept-groups', 'views', 'final_agg_spills'), 0)} and "
+              f"{num(med('accept-groups', 'views', 'repartition_spills'), 0)} with the engine's accounting.",
               f"- The views cost the original plan too: its sort spills "
               f"{num(med('original', 'views', 'sort_spills'), 0)} times with views and "
               f"{num(med('original', 'utf8', 'sort_spills'), 0)} with plain strings, its median is "
@@ -143,7 +165,10 @@ def string_views(out, figures):
                 ("string_test_ordered_views_s", num(med('accept-groups', 'views', 'elapsed_s'))),
                 ("string_test_original_views_s", num(med('original', 'views', 'elapsed_s'))),
                 ("string_test_repartition_out_views_mb", num(med('accept-groups', 'views', 'repartition_out_mb'), 0)),
-                ("string_test_repartition_out_utf8_mb", num(med('accept-groups', 'utf8', 'repartition_out_mb'), 0))]
+                ("string_test_repartition_out_utf8_mb", num(med('accept-groups', 'utf8', 'repartition_out_mb'), 0)),
+                ("string_test_slice_accounting_views_s", num(med(ACC, 'views', 'elapsed_s'))),
+                ("string_test_gain_slice_accounting_S2_128_pct", pct(gain_of('S2', '128m', ACC, 'views', 'views'))),
+                ("string_test_slice_accounting_final_spills", num(med(ACC, 'views', 'final_agg_spills'), 0))]
     return "\n".join(lines)
 
 
@@ -226,7 +251,8 @@ def many_streams(out, figures):
              "| series | query | slope | 95 % interval | bootstrap interval | R² |", "|---|---|---|---|---|---|"]
     fits = {}
     for s in series:
-        for q, label in (("Q1", "Q1, `ORDER BY` only"), ("Q2", "Q2, `GROUP BY` on the sort key, 3 columns read"),
+        for q, label in (("Q0", "Q0, the scan alone"), ("Q1", "Q1, `ORDER BY`: scan and merge"),
+                         ("Q2", "Q2, `GROUP BY` on the sort key, 3 columns read"),
                          ("Q3", "Q3, deduplication")):
             f = fits[s, q] = fit(s, q)
             if f is None:
@@ -263,25 +289,57 @@ def many_streams(out, figures):
         groups = int(base[0]["groups"]) if base else 0
         original = med_rss(e1(s, "Q3", "1200", "original"))
         pair = (med_rss(t8) - med_rss(base)) / (6 * groups) if groups else float("nan")
-        f1 = fits[s, "Q1"]
-        scan = f1["slope_kb"] / 1024 * groups if f1 else float("nan")
+        f0, f1 = fits[s, "Q0"], fits[s, "Q1"]
+        scan = f0["slope_kb"] / 1024 * groups if f0 else float("nan")
         per_series[s] = {
             "groups": groups, "excess": med_rss(base) - original, "pair_mb": pair,
             "added_2_to_8": med_rss(t8) - med_rss(base),
             "predicted_4": med_rss(base) + pair * 2 * groups, "measured_4": med_rss(t4),
             "scan": scan, "repartition": pair * 2 * groups,
             "purge_q3": med_rss(purge3) - med_rss(base), "purge_q1": med_rss(purge1) - med_rss(q1o),
-            "stream_mb": f1["slope_kb"] / 1024 if f1 else float("nan"),
+            "stream_mb": f0["slope_kb"] / 1024 if f0 else float("nan"),
+            "merge_mb": (f1["slope_kb"] - f0["slope_kb"]) / 1024 if f0 and f1 else float("nan"),
             "level": med_rss(base),
         }
 
-    lines += ["", "**Decomposition of the excess of the deduplication at 1200 files, per series** "
-              "(MB). The per-stream cost is the slope of Q1; the per-pair cost is the increase "
-              "from 2 to 8 outputs divided by the pairs added, so it is derived from that increase "
-              "and not confirmed independently of it; applying it to the pairs at 2 outputs "
-              "assumes no fixed cost per input or per output.", "",
-              "| series | streams | excess over the original | per stream | scan share | per pair | "
-              "repartition share at 2 outputs | not attributed | 4 outputs, predicted / measured | "
+    # streams crossed with outputs: is the growth with the outputs the same at
+    # every number of streams (a cost per output) or proportional to the streams
+    # (a cost per pair)?
+    lines += ["", "**E2, streams crossed with outputs.** For every number of streams, the slope of "
+              "the peak RSS of the deduplication on the outputs (2, 4, 8), in MB per output, and "
+              "the same divided by the streams, in MB per pair. A cost per output would give the "
+              "same slope at every number of streams; a cost per pair of input and output a slope "
+              "proportional to the streams.", "",
+              "| series | " + " | ".join(f"{f} files: streams, MB per output, MB per pair" for f in files_list) + " |",
+              "|" + "---|" * (len(files_list) + 1)]
+    crossing = {}
+    for s in series:
+        cells = []
+        for f in files_list:
+            xs, ys, groups = [], [], 0
+            for target, sel in ((2, e1(s, "Q3", f, "accept-groups")),
+                                (4, select(rows, series=s, name=f"E2-{f}-Q3-t4")),
+                                (8, select(rows, series=s, name=f"E2-{f}-Q3-t8"))):
+                for r in sel:
+                    xs.append(target)
+                    ys.append(float(r["rss_mb"]))
+                    groups = int(r["groups"])
+            per_output = slope(xs, ys) if len(set(xs)) == 3 else None
+            crossing[s, f] = (groups, per_output)
+            cells.append("n/a" if per_output is None or not groups else
+                         f"{groups}, {per_output:.0f}, {per_output / groups:.2f}")
+        lines.append(f"| {s} | " + " | ".join(cells) + " |")
+
+    lines += ["", "**An exploratory model of the excess of the deduplication at 1200 files, per "
+              "series** (MB). It is a model, not a measurement of operators: the RSS is the peak "
+              "of the whole process, the peaks of two runs can fall in different phases, and "
+              "differences of peaks are not the memory of an operator. The per-stream term is the "
+              "slope of the scan alone (Q0); the per-pair term is the increase from 2 to 8 outputs "
+              "divided by the pairs added; applying it to the pairs at 2 outputs assumes no fixed "
+              "cost per input or per output. What the two terms leave is the residual of the "
+              "model, not memory observed separately.", "",
+              "| series | streams | excess over the original | per stream | per-stream term | per pair | "
+              "per-pair term at 2 outputs | residual | 4 outputs, predicted / measured | "
               "purge 0, change for Q3 | for Q1 |", "|" + "---|" * 11]
     for s in series:
         d = per_series[s]
@@ -296,21 +354,36 @@ def many_streams(out, figures):
         return (min(v), max(v)) if v else (float("nan"), float("nan"))
 
     stream, pair, rest = across("stream_mb"), across("pair_mb"), across("rest")
+    merge = across("merge_mb")
     excess, level = across("excess"), across("level")
     added = across("added_2_to_8")
     lowered = sum(1 for s in series if per_series[s]["purge_q3"] < 0)
     purge = across("purge_q3")
     q2 = [fits[s, "Q2"] for s in series if fits[s, "Q2"]]
     flat = sum(1 for f in q2 if f["lo"] <= 0 <= f["hi"])
+    # how the slope on the outputs scales with the streams, smallest against largest file count
+    factors = []
+    for s in series:
+        (n_lo, o_lo), (n_hi, o_hi) = crossing[s, files_list[0]], crossing[s, files_list[-1]]
+        if o_lo and o_hi and n_lo:
+            factors.append((o_hi / o_lo, n_hi / n_lo))
     lines += ["", f"Over the {len(series)} series:", "",
-              f"- the scan holds {span(*stream)} MB per active read stream (slope of the `ORDER BY` "
-              f"query, which reads all eight columns); with three columns read (Q2) the interval of "
+              f"- with the scan alone (Q0, all eight columns read) the excess RSS grows by "
+              f"{span(*stream)} MB per active read stream; adding the final merge (Q1) changes the "
+              f"slope by {span(*merge)} MB per stream; with three columns read (Q2) the interval of "
               f"the slope includes zero in {flat} of {len(q2)} series;",
-              f"- going from 2 to 8 outputs adds {span(added[0] / 1024, added[1] / 1024, 1)} GB, that is "
-              f"{span(*pair)} MB per pair of input and output partition;",
-              f"- the median RSS of the deduplication is {span(level[0] / 1024, level[1] / 1024, 1)} GB, "
-              f"{span(excess[0] / 1024, excess[1] / 1024, 1)} GB above the original plan, and what the scan "
-              f"and the repartition shares leave unattributed ranges from {rest[0]:.0f} to {rest[1]:.0f} MB;",
+              f"- at 1200 files, going from 2 to 8 outputs adds {span(added[0] / 1024, added[1] / 1024, 1)} GB, "
+              f"which divided by the pairs added is {span(*pair)} MB per pair of input and output;"]
+    if factors:
+        slope_factor = (min(f[0] for f in factors), max(f[0] for f in factors))
+        stream_factor = factors[0][1]
+        lines.append(
+            f"- from {files_list[0]} to {files_list[-1]} files the streams grow by a factor of "
+            f"{stream_factor:.1f} and the slope on the outputs by a factor of {span(*slope_factor, 1)}: "
+            f"a cost per output alone would give a factor of 1, a cost per pair alone the factor of the streams;")
+    lines += [f"- the median RSS of the deduplication is {span(level[0] / 1024, level[1] / 1024, 1)} GB, "
+              f"{span(excess[0] / 1024, excess[1] / 1024, 1)} GB above the original plan, and the residual "
+              f"of the model ranges from {rest[0]:.0f} to {rest[1]:.0f} MB;",
               f"- eager purging by the allocator lowers the median RSS of the deduplication in "
               f"{lowered} of {len(series)} series (changes from {purge[0]:+.0f} to {purge[1]:+.0f} MB).", ""]
     figures += [("many_streams_mb_per_stream", span(*stream)),
@@ -318,7 +391,10 @@ def many_streams(out, figures):
                 ("many_streams_added_2_to_8_outputs_gb", span(added[0] / 1024, added[1] / 1024, 1)),
                 ("many_streams_rss_gb", span(level[0] / 1024, level[1] / 1024, 1)),
                 ("many_streams_excess_gb", span(excess[0] / 1024, excess[1] / 1024, 1)),
-                ("many_streams_not_attributed_mb", f"{rest[0]:.0f} to {rest[1]:.0f}"),
+                ("many_streams_model_residual_mb", f"{rest[0]:.0f} to {rest[1]:.0f}"),
+                ("many_streams_merge_mb_per_stream", span(*merge)),
+                ("many_streams_slope_on_outputs_factor", span(*slope_factor, 1) if factors else "n/a"),
+                ("many_streams_streams_factor", f"{factors[0][1]:.1f}" if factors else "n/a"),
                 ("many_streams_purge_lowers_in", f"{lowered} of {len(series)} series"),
                 ("many_streams_purge_change_mb", f"{purge[0]:+.0f} to {purge[1]:+.0f}")]
     return "\n".join(lines)
@@ -348,11 +424,12 @@ def depth(out, matrix, manifests, figures):
     lines = ["### Depth 1 against depth 2: backpressure", "",
              "`experiments/depth/run.py`: the deduplication with two ordered groups whose key "
              "ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, "
-             "six runs per configuration. Wall and CPU time of the whole process; cores are CPU "
+             "ten runs per configuration. Wall and CPU time of the whole process; cores are CPU "
              "over wall. Means over the completed runs, standard deviation in parentheses.", "",
              "| batch size | depth 1: completed, wall s, CPU s, cores | "
-             "depth 2: completed, wall s, CPU s, cores | gap in cores |", "|---|---|---|---|"]
-    gaps, fails = {}, {}
+             "depth 2: completed, wall s, CPU s, cores | gap in cores | "
+             "send time of the repartition's inputs, depth 1 / depth 2, s |", "|---|---|---|---|---|"]
+    gaps, fails, send = {}, {}, {}
 
     def shown(sel):
         ok = completed(sel)
@@ -364,7 +441,9 @@ def depth(out, matrix, manifests, figures):
         d2 = select(rows, kind="batch", batch_size=size, depth=2)
         gaps[size] = mean(completed(d2), "cores") - mean(completed(d1), "cores")
         fails[size] = len(d1) + len(d2) - len(completed(d1)) - len(completed(d2))
-        lines.append(f"| {size} | {shown(d1)} | {shown(d2)} | {num(gaps[size], 2)} |")
+        send[size] = (mean(completed(d1), "repartition_send_s"), mean(completed(d2), "repartition_send_s"))
+        lines.append(f"| {size} | {shown(d1)} | {shown(d2)} | {num(gaps[size], 2)} | "
+                     f"{num(send[size][0], 2)} / {num(send[size][1], 2)} |")
     default = 8192 if 8192 in gaps else sizes[0]
     # the smallest size from which the gap stays below 0.1 at every larger size tried
     closed = next((s for s in sizes if all(abs(gaps[t]) < 0.1 for t in sizes if t >= s)), None)
@@ -374,6 +453,10 @@ def depth(out, matrix, manifests, figures):
     d2w = mean(completed(select(rows, kind="batch", batch_size=default, depth=2)), "wall_s")
     lines += ["", f"- At the default batch size ({default} rows) depth 1 takes {num(d1w)} s against "
               f"{num(d2w)} s at depth 2 and uses {num(gaps[default], 2)} cores less.",
+              f"- The time the repartition's inputs spend sending their batches to the outputs "
+              f"(the `send_time` metric, summed over the inputs) is {num(send[default][0], 2)} s at depth 1 "
+              f"against {num(send[default][1], 2)} s at depth 2 at the default batch size, and "
+              f"{num(send[sizes[0]][0], 2)} against {num(send[sizes[0]][1], 2)} s at {sizes[0]} rows.",
               (f"- The gap in cores is below 0.1 at {closed} rows per batch and at every larger size tried."
                if closed else "- The gap in cores does not stay below 0.1 up to the largest batch size tried."),
               ("- Runs that did not complete: " + "; ".join(
@@ -417,7 +500,8 @@ def depth(out, matrix, manifests, figures):
     lines.append("")
     figures += [("depth_gap_cores_by_batch_size", "; ".join(f"{s}: {num(gaps[s], 2)}" for s in sizes)),
                 ("depth_default_batch_wall_s_depth1_depth2", f"{num(d1w)} / {num(d2w)}"),
-                ("depth_failed_runs", "; ".join(f"{n} of {t} at {s}" for s, n, t, _ in failing) or "none")]
+                ("depth_failed_runs", "; ".join(f"{n} of {t} at {s}" for s, n, t, _ in failing) or "none"),
+                ("depth_default_batch_send_s_depth1_depth2", f"{num(send[default][0], 2)} / {num(send[default][1], 2)}")]
     for size in sizes:
         d1 = completed(select(rows, kind="batch", batch_size=size, depth=1))
         d2 = completed(select(rows, kind="batch", batch_size=size, depth=2))
@@ -472,4 +556,83 @@ def open_files(out, figures):
               f"{need('accept-groups')}; the original plan {need('original')}.", ""]
     figures += [("open_files_ordered_completes_from", str(first.get("accept-groups", "none"))),
                 ("open_files_original_completes_from", str(first.get("original", "none")))]
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- process
+
+def process(out, figures):
+    path = Path(out) / "results.tsv"
+    if not path.is_file():
+        return missing("The process from outside: RSS and open files over time", out)
+    rows = read_tsv(path)
+    queries = {"Q3": "deduplication", "Q1": "`ORDER BY` only"}
+    plans = {"original": "original", "accept-groups": "ordered"}
+    keys = ("peak_rss_mb", "peak_at_share_of_run", "parquet_open_at_peak", "max_parquet_open",
+            "rss_mb_when_most_parquet_open", "max_temp_open", "max_descriptors")
+    lines = ["### The process from outside: RSS and open files over time", "",
+             "`experiments/process/run.py`: 1200 files with total overlap, 256 MB. While a query "
+             "runs, `/proc/<pid>` is sampled for the resident memory and for the open descriptors "
+             "by kind. Nothing in the engine is changed. Medians of the completed runs; the "
+             "sampling takes CPU, so the times of these runs are not comparable with the matrix.", "",
+             "| query | plan | completed | peak RSS, MB | the peak falls at this share of the run | "
+             "Parquet files open at the peak | most Parquet files open at once | RSS then, MB | "
+             "most temporary files open | most descriptors |", "|" + "---|" * 10]
+    seen = {}
+    for query, qlabel in queries.items():
+        for variant, plabel in plans.items():
+            sel = select(rows, query=query, variant=variant)
+            ok = completed(sel)
+            v = seen[query, variant] = {k: median(ok, k) for k in keys}
+            lines.append(f"| {qlabel} | {plabel} | {n_of(sel)} | {num(v['peak_rss_mb'], 0)} | "
+                         f"{num(v['peak_at_share_of_run'], 2)} | {num(v['parquet_open_at_peak'], 0)} | "
+                         f"{num(v['max_parquet_open'], 0)} | {num(v['rss_mb_when_most_parquet_open'], 0)} | "
+                         f"{num(v['max_temp_open'], 0)} | {num(v['max_descriptors'], 0)} |")
+            for key in keys:
+                figures.append((f"process_{query}_{variant}_{key}",
+                                num(v[key], 2 if "share" in key else 0)))
+    a = seen["Q3", "accept-groups"]
+    lines += ["", f"In the deduplication the ordered plan holds up to {num(a['max_parquet_open'], 0)} "
+              f"Parquet files and {num(a['max_temp_open'], 0)} temporary files open at once, "
+              f"{num(a['max_descriptors'], 0)} descriptors in all. Its resident memory is "
+              f"{num(a['rss_mb_when_most_parquet_open'], 0)} MB when the most data files are open "
+              f"and peaks at {num(a['peak_rss_mb'], 0)} MB, at {num(100 * a['peak_at_share_of_run'], 0)} "
+              f"percent of the run, with {num(a['parquet_open_at_peak'], 0)} data files open then.", ""]
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- page faults
+
+def page_faults(out, figures):
+    path = Path(out) / "results.tsv"
+    if not path.is_file():
+        return missing("Page faults by call stack", out)
+    rows = read_tsv(path)
+    lines = ["### Page faults by call stack", "",
+             "`experiments/page-faults/run.py`: the same case under `perf record -e page-faults` "
+             "with call stacks, one run per plan. Every page that enters the resident set is "
+             "attributed to the innermost frame of its stack that belongs to a part of the "
+             "engine. It says who brought a page in, not who holds it at the peak.", ""]
+    notes = [r["note"] for r in rows if r["note"]]
+    data = [r for r in rows if r["part"]]
+    if not data:
+        lines += [("Not run on this machine: " + notes[0].replace("not run: ", "") + ".")
+                  if notes else "No result.", ""]
+        figures.append(("page_faults", notes[0] if notes else "no result"))
+        return "\n".join(lines)
+    parts = sorted({r["part"] for r in data},
+                   key=lambda p: -sum(float(r["mb"]) for r in data if r["part"] == p))
+    lines += ["| part of the engine | original plan: MB touched, share | ordered plan: MB touched, share |",
+              "|---|---|---|"]
+    for part in parts:
+        cells = []
+        for variant in ("original", "accept-groups"):
+            r = next((r for r in data if r["variant"] == variant and r["part"] == part), None)
+            cells.append(f"{float(r['mb']):.0f}, {float(r['share_pct']):.0f} %" if r else "0")
+            if r:
+                figures.append((f"page_faults_{variant}_{part}_mb", f"{float(r['mb']):.0f}"))
+        lines.append(f"| {part} | {cells[0]} | {cells[1]} |")
+    for note in notes:
+        lines += ["", note]
+    lines.append("")
     return "\n".join(lines)

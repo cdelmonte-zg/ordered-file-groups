@@ -3,7 +3,7 @@
 Run from the repository root:
   python experiments/depth/run.py [--out DIR]
 
-The deduplication query, ordered plan, 256 MB, six recorded runs per
+The deduplication query, ordered plan, 256 MB, ten recorded runs per
 configuration after one warm-up, configurations interleaved in rotating
 order. The binary that accepts extra groups is used throughout, so that every
 configuration keeps the order: with 12 files the two binaries have the same
@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from common import interleaved, output_dir, sql_for, timed_run, write_tsv  # noqa: E402
 
 OUT = output_dir("depth")
-RUNS = 6
+RUNS = 10
 SIZES = (2048, 8192, 32768, 131072)
 
 # name, kind, depth, files, batch size, grouping by statistics

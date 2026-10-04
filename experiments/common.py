@@ -28,8 +28,24 @@ def output_dir(name):
     return out
 
 
-def timed_run(variant, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300):
-    """Run one SQL file under /usr/bin/time; write <stem>.out and <stem>.err.
+DURATION = re.compile(r"([\d.]+)(ns|µs|us|ms|s)\b")
+SECONDS = {"ns": 1e-9, "µs": 1e-6, "us": 1e-6, "ms": 1e-3, "s": 1.0}
+
+
+def repartition_time(out_text, metric):
+    """A time metric of the RepartitionExec of a plan, in seconds; '' when absent."""
+    for line in out_text.splitlines():
+        if "RepartitionExec" in line and f"{metric}=" in line:
+            m = DURATION.match(line.split(f"{metric}=", 1)[1])
+            if m:
+                return round(float(m.group(1)) * SECONDS[m.group(2)], 4)
+    return ""
+
+
+def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300):
+    """Run one SQL file with one of the binaries of bin/ under /usr/bin/time.
+
+    Writes <stem>.out and <stem>.err.
 
     Returns ok, the wall and CPU time of the whole process, the cores used (CPU
     over wall), the peak RSS, the Elapsed of the last statement and the plan
@@ -38,7 +54,7 @@ def timed_run(variant, sql_path, stem, pool="256m", env=None, nofile=None, timeo
     allows it.
     """
     cmd = ["/usr/bin/time", "-f", "BENCH wall=%e user=%U sys=%S rss_kb=%M",
-           str(rm.binary_of(variant)), "--memory-limit", pool, "--mem-pool-type", "fair",
+           str(rm.binary(binary)), "--memory-limit", pool, "--mem-pool-type", "fair",
            "-f", str(sql_path)]
     limit = (lambda: resource.setrlimit(resource.RLIMIT_NOFILE, (nofile, nofile))) if nofile else None
     status = rm.run_process(cmd, f"{stem}.out", f"{stem}.err", timeout,
@@ -62,6 +78,8 @@ def timed_run(variant, sql_path, stem, pool="256m", env=None, nofile=None, timeo
            "error": messages[0][:160] if failed and messages else ""}
     for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb"):
         row[key] = "" if failed else feats.get(key, "")
+    # how long the repartition's inputs waited to hand their batches to the outputs
+    row["repartition_send_s"] = "" if failed else repartition_time(out, "send_time")
     return row
 
 

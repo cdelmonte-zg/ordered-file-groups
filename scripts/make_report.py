@@ -32,9 +32,13 @@ AXES = [
     ("A6", "A6: the share of duplicates", "Base data with half the rows copied."),
 ]
 NOT_MEASURED = """\
-- What the order-preserving repartition holds for each pair of input and
-  output partition: the per-pair cost is a coefficient derived from the growth
-  of the RSS with the outputs, not traced in the code.
+- The memory of single operators. The peak RSS of the whole process is what
+  is measured; the terms of the model of the many-stream memory are estimates
+  from how that peak grows, and its residual is a property of the model.
+- Which allocations stand behind the growth with the outputs: the crossing of
+  streams and outputs says how the growth scales, not what the repartition
+  holds for each pair of input and output partition, which was not traced in
+  the code.
 - The work of the merge itself, the comparisons among the heads of the
   streams, apart from the memory and the waiting it brings.
 - The partial aggregates' share of the many-stream memory: the query with a
@@ -42,16 +46,20 @@ NOT_MEASURED = """\
 - What `output_bytes` measures beyond its definition (the cumulative bytes of
   the batches an operator emitted, as Arrow accounts for their buffers): it is
   not peak resident memory and not necessarily unique bytes.
-- How much of the final-aggregate spills on the wide strings comes from the
-  repartition's reservations and how much from other consumers of the fair
-  pool. No run changed the accounting itself or instrumented the reservations.
+- The original plan under the slice accounting, and the reservations
+  themselves: the pool was not instrumented.
+- The occupancy of the repartition's channels; `send_time` is the time the
+  inputs spend sending, summed over the inputs, not a trace of who waits for
+  whom.
 - A pool at which the original plan does not spill, the greedy pool, and
   larger data: every query here runs under a second on a few MB of Parquet.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
 - The `GROUP BY` on the whole sort key at a size where the hash aggregate
   would spill.
-- Which descriptors the ordered plan holds when it meets the open-file limit."""
+- Which descriptors the ordered plan holds when it meets the open-file limit.
+- Statistical significance: the comparisons by quartiles are descriptive, and
+  the series repeat the experiment in one environment."""
 
 
 class Matrix:
@@ -253,7 +261,8 @@ def findings(m, manifests, figures):
     # 2 consumers
     parts = []
     names = {"A1-Q1": "`ORDER BY` only (Q1)", "A1-Q2": "`GROUP BY` on the whole sort key (Q2)",
-             "A1-Q4": "`GROUP BY` without the sort key (Q4)"}
+             "A1-Q4": "`GROUP BY` without the sort key (Q4)",
+             "A1-Q5": "the deduplication without its `ORDER BY` (Q5), where neither plan sorts"}
     for case, label in names.items():
         o, a = (case, P, "original"), (case, P, "accept-groups")
         parts.append(f"{label}: {m.pair(case, P)}, the ordered plan {m.compare(a, o)}, RSS "
@@ -261,9 +270,13 @@ def findings(m, manifests, figures):
         figures += [(f"{case}_original_s", num(m.med(*o))), (f"{case}_ordered_s", num(m.med(*a))),
                     (f"{case}_original_rss_mb", f"{m.rss(*o):.0f}"), (f"{case}_ordered_rss_mb", f"{m.rss(*a):.0f}")]
     out.append("A1, who uses the order. " + "; ".join(parts) + f"; the deduplication (Q3) is the base "
-               f"case, {m.pair(B, P)}. In Q3 two things change together, a sort disappears and the "
-               f"aggregate can close completed prefixes early; the comparison measures their "
-               f"combined effect.")
+               f"case, {m.pair(B, P)}. In Q3 keeping the order changes several things together: the "
+               f"scan, the sort that disappears, the repartition that has to keep the order, the "
+               f"aggregate that can close completed prefixes early, and with them the spills. Its "
+               f"gain is {m.gain(B, P):.0f} percent; that of Q5, where no sort is involved, "
+               f"{m.gain('A1-Q5', P):.0f} percent; that of Q1, where no aggregate is, "
+               f"{m.gain('A1-Q1', P):.0f} percent. The comparisons measure combined effects and "
+               f"do not add up to shares of one another.")
 
     # 3 depth
     parts = []
@@ -530,10 +543,11 @@ case, "within the quartiles" otherwise. A gain is the reduction of the median.
   `scripts/build_binaries.sh` on {(prov / "built-at.txt").read_text().strip()} in a detached worktree with
   {(prov / "toolchain.txt").read_text().splitlines()[0]}; `{(prov / "build-command.txt").read_text().strip()}`.
   `original` is the commit as it is, `accept-groups` the commit plus
-  `patch/accept-extra-groups.patch`, the only change:
+  `patch/accept-extra-groups.patch`; a third binary, used by one experiment,
+  adds `patch/slice-accounting.patch`. The patch of `accept-groups`, as applied:
 
 ```diff
-{(prov / "applied.patch").read_text().strip()}
+{(prov / "applied-accept-groups.patch").read_text().strip()}
 ```
 
 - SHA-256 of the binaries as built (`provenance/binaries.sha256`); the hashes the
@@ -613,6 +627,8 @@ One-variable tests on the costs the matrix shows, each in
 {experiments.many_streams(exp / "many-streams", figures)}
 {experiments.depth(exp / "depth", matrix, manifests, figures)}
 {experiments.open_files(exp / "open-files", figures)}
+{experiments.process(exp / "process", figures)}
+{experiments.page_faults(exp / "page-faults", figures)}
 ## Not measured
 
 {NOT_MEASURED}

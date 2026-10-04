@@ -16,8 +16,8 @@ script runs each query plainly and checks, per case and pool:
 
 `first_value` over a group with several rows may legitimately differ between
 plans, so those columns are left out of the comparison: Q1 compares all eight
-columns, Q2 the key and the count, Q3 the six grouping columns, Q4 the four
-grouping columns and the count. Writes result-check.tsv and exits with status
+columns, Q2 the key and the count, Q3 and Q5 the six grouping columns, Q4 the
+four grouping columns and the count. Writes result-check.tsv and exits with status
 1 when any check fails. The row files are not kept.
 """
 import argparse
@@ -39,6 +39,7 @@ COMPARED = {
     "Q2": ["col_1", "col_2", "n"],
     "Q3": ["col_1", "col_2", "col_3", "col_4", "col_5", "col_6"],
     "Q4": ["col_3", "col_4", "col_5", "col_6", "n"],
+    "Q5": ["col_1", "col_2", "col_3", "col_4", "col_5", "col_6"],
 }
 ORDERED = {"Q1", "Q2", "Q3"}
 
@@ -168,8 +169,9 @@ def main():
                             row["sorted"] = int(is_sorted(table))
                             if not row["sorted"]:
                                 problems.append("not sorted by (col_1, col_2)")
-                        expected = distinct_keys(case.dataset) if case.query == "Q3" else None
-                        if case.query == "Q3" and expected is None:
+                        dedup = case.query in ("Q3", "Q5")
+                        expected = distinct_keys(case.dataset) if dedup else None
+                        if dedup and expected is None:
                             problems.append("no distinct_grouping_keys in the manifest")
                         elif expected is not None and table.num_rows != expected:
                             problems.append(f"expected {expected} rows")

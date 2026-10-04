@@ -1,0 +1,55 @@
+diff --git a/datafusion/physical-plan/src/repartition/mod.rs b/datafusion/physical-plan/src/repartition/mod.rs
+index d2d8ec38d..9ad712ff8 100644
+--- a/datafusion/physical-plan/src/repartition/mod.rs
++++ b/datafusion/physical-plan/src/repartition/mod.rs
+@@ -212,6 +212,32 @@ impl PartitionSpillWriters {
+     }
+ }
+ 
++/// Measuring instrument, not a proposal: the bytes a batch holds for its own
++/// rows. A slice is charged for the rows it carries, and a view column for its
++/// views and the bytes its rows reference, instead of the full capacity of
++/// every buffer it shares with the other slices of the same batch.
++fn own_bytes(batch: &RecordBatch) -> usize {
++    use arrow::array::{Array, AsArray};
++    batch
++        .columns()
++        .iter()
++        .map(|column| match column.data_type() {
++            DataType::Utf8View => {
++                let views = column.as_string_view();
++                views.len() * 16 + views.total_buffer_bytes_used()
++            }
++            DataType::BinaryView => {
++                let views = column.as_binary_view();
++                views.len() * 16 + views.total_buffer_bytes_used()
++            }
++            _ => column
++                .to_data()
++                .get_slice_memory_size()
++                .unwrap_or_else(|_| column.get_array_memory_size()),
++        })
++        .sum()
++}
++
+ impl OutputChannel {
+     fn coalesce(&mut self, batch: RecordBatch) -> Result<Vec<RecordBatch>> {
+         match &self.shared_coalescer {
+@@ -226,7 +252,7 @@ impl OutputChannel {
+     ///
+     /// Used after [`OutputChannel::coalesce`] for performance purposes.
+     async fn send(&mut self, batch: RecordBatch) -> Result<(), SendError<MaybeBatch>> {
+-        let size = batch.get_array_memory_size();
++        let size = own_bytes(&batch);
+ 
+         // Decide the payload outside of any await: never hold a MutexGuard
+         // across an await point.
+@@ -2549,7 +2575,7 @@ impl PerPartitionStream {
+                         Some(Some(v)) => match v {
+                             Ok(RepartitionBatch::Memory(batch)) => {
+                                 // Release memory and return batch
+-                                self.reservation.shrink(batch.get_array_memory_size());
++                                self.reservation.shrink(own_bytes(&batch));
+                                 return Poll::Ready(Some(Ok(batch)));
+                             }
+                             Ok(RepartitionBatch::Spilled) => {

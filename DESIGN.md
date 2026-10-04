@@ -54,6 +54,14 @@ Each axis varies one property while everything else stays at the base value.
 | Q2 | `GROUP BY col_1, col_2` with `count(*)`, `first_value(col_8)`, `ORDER BY col_1, col_2` | `Sorted` | completed groups can be emitted as the full grouping key changes |
 | Q3 | the deduplication, `GROUP BY` six columns | `PartiallySorted([0, 1])` | completed groups can be emitted as the sort-key prefix changes |
 | Q4 | `GROUP BY col_3, col_4, col_5, col_6` with `count(*)`, no `ORDER BY` | `Linear` | nothing in the aggregate |
+| Q5 | Q3 without its `ORDER BY` | `PartiallySorted([0, 1])` | early completion of groups; neither plan sorts |
+
+Keeping the order changes several things at once in Q3: the scan, the sort
+that disappears, the repartition that keeps the order, the mode of the
+aggregate, and with them the spills. Q1 has the sort and no aggregate; Q5 has
+the aggregate and no sort in either plan. The three comparisons measure
+combined effects of different sets of mechanisms; they are not shares of one
+another.
 
 **A2, the overlap depth:** 1, 2, 4, 12 ordered groups needed. At depth 1 and 2
 the variants produce the same plan (control).
@@ -133,6 +141,16 @@ leaves the columns as views, because the table is declared with `VARCHAR` and
 the SQL planner maps it. If the loss of the gain on wide strings belongs to
 the representation, it disappears with plain strings.
 
+A third binary checks the accounting directly. It is the ordered plan with
+one more patch (`patch/slice-accounting.patch`): the repartition reserves,
+for every slice it sends, the bytes the slice holds for its own rows, and for
+a string-view column its views plus the string bytes its rows reference,
+instead of the full capacity of the buffers the slice shares with the others.
+The strings stay views; only the accounting changes. If the reservations are
+what makes the final aggregate spill on wide strings, the spills go with
+this binary. Like the first patch it is a measuring instrument, not a
+proposal: it was not checked against the engine's own memory safety.
+
 The mechanism, read in the source at the commit (DataFusion `e1aa7d956`,
 arrow 60.0.0), which the experiment does not instrument:
 
@@ -168,12 +186,24 @@ original. Four explanations, not exclusive, each with a prediction:
 - A, the allocator: memory freed and not yet returned. With eager purging
   (`MIMALLOC_PURGE_DELAY=0`) the peak RSS falls.
 
-E1: 150, 300, 600 and 1200 files with total overlap, three queries, ordered
-and original plan; the excess is regressed on the ordered groups. E2: the
-deduplication at 1200 files with 2, 4 and 8 outputs. E3: eager purging. P
-probes: plain `Utf8` strings, batches of 1024 rows. The peak RSS of this case
-moves between runs, so the whole set is repeated in three independent series
-and every coefficient is reported per series.
+E1: 150, 300, 600 and 1200 files with total overlap, ordered and original
+plan, four queries: the scan alone (`SELECT *`, no merge), the `ORDER BY`
+query (scan and merge), the `GROUP BY` on the sort key and the deduplication;
+the excess is regressed on the ordered groups. E2: the deduplication at every
+file count with 2, 4 and 8 outputs, so that streams and outputs are crossed:
+a cost per output gives the same growth with the outputs at every number of
+streams, a cost per pair of input and output a growth proportional to the
+streams. E3: eager purging. P probes: plain `Utf8` strings, batches of 1024
+rows. The peak RSS of this case moves between runs, so the whole set is
+repeated in three independent series and every coefficient is reported per
+series.
+
+What this experiment can and cannot say: it measures the peak RSS of the
+whole process and how that peak grows with one variable at a time. It does
+not measure the memory of an operator. Peaks of different runs can fall in
+different phases of the plan, so their differences are estimates, and the
+sum of the estimated terms leaves a residual that is a property of the
+model.
 
 **Depth 1 against depth 2 (`experiments/depth/`).** With two ordered groups
 the same plan is slower when their key ranges are disjoint. Three
@@ -191,17 +221,43 @@ explanations:
   aggregate and of the repartition differ between the depths.
 
 Measured: four batch sizes at both depths; 120 files instead of 12; the files
-split between the partitions by name. The report sets the batch-size series
-beside the group shares from the manifests and the batch counts from the
-matrix.
+split between the partitions by name. Changing the batch size is a broad
+intervention (it changes buffering, the granularity of the work and the
+overhead per batch), so the report also gives a more direct quantity: the
+`send_time` of the repartition, the time its inputs spend handing their
+batches to the outputs. It sets the batch-size series beside the group
+shares from the manifests and the batch counts from the matrix.
 
 **The open-file limit (`experiments/open-files/`).** The many-stream case
 with the limit on open files of the process set to several values, both
 plans: which complete.
 
+**The process from outside (`experiments/process/`).** The many-stream case
+again, both plans, with `/proc/<pid>` sampled while the query runs: the
+resident memory over time and the open descriptors by kind (Parquet data
+files, temporary files of the spills, other). It answers what a peak alone
+cannot: when the peak falls, what is open then, and how many descriptors of
+which kind the ordered plan holds. Nothing in the engine is changed.
+
+**Page faults by call stack (`experiments/page-faults/`).** The same case
+under `perf record -e page-faults` with call stacks: every page that enters
+the resident set is attributed to the part of the engine whose code touched
+it first. It is an attribution observed from outside, where the model of the
+many-stream memory only estimates; it says who brought a page in, not who
+holds it at the peak. It needs perf, the permission to use it
+(`kernel.perf_event_paranoid` at most 1) and binaries with their symbol
+table, which the build keeps. Where one is missing the experiment is
+recorded as not run, with the reason.
+
 ## Limits
 
 One machine, one DataFusion commit, synthetic data, sub-second queries on a
-few MB of Parquet, the fair pool only. The mechanisms are read in the source
-and set beside the measurements; no run changes the accounting or
-instruments the reservations.
+few MB of Parquet, the fair pool only. Ten runs per cell of the matrix and
+of the experiments, five per cell and series for the memory of the many
+streams: the separation of the quartiles used in the report is a descriptive
+criterion, not a test of significance, and the three series show the
+variability of one environment, not how far a result carries to other
+machines or loads. Where runs fail there are two results, how many complete
+and how long those take, and the report gives both. Except for the slice
+accounting, the mechanisms are read in the source and set beside the
+measurements; the occupancy of the channels is not instrumented.

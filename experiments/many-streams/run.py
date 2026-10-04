@@ -9,9 +9,10 @@ set of experiments is repeated in three independent series, and the report
 gives every coefficient per series.
 
 - E1: the ordered plan (five runs) and the original plan (three runs) at every
-  file count, for the ORDER BY query (Q1), the GROUP BY on the sort key (Q2)
-  and the deduplication (Q3).
-- E2: Q3 at 1200 files with 4 and 8 output partitions (2 is E1).
+  file count, for the scan alone (Q0), the ORDER BY query (Q1), the GROUP BY
+  on the sort key (Q2) and the deduplication (Q3).
+- E2: Q3 at every file count with 4 and 8 output partitions (2 is E1), so that
+  the streams and the outputs are crossed.
 - E3: Q1 and Q3 at 1200 files with MIMALLOC_PURGE_DELAY=0.
 - P: one-variable probes at 1200 files, three runs each in every series: the
   deduplication with plain Utf8 strings and with batches of 1024 rows.
@@ -38,11 +39,11 @@ def dataset(files):
 # name, experiment, variant, files, query, target, purge, settings, runs
 configs = []
 for files in (150, 300, 600, 1200):
-    for q in ("Q1", "Q2", "Q3"):
+    for q in ("Q0", "Q1", "Q2", "Q3"):
         configs.append((f"E1-{files}-{q}-ordered", "E1", "accept-groups", files, q, 2, None, (), 5))
         configs.append((f"E1-{files}-{q}-original", "E1", "original", files, q, 2, None, (), 3))
-for t in (4, 8):
-    configs.append((f"E2-1200-Q3-t{t}", "E2", "accept-groups", 1200, "Q3", t, None, (), 5))
+    for t in (4, 8):
+        configs.append((f"E2-{files}-Q3-t{t}", "E2", "accept-groups", files, "Q3", t, None, (), 5))
 for q in ("Q1", "Q3"):
     configs.append((f"E3-1200-{q}-purge0", "E3", "accept-groups", 1200, q, 2, "0", (), 5))
 configs.append(("P-1200-Q3-utf8", "P-utf8", "accept-groups", 1200, "Q3", 2, None, NOVIEW, 3))
