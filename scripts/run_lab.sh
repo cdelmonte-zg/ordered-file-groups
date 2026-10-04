@@ -12,7 +12,8 @@
 # put it back afterwards with restore); the binaries are checked against
 # provenance/binaries.sha256 (written by scripts/build_binaries.sh); the datasets are generated; the plans are
 # checked; the matrix is measured; the rows the variants return are compared;
-# the experiments run; the report is written. A failed result check or a
+# the experiments run; every metric the engine printed is collected; the
+# report is written. A failed result check or a
 # failed experiment does not stop the rest; the script says what failed at
 # the end and exits with status 1.
 set -uo pipefail
@@ -48,6 +49,7 @@ step $py scripts/check_results.py --out results/result-check
 for name in string-views many-streams depth open-files process page-faults; do
   step $py experiments/$name/run.py
 done
+step $py scripts/collect_metrics.py
 step $py scripts/make_report.py
 
 if ((${#failed[@]})); then

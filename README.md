@@ -33,8 +33,9 @@ and nothing else.
 - `results/`: the outputs of one run of the lab. `manifests/` (the datasets),
   `matrix/` (plan check, every run's SQL, output and stderr, `results.tsv`,
   `summary.tsv`, `machine.txt`), `result-check/` (the rows the variants
-  return, compared), `experiments/<name>/`, and `figures.tsv`, the figures
-  the article quotes.
+  return, compared), `experiments/<name>/`, `metrics.tsv` (every metric the
+  engine printed, for every operator of every run) and `figures.tsv`, the
+  figures the article quotes.
 - `provenance/`: how the binaries were built, written by
   `scripts/build_binaries.sh`: commit, toolchain, build command, the patch as
   applied, build logs, SHA-256. The binaries themselves are not in the
@@ -42,7 +43,8 @@ and nothing else.
 - `scripts/`: `build_binaries.sh`, the generators (`generate_base.py`,
   `generate_partial_overlap.py`, `datasets.sh`), the matrix runner with the
   plan check (`run_matrix.py`), the comparison of the rows returned
-  (`check_results.py`), the report (`make_report.py`), the configuration of
+  (`check_results.py`), the collection of the engine's metrics
+  (`collect_metrics.py`), the report (`make_report.py`), the configuration of
   the machine (`machine_setup.sh`) and the driver (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
   `depth`, `open-files`), the two views of the process from outside

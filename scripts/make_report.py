@@ -228,6 +228,70 @@ def plan_table(rows):
     return "\n".join(lines)
 
 
+# ------------------------------------------------------------------ engine metrics
+
+def engine_times(results):
+    """Seconds metrics of the matrix runs: (case, pool, variant) -> operator -> metric -> values."""
+    path = Path(results) / "metrics.tsv"
+    times = {}
+    if not path.is_file():
+        return times
+    for r in read_tsv(path):
+        parts = Path(r["file"]).parts
+        if r["kind"] != "seconds" or len(parts) != 4 or parts[0] != "matrix":
+            continue
+        variant, _, run = parts[3][:-len(".out")].rpartition("-")
+        if not run.isdigit():
+            continue                      # the warm-up
+        cell = times.setdefault((parts[1], parts[2], variant), {})
+        cell.setdefault(r["operator"], {}).setdefault(r["metric"], []).append(float(r["value"]))
+    return times
+
+
+def median_of(values):
+    v = sorted(values)
+    n = len(v)
+    return float("nan") if not n else (v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2)
+
+
+def time_table(times, case, pool, variants, operators=None, floor=0.001):
+    """Every time metric the engine reports for a case, median per variant.
+
+    All the metrics of kind seconds are listed, without a selection by name;
+    only those under `floor` seconds in every variant are left out.
+    """
+    cells = {v: times.get((case, pool, v), {}) for v in variants}
+    names = []
+    for v in variants:
+        for op, metrics in cells[v].items():
+            for metric in metrics:
+                if (op, metric) not in names and (operators is None or op in operators):
+                    names.append((op, metric))
+    lines = ["| operator | metric | " + " | ".join(variants) + " |", "|---|---|" + "---|" * len(variants)]
+    for op, metric in names:
+        medians = [median_of(cells[v].get(op, {}).get(metric, [])) for v in variants]
+        if all(isnan(x) or x < floor for x in medians):
+            continue
+        lines.append(f"| {op} | {metric} | " + " | ".join("-" if isnan(x) else f"{x:.3f}" for x in medians) + " |")
+    return "\n".join(lines) if len(lines) > 2 else "No time metric recorded for this case."
+
+
+def engine_section(times):
+    if not times:
+        return ("`results/metrics.tsv` is missing: run `scripts/collect_metrics.py`.\n")
+    pair = ["original", "accept-groups"]
+    blocks = [
+        ("The deduplication (Q3), base case, 256 MB", time_table(times, "base", "256m", pair + ["original-target"])),
+        ("`ORDER BY` only (Q1)", time_table(times, "A1-Q1", "256m", pair)),
+        ("The deduplication without its `ORDER BY` (Q5)", time_table(times, "A1-Q5", "256m", pair)),
+        ("The scan as the files grow: 12, 120 and 1200 files at depth 4, ordered plan",
+         "\n\n".join(f"{label}:\n\n" + time_table(times, case, "256m", ["accept-groups"], operators={"DataSourceExec"})
+                      for label, case in (("12 files", "base"), ("120 files", "A5-120-depth-4"),
+                                          ("1200 files", "A5-1200-depth-4")))),
+    ]
+    return "\n\n".join(f"**{title}**\n\n{table}" for title, table in blocks) + "\n"
+
+
 # ------------------------------------------------------------------ findings
 
 def findings(m, manifests, figures):
@@ -616,6 +680,19 @@ memory, and not necessarily unique bytes.
 
 {findings(m, manifests, figures)}
 
+## Time by operator, as the engine reports it
+
+`scripts/collect_metrics.py` reads every metric that `EXPLAIN ANALYZE` prints
+for every operator of every recorded run into `results/metrics.tsv`; nothing
+is selected by name. The tables below list all the time metrics of a case,
+medians of the completed runs in seconds, leaving out those under a
+millisecond in every variant. These are times summed over the partitions of an
+operator, so they measure work, not elapsed time, and can exceed it. They say
+where each plan spends its computing time; they are the engine's own
+decomposition of what the comparison of the elapsed times gives only as a
+whole.
+
+{engine_section(engine_times(res))}
 ## The predictions of DESIGN.md
 
 Each prediction is checked by the rule beside it. "Reported" marks the points
