@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   856           3.9 K      29      
-  abandoned :   577           1.1 K       8      
-  reclaima  :   116      
-  reclaimf  :   623      
-  reabandon :   513      
+  pages     :   851           4.3 K      29      
+  abandoned :   578           1.1 K       8      
+  reclaima  :   147      
+  reclaimf  :   536      
+  reabandon :   523      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   311.2 MiB   311.2 MiB   311.2 MiB                          
+  committed :   298.8 MiB   298.8 MiB   298.8 MiB                          
   reset     :     0      
-  purged    :   306.6 MiB
+  purged    :   294.2 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   150      
+  purges    :   147      
   guarded   :     0      
-  theaps    :    41          41           0      
+  theaps    :    38          38           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    42          42           1      
+  threads   :    39          39           1      
   numa nodes:     1
-  elapsed   :     0.164 s
-  process   : user: 0.279 s, system: 0.061 s, faults: 0, peak rss: 328.9 MiB, peak commit: 311.2 MiB
+  elapsed   :     0.162 s
+  process   : user: 0.268 s, system: 0.068 s, faults: 0, peak rss: 335.1 MiB, peak commit: 298.8 MiB
 
-BENCH wall=0.16 user=0.27 sys=0.06 rss_kb=336864 minor=12951
+BENCH wall=0.16 user=0.26 sys=0.06 rss_kb=343196 minor=12967

@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.3 K       5.1 K      37      
-  abandoned :   307           1.1 K      16      
-  reclaima  :    76      
-  reclaimf  :   696      
-  reabandon :   361      
+  pages     :     1.1 K       5.1 K      35      
+  abandoned :   195           1.1 K      14      
+  reclaima  :   101      
+  reclaimf  :   701      
+  reabandon :   416      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.6 avg
+  searches  :     1.7 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   698.0 MiB   698.0 MiB   698.0 MiB                          
+  committed :   745.6 MiB   745.6 MiB   745.6 MiB                          
   reset     :     0      
-  purged    :   684.6 MiB
+  purged    :   737.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :     1.7 K  
+  purges    :   941      
   guarded   :     0      
-  theaps    :   372         372           0      
+  theaps    :   305         305           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   373         373           1      
+  threads   :   306         306           1      
   numa nodes:     1
-  elapsed   :     0.160 s
-  process   : user: 0.550 s, system: 0.261 s, faults: 0, peak rss: 674.5 MiB, peak commit: 698.0 MiB
+  elapsed   :     0.154 s
+  process   : user: 0.559 s, system: 0.244 s, faults: 0, peak rss: 705.3 MiB, peak commit: 745.6 MiB
 
-BENCH wall=0.16 user=0.55 sys=0.26 rss_kb=690732 minor=10376
+BENCH wall=0.15 user=0.55 sys=0.24 rss_kb=722256 minor=10109

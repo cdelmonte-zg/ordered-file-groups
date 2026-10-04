@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.2 K       4.9 K      35      
-  abandoned :   238           1.0 K      14      
-  reclaima  :    71      
-  reclaimf  :   618      
-  reabandon :   333      
+  pages     :     1.1 K       5.0 K      37      
+  abandoned :   301           1.2 K      16      
+  reclaima  :   101      
+  reclaimf  :   794      
+  reabandon :   354      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   697.8 MiB   697.8 MiB   697.8 MiB                          
+  committed :   714.6 MiB   714.6 MiB   714.6 MiB                          
   reset     :     0      
-  purged    :   689.2 MiB
+  purged    :   701.5 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   709      
+  purges    :   947      
   guarded   :     0      
-  theaps    :   299         299           0      
+  theaps    :   361         361           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   300         300           1      
+  threads   :   362         362           1      
   numa nodes:     1
-  elapsed   :     0.152 s
-  process   : user: 0.550 s, system: 0.241 s, faults: 0, peak rss: 682.3 MiB, peak commit: 697.8 MiB
+  elapsed   :     0.161 s
+  process   : user: 0.564 s, system: 0.253 s, faults: 0, peak rss: 691.7 MiB, peak commit: 714.6 MiB
 
-BENCH wall=0.15 user=0.55 sys=0.24 rss_kb=698700 minor=10008
+BENCH wall=0.16 user=0.56 sys=0.25 rss_kb=708396 minor=10234

@@ -1,31 +1,31 @@
 open_file_limit	variant	run	completed	rss_mb	scan_groups	error
-1024	original	1	1	636	2	
-1024	original	2	1	580	2	
-1024	original	3	1	629	2	
-1024	accept-groups	1	0	620		IO error: Too many open files (os error 24)
-1024	accept-groups	2	0	581		IO error: Too many open files (os error 24)
-1024	accept-groups	3	0	705		IO error: Too many open files (os error 24)
-2048	original	1	1	654	2	
-2048	original	2	1	635	2	
-2048	original	3	1	630	2	
-2048	accept-groups	1	0	1026		IO error: Too many open files (os error 24)
-2048	accept-groups	2	0	897		"IO error: Too many open files (os error 24) at path ""/tmp/.tmpnpqLJ6/.tmpgZBjTg"""
-2048	accept-groups	3	0	903		"IO error: Too many open files (os error 24) at path ""/tmp/.tmpnIHGlc/.tmp8vUptX"""
-4096	original	1	1	647	2	
-4096	original	2	1	654	2	
-4096	original	3	1	597	2	
-4096	accept-groups	1	0	1319		IO error: Too many open files (os error 24)
-4096	accept-groups	2	0	1500		"IO error: Too many open files (os error 24) at path ""/tmp/.tmp0IkOm4/.tmpGNRRLi"""
-4096	accept-groups	3	0	1803		"IO error: Too many open files (os error 24) at path ""/tmp/.tmpFlWY4t/.tmpRDgrtH"""
-8192	original	1	1	689	2	
-8192	original	2	1	661	2	
-8192	original	3	1	623	2	
-8192	accept-groups	1	1	2110	1196	
-8192	accept-groups	2	1	1934	1196	
-8192	accept-groups	3	1	1592	1196	
-16384	original	1	1	640	2	
-16384	original	2	1	625	2	
+1024	original	1	1	607	2	
+1024	original	2	1	594	2	
+1024	original	3	1	646	2	
+1024	accept-groups	1	0	658		"IO error: Too many open files (os error 24) at path ""/tmp/.tmpbwGUll/.tmp4f9g60"""
+1024	accept-groups	2	0	644		IO error: Too many open files (os error 24)
+1024	accept-groups	3	0	442		"IO error: Too many open files (os error 24) at path ""/tmp/.tmpEjJaRB/.tmpyHwzmG"""
+2048	original	1	1	696	2	
+2048	original	2	1	602	2	
+2048	original	3	1	647	2	
+2048	accept-groups	1	0	1011		"IO error: Too many open files (os error 24) at path ""/tmp/.tmpwiF6xb/.tmppfEGBe"""
+2048	accept-groups	2	0	752		IO error: Too many open files (os error 24)
+2048	accept-groups	3	0	946		"IO error: Too many open files (os error 24) at path ""/tmp/.tmppND1vH/.tmpD1scsu"""
+4096	original	1	1	611	2	
+4096	original	2	1	629	2	
+4096	original	3	1	612	2	
+4096	accept-groups	1	0	1259		IO error: Too many open files (os error 24)
+4096	accept-groups	2	0	1509		IO error: Too many open files (os error 24)
+4096	accept-groups	3	0	1444		IO error: Too many open files (os error 24)
+8192	original	1	1	682	2	
+8192	original	2	1	612	2	
+8192	original	3	1	648	2	
+8192	accept-groups	1	1	2062	1196	
+8192	accept-groups	2	1	1774	1196	
+8192	accept-groups	3	1	2119	1196	
+16384	original	1	1	667	2	
+16384	original	2	1	638	2	
 16384	original	3	1	635	2	
-16384	accept-groups	1	1	1385	1196	
-16384	accept-groups	2	1	1635	1196	
-16384	accept-groups	3	1	2075	1196	
+16384	accept-groups	1	1	2108	1196	
+16384	accept-groups	2	1	1480	1196	
+16384	accept-groups	3	1	1468	1196	

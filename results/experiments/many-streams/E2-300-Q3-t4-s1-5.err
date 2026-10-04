@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.3 K      19.3 K      35      
-  abandoned :   419           4.8 K      14      
-  reclaima  :   138      
-  reclaimf  :     4.0 K  
-  reabandon :   351      
+  pages     :     1.4 K      11.2 K      33      
+  abandoned :   444           4.9 K      12      
+  reclaima  :   151      
+  reclaimf  :     4.1 K  
+  reabandon :   307      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.2 avg
+  searches  :     2.3 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     2.0 GiB     2.0 GiB     2.0 GiB                          
-  committed :     1.8 GiB     1.8 GiB     1.8 GiB                          
+  committed :     1.1 GiB     1.1 GiB     1.1 GiB                          
   reset     :     0      
-  purged    :     1.8 GiB
+  purged    :     1.1 GiB
   arenas    :     2      
   rollback  :     0      
-  mmaps     :     7      
+  mmaps     :     6      
   commits   :     0      
   resets    :     0      
-  purges    :     1.4 K  
+  purges    :   741      
   guarded   :     0      
-  theaps    :   281         281           0      
+  theaps    :    98          98           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   282         282           1      
+  threads   :    99          99           1      
   numa nodes:     1
-  elapsed   :     0.362 s
-  process   : user: 1.444 s, system: 0.565 s, faults: 0, peak rss: 1.3 GiB, peak commit: 1.8 GiB
+  elapsed   :     0.344 s
+  process   : user: 1.248 s, system: 0.491 s, faults: 0, peak rss: 1009.1 MiB, peak commit: 1.1 GiB
 
-BENCH wall=0.36 user=1.44 sys=0.56 rss_kb=1384532 minor=4666
+BENCH wall=0.34 user=1.24 sys=0.49 rss_kb=1033392 minor=3854

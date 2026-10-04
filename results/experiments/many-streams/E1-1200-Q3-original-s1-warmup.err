@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.3 K      16.9 K      31      
-  abandoned :     1.0 K      10.1 K      10      
-  reclaima  :     2.3 K  
-  reclaimf  :     5.4 K  
-  reabandon :     3.3 K  
+  pages     :     1.4 K       8.7 K      29      
+  abandoned :   973          10.1 K       8      
+  reclaima  :     2.2 K  
+  reclaimf  :     5.7 K  
+  reabandon :     3.0 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.3 avg
+  searches  :     2.4 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   597.0 MiB   597.0 MiB   597.0 MiB                          
+  committed :   595.7 MiB   595.7 MiB   595.7 MiB                          
   reset     :     0      
-  purged    :   591.8 MiB
+  purged    :   591.1 MiB
   arenas    :     1      
   rollback  :     0      
   mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   215      
+  purges    :   223      
   guarded   :     0      
-  theaps    :    44          44           0      
+  theaps    :    31          31           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    45          45           1      
+  threads   :    32          32           1      
   numa nodes:     1
-  elapsed   :     0.760 s
-  process   : user: 1.566 s, system: 0.197 s, faults: 0, peak rss: 633.5 MiB, peak commit: 597.0 MiB
+  elapsed   :     0.750 s
+  process   : user: 1.527 s, system: 0.192 s, faults: 0, peak rss: 614.2 MiB, peak commit: 595.7 MiB
 
-BENCH wall=0.76 user=1.56 sys=0.19 rss_kb=648772 minor=43574
+BENCH wall=0.75 user=1.52 sys=0.19 rss_kb=628972 minor=38838

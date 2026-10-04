@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   207           1.8 K      31      
-  abandoned :    90         716          11      
-  reclaima  :   192      
-  reclaimf  :   376      
-  reabandon :   282      
+  pages     :   173           1.8 K      31      
+  abandoned :    51         715          10      
+  reclaima  :   158      
+  reclaimf  :   401      
+  reabandon :   255      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   420.3 MiB   420.3 MiB   420.3 MiB                          
+  committed :   398.3 MiB   398.3 MiB   398.3 MiB                          
   reset     :     0      
-  purged    :   415.1 MiB
+  purged    :   393.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   121      
+  purges    :   117      
   guarded   :     0      
-  theaps    :    49          49           0      
+  theaps    :    45          45           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    50          50           1      
+  threads   :    46          46           1      
   numa nodes:     1
-  elapsed   :     0.128 s
-  process   : user: 0.213 s, system: 0.137 s, faults: 0, peak rss: 416.3 MiB, peak commit: 420.3 MiB
+  elapsed   :     0.126 s
+  process   : user: 0.195 s, system: 0.140 s, faults: 0, peak rss: 400.1 MiB, peak commit: 398.3 MiB
 
-BENCH wall=0.13 user=0.21 sys=0.13 rss_kb=426352 minor=15618
+BENCH wall=0.12 user=0.19 sys=0.14 rss_kb=409724 minor=15577

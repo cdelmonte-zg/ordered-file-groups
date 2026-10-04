@@ -1,2 +1,2 @@
-IO error: Too many open files (os error 24)
-BENCH wall=0.20 user=0.72 sys=0.55 rss_kb=1051072 minor=7588
+IO error: Too many open files (os error 24) at path "/tmp/.tmpwiF6xb/.tmppfEGBe"
+BENCH wall=0.20 user=0.94 sys=0.52 rss_kb=1034808 minor=4921

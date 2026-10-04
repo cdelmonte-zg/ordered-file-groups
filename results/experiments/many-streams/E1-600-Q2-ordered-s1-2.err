@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.2 K       5.2 K      37      
-  abandoned :   266           1.1 K      16      
-  reclaima  :    74      
-  reclaimf  :   734      
-  reabandon :   333      
+  pages     :     1.3 K       4.9 K      35      
+  abandoned :   364           1.2 K      14      
+  reclaima  :    95      
+  reclaimf  :   733      
+  reabandon :   390      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   738.0 MiB   738.0 MiB   738.0 MiB                          
+  committed :   704.6 MiB   704.6 MiB   704.6 MiB                          
   reset     :     0      
-  purged    :   724.6 MiB
+  purged    :   696.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :     1.3 K  
+  purges    :     1.1 K  
   guarded   :     0      
-  theaps    :   389         389           0      
+  theaps    :   300         300           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   390         390           1      
+  threads   :   301         301           1      
   numa nodes:     1
-  elapsed   :     0.173 s
-  process   : user: 0.563 s, system: 0.290 s, faults: 0, peak rss: 725.2 MiB, peak commit: 738.0 MiB
+  elapsed   :     0.152 s
+  process   : user: 0.516 s, system: 0.281 s, faults: 0, peak rss: 677.3 MiB, peak commit: 704.6 MiB
 
-BENCH wall=0.17 user=0.56 sys=0.29 rss_kb=742660 minor=10531
+BENCH wall=0.15 user=0.51 sys=0.28 rss_kb=693584 minor=10129

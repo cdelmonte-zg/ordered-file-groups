@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   273           3.7 K      37      
-  abandoned :   149         305          16      
-  reclaima  :     9      
-  reclaimf  :   185      
-  reabandon :    28      
+  pages     :   201           3.8 K      37      
+  abandoned :    96         304          16      
+  reclaima  :    13      
+  reclaimf  :   175      
+  reabandon :    30      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   498.8 MiB   498.8 MiB   498.8 MiB                          
+  committed :   513.8 MiB   513.8 MiB   513.8 MiB                          
   reset     :     0      
-  purged    :   485.7 MiB
+  purged    :   500.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   434      
+  purges    :   445      
   guarded   :     0      
-  theaps    :   348         348           0      
+  theaps    :   426         426           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   349         349           1      
+  threads   :   427         427           1      
   numa nodes:     1
-  elapsed   :     0.072 s
-  process   : user: 0.182 s, system: 0.299 s, faults: 0, peak rss: 544.2 MiB, peak commit: 498.8 MiB
+  elapsed   :     0.081 s
+  process   : user: 0.184 s, system: 0.311 s, faults: 0, peak rss: 558.6 MiB, peak commit: 513.8 MiB
 
-BENCH wall=0.07 user=0.18 sys=0.30 rss_kb=557280 minor=29566
+BENCH wall=0.08 user=0.18 sys=0.31 rss_kb=572012 minor=29915

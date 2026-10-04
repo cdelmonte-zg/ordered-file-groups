@@ -1,1 +1,1 @@
-BENCH wall=0.64 user=1.04 sys=0.12 rss_kb=448108 minor=2471
+BENCH wall=0.62 user=1.07 sys=0.10 rss_kb=393500 minor=2311

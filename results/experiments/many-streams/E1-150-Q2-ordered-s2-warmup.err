@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   701           2.6 K      31      
-  abandoned :    38           1.0 K      10      
-  reclaima  :    23      
-  reclaimf  :   890      
-  reabandon :    60      
+  pages     :   572           2.5 K      31      
+  abandoned :    33           1.0 K      10      
+  reclaima  :    24      
+  reclaimf  :   864      
+  reabandon :    68      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   709.8 MiB   709.8 MiB   709.8 MiB                          
+  committed :   714.3 MiB   714.3 MiB   714.3 MiB                          
   reset     :     0      
-  purged    :   704.4 MiB
+  purged    :   708.9 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   210      
+  purges    :   257      
   guarded   :     0      
-  theaps    :    57          57           0      
+  theaps    :    60          60           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    58          58           1      
+  threads   :    61          61           1      
   numa nodes:     1
-  elapsed   :     0.108 s
-  process   : user: 0.543 s, system: 0.173 s, faults: 0, peak rss: 559.9 MiB, peak commit: 709.8 MiB
+  elapsed   :     0.110 s
+  process   : user: 0.536 s, system: 0.208 s, faults: 0, peak rss: 565.7 MiB, peak commit: 714.3 MiB
 
-BENCH wall=0.11 user=0.54 sys=0.17 rss_kb=573396 minor=4794
+BENCH wall=0.11 user=0.53 sys=0.20 rss_kb=579308 minor=4838

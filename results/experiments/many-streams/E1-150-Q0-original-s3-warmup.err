@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :    80         679          31      
-  abandoned :    24         268          10      
-  reclaima  :    84      
-  reclaimf  :   144      
-  reabandon :    38      
+  pages     :    79         707          31      
+  abandoned :    23         259          10      
+  reclaima  :    82      
+  reclaimf  :   142      
+  reabandon :    37      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   291.0 MiB   291.0 MiB   291.0 MiB                          
+  committed :   281.7 MiB   281.7 MiB   281.7 MiB                          
   reset     :     0      
-  purged    :   285.8 MiB
+  purged    :   276.6 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   149      
+  purges    :    86      
   guarded   :     0      
-  theaps    :    45          45           0      
+  theaps    :    46          46           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    46          46           1      
+  threads   :    47          47           1      
   numa nodes:     1
-  elapsed   :     0.036 s
-  process   : user: 0.044 s, system: 0.056 s, faults: 0, peak rss: 247.1 MiB, peak commit: 291.0 MiB
+  elapsed   :     0.037 s
+  process   : user: 0.040 s, system: 0.066 s, faults: 0, peak rss: 247.4 MiB, peak commit: 281.7 MiB
 
-BENCH wall=0.03 user=0.04 sys=0.05 rss_kb=253060 minor=9094
+BENCH wall=0.04 user=0.04 sys=0.06 rss_kb=253376 minor=9129

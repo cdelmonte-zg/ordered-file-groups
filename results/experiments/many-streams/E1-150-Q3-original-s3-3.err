@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.1 K      10.2 K      31      
-  abandoned :   971           8.9 K      10      
-  reclaima  :   647      
-  reclaimf  :     6.0 K  
-  reabandon :     1.5 K  
+  pages     :   917           8.5 K      31      
+  abandoned :   688           8.9 K      10      
+  reclaima  :     1.0 K  
+  reclaimf  :     5.1 K  
+  reabandon :     2.3 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   688.7 MiB   688.7 MiB   688.7 MiB                          
+  committed :   714.2 MiB   714.2 MiB   714.2 MiB                          
   reset     :     0      
-  purged    :   683.6 MiB
+  purged    :   709.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   274      
+  purges    :   196      
   guarded   :     0      
-  theaps    :    42          42           0      
+  theaps    :    48          48           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    43          43           1      
+  threads   :    49          49           1      
   numa nodes:     1
-  elapsed   :     0.643 s
-  process   : user: 1.373 s, system: 0.157 s, faults: 0, peak rss: 667.6 MiB, peak commit: 688.7 MiB
+  elapsed   :     0.628 s
+  process   : user: 1.372 s, system: 0.174 s, faults: 0, peak rss: 693.0 MiB, peak commit: 714.2 MiB
 
-BENCH wall=0.64 user=1.37 sys=0.15 rss_kb=683664 minor=6981
+BENCH wall=0.63 user=1.37 sys=0.17 rss_kb=709692 minor=6597

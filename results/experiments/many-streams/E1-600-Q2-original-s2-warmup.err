@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   597           3.6 K      31      
-  abandoned :   339         835          10      
-  reclaima  :   170      
-  reclaimf  :   470      
-  reabandon :   293      
+  pages     :   612           5.8 K      29      
+  abandoned :   342         817           8      
+  reclaima  :   141      
+  reclaimf  :   323      
+  reabandon :   428      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   336.8 MiB   336.8 MiB   336.8 MiB                          
+  committed :   327.2 MiB   327.2 MiB   327.2 MiB                          
   reset     :     0      
-  purged    :   331.6 MiB
+  purged    :   322.7 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   218      
+  purges    :   151      
   guarded   :     0      
-  theaps    :    46          46           0      
+  theaps    :    41          41           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    47          47           1      
+  threads   :    42          42           1      
   numa nodes:     1
-  elapsed   :     0.123 s
-  process   : user: 0.207 s, system: 0.082 s, faults: 0, peak rss: 364.9 MiB, peak commit: 336.8 MiB
+  elapsed   :     0.119 s
+  process   : user: 0.208 s, system: 0.069 s, faults: 0, peak rss: 342.7 MiB, peak commit: 327.2 MiB
 
-BENCH wall=0.12 user=0.20 sys=0.08 rss_kb=373744 minor=8135
+BENCH wall=0.12 user=0.20 sys=0.06 rss_kb=351000 minor=8072

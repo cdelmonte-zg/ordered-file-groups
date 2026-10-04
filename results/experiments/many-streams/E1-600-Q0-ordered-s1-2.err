@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   263           3.4 K      35      
-  abandoned :   148         318          14      
-  reclaima  :    10      
-  reclaimf  :   198      
-  reabandon :    28      
+  pages     :   262           3.3 K      35      
+  abandoned :   139         322          14      
+  reclaima  :     9      
+  reclaimf  :   208      
+  reabandon :    27      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   448.7 MiB   448.7 MiB   448.7 MiB                          
+  committed :   427.8 MiB   427.8 MiB   427.8 MiB                          
   reset     :     0      
-  purged    :   440.6 MiB
+  purged    :   419.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   350      
+  purges    :   337      
   guarded   :     0      
-  theaps    :   252         252           0      
+  theaps    :   240         240           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   253         253           1      
+  threads   :   241         241           1      
   numa nodes:     1
-  elapsed   :     0.068 s
-  process   : user: 0.163 s, system: 0.274 s, faults: 0, peak rss: 492.7 MiB, peak commit: 448.7 MiB
+  elapsed   :     0.061 s
+  process   : user: 0.183 s, system: 0.227 s, faults: 0, peak rss: 472.4 MiB, peak commit: 427.8 MiB
 
-BENCH wall=0.07 user=0.16 sys=0.27 rss_kb=504580 minor=28985
+BENCH wall=0.06 user=0.18 sys=0.22 rss_kb=483784 minor=28906

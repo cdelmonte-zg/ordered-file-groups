@@ -1,139 +1,139 @@
 figure	value
-base_original_s	0.603
-base_ordered_s	0.348
+base_original_s	0.609
+base_ordered_s	0.356
 base_gain_pct	42
-base_original_rss_mb	507
-base_ordered_rss_mb	356
-base_target_s	0.258
-base_target_rss_mb	436
-A1-Q1_original_s	0.048
-A1-Q1_ordered_s	0.027
-A1-Q1_original_rss_mb	284
-A1-Q1_ordered_rss_mb	174
+base_original_rss_mb	496
+base_ordered_rss_mb	355
+base_target_s	0.263
+base_target_rss_mb	444
+A1-Q1_original_s	0.049
+A1-Q1_ordered_s	0.026
+A1-Q1_original_rss_mb	290
+A1-Q1_ordered_rss_mb	169
 A1-Q2_original_s	0.049
-A1-Q2_ordered_s	0.053
-A1-Q2_original_rss_mb	216
-A1-Q2_ordered_rss_mb	287
+A1-Q2_ordered_s	0.054
+A1-Q2_original_rss_mb	220
+A1-Q2_ordered_rss_mb	280
 A1-Q4_original_s	0.014
 A1-Q4_ordered_s	0.014
-A1-Q4_original_rss_mb	195
-A1-Q4_ordered_rss_mb	190
-A1-Q5_original_s	0.554
+A1-Q4_original_rss_mb	192
+A1-Q4_ordered_rss_mb	191
+A1-Q5_original_s	0.555
 A1-Q5_ordered_s	0.307
-A1-Q5_original_rss_mb	401
-A1-Q5_ordered_rss_mb	318
+A1-Q5_original_rss_mb	406
+A1-Q5_ordered_rss_mb	326
 depth12_original_s	0.607
-depth12_ordered_s	0.342
+depth12_ordered_s	0.339
 depth12_gain_pct	44
-depth12_original_rss_mb	503
-depth12_ordered_rss_mb	576
-depth12_ordered_repartition_spills	18
-depth1_original_s	0.478
-depth2_original_s	0.396
-gain_pct_128_256_512	43 / 42 / 44
-budget_128m_original_rss_mb	458
-budget_128m_ordered_rss_mb	372
+depth12_original_rss_mb	510
+depth12_ordered_rss_mb	571
+depth12_ordered_repartition_spills	17.5
+depth1_original_s	0.479
+depth2_original_s	0.397
+gain_pct_128_256_512	43 / 42 / 45
+budget_128m_original_rss_mb	444
+budget_128m_ordered_rss_mb	370
 budget_128m_original_sort_spills	15
-budget_256m_original_rss_mb	507
-budget_256m_ordered_rss_mb	356
-budget_256m_original_sort_spills	8
-budget_512m_original_rss_mb	526
-budget_512m_ordered_rss_mb	349
+budget_256m_original_rss_mb	496
+budget_256m_ordered_rss_mb	355
+budget_256m_original_sort_spills	7
+budget_512m_original_rss_mb	527
+budget_512m_ordered_rss_mb	351
 budget_512m_original_sort_spills	4
-matrix_gain_S2_128_pct	11
-matrix_gain_S0_128_pct	43
+matrix_gain_S2_128_pct	12
+matrix_gain_S0_128_pct	44
 files_1200_depth4_touching_pairs	248
 files_1200_depth4_closed_intervals_sharing_a_point	5
 files_1200_depth4_groups_if_touching_allowed	4
-many_groups_128m_original_s	0.719
-many_groups_128m_ordered_s	0.776
+many_groups_128m_original_s	0.713
+many_groups_128m_ordered_s	0.778
 many_groups_128m_ordered_final_spills	28
-many_groups_128m_ordered_rss_mb	1910
-many_groups_256m_original_s	0.724
-many_groups_256m_ordered_s	0.585
+many_groups_128m_ordered_rss_mb	2055
+many_groups_256m_original_s	0.716
+many_groups_256m_ordered_s	0.578
 many_groups_256m_ordered_final_spills	0
-many_groups_256m_ordered_rss_mb	1964
-many_groups_512m_original_s	0.687
-many_groups_512m_ordered_s	0.579
+many_groups_256m_ordered_rss_mb	1744
+many_groups_512m_original_s	0.696
+many_groups_512m_ordered_s	0.589
 many_groups_512m_ordered_final_spills	0
-many_groups_512m_ordered_rss_mb	1892
+many_groups_512m_ordered_rss_mb	2052
 files_1200_depth4_original_s	0.718
-files_1200_depth4_ordered_s	0.418
-files_1200_depth4_ordered_rss_mb	502
+files_1200_depth4_ordered_s	0.413
+files_1200_depth4_ordered_rss_mb	498
 files_1200_depth4_groups	5
-many_groups_ordered_rss_gb	1.8 to 1.9
-many_groups_original_rss_gb	0.55 to 0.63
-dup_original_s	0.381
+many_groups_ordered_rss_gb	1.7 to 2.0
+many_groups_original_rss_gb	0.57 to 0.63
+dup_original_s	0.379
 dup_ordered_s	0.190
 dup_gain_pct	50
-string_test_gain_views_S2_128_pct	12
+string_test_gain_views_S2_128_pct	13
 string_test_gain_utf8_S2_128_pct	41
-string_test_gain_views_S0_128_pct	42
+string_test_gain_views_S0_128_pct	44
 string_test_ordered_utf8_s	0.406
-string_test_original_utf8_s	0.689
-string_test_ordered_views_s	0.623
-string_test_original_views_s	0.706
-string_test_repartition_out_views_mb	598
+string_test_original_utf8_s	0.685
+string_test_ordered_views_s	0.626
+string_test_original_views_s	0.718
+string_test_repartition_out_views_mb	593
 string_test_repartition_out_utf8_mb	61
-string_test_slice_accounting_views_s	0.641
-string_test_gain_slice_accounting_S2_128_pct	9
+string_test_slice_accounting_views_s	0.639
+string_test_gain_slice_accounting_S2_128_pct	11
 string_test_slice_accounting_final_spills	14
-many_streams_mb_per_stream	0.34 to 0.37
-many_streams_mb_per_pair	0.22 to 0.27
-many_streams_added_2_to_8_outputs_gb	1.5 to 1.9
-many_streams_rss_gb	1.5 to 1.9
-many_streams_excess_gb	0.8 to 1.2
-many_streams_model_residual_mb	-236 to 350
-many_streams_mb_per_stream_scan_driven_at_once	0.15 to 0.16
-many_streams_slope_on_outputs_factor	3.2 to 6.5
+many_streams_mb_per_stream	0.34 to 0.39
+many_streams_mb_per_pair	0.19 to 0.20
+many_streams_added_2_to_8_outputs_gb	1.3 to 1.4
+many_streams_rss_gb	1.9 to 2.0
+many_streams_excess_gb	1.3 to 1.4
+many_streams_model_residual_mb	445 to 476
+many_streams_mb_per_stream_scan_driven_at_once	0.15 to 0.17
+many_streams_slope_on_outputs_factor	4.8 to 5.9
 many_streams_streams_factor	8.0
-many_streams_purge_lowers_in	2 of 3 series
-many_streams_purge_change_mb	-164 to +106
-depth_gap_cores_by_batch_size	2048: 0.45; 8192: 0.36; 32768: -0.03; 131072: -0.05
-depth_default_batch_wall_s_depth1_depth2	0.482 / 0.402
-depth_failed_runs	6 of 20 at 131072
-depth_default_batch_send_s_depth1_depth2	0.50 / 0.36
-depth_batch_2048_d1_wall_cores_d2_wall_cores	0.536 1.45 / 0.422 1.89
-depth_batch_8192_d1_wall_cores_d2_wall_cores	0.482 1.54 / 0.402 1.90
-depth_batch_32768_d1_wall_cores_d2_wall_cores	0.393 1.94 / 0.400 1.92
-depth_batch_131072_d1_wall_cores_d2_wall_cores	0.702 2.10 / 0.720 2.06
+many_streams_purge_lowers_in	3 of 3 series
+many_streams_purge_change_mb	-336 to -63
+depth_gap_cores_by_batch_size	2048: 0.44; 8192: 0.37; 32768: -0.00; 131072: -0.07
+depth_default_batch_wall_s_depth1_depth2	0.488 / 0.403
+depth_failed_runs	7 of 20 at 131072
+depth_default_batch_send_s_depth1_depth2	0.51 / 0.36
+depth_batch_2048_d1_wall_cores_d2_wall_cores	0.528 1.44 / 0.415 1.88
+depth_batch_8192_d1_wall_cores_d2_wall_cores	0.488 1.54 / 0.403 1.91
+depth_batch_32768_d1_wall_cores_d2_wall_cores	0.395 1.94 / 0.395 1.94
+depth_batch_131072_d1_wall_cores_d2_wall_cores	0.706 2.11 / 0.728 2.04
 open_files_ordered_completes_from	8192
 open_files_original_completes_from	1024
-huge_pages_ordered_1200_rss_mb_as_set	1631
-huge_pages_ordered_1200_rss_mb_without	598
-huge_pages_original_1200_rss_mb_as_set	632
-huge_pages_original_1200_rss_mb_without	510
-huge_pages_excess_1200_mb_as_set	999
-huge_pages_excess_1200_mb_without	88
-huge_pages_added_2_to_8_outputs_mb_as_set	1797
-huge_pages_added_2_to_8_outputs_mb_without	316
-huge_pages_ordered_1200_s_as_set	0.577
-huge_pages_ordered_1200_s_without	0.589
-process_Q3_original_peak_rss_mb	614
+huge_pages_ordered_1200_rss_mb_as_set	1836
+huge_pages_ordered_1200_rss_mb_without	602
+huge_pages_original_1200_rss_mb_as_set	642
+huge_pages_original_1200_rss_mb_without	496
+huge_pages_excess_1200_mb_as_set	1194
+huge_pages_excess_1200_mb_without	106
+huge_pages_added_2_to_8_outputs_mb_as_set	1618
+huge_pages_added_2_to_8_outputs_mb_without	313
+huge_pages_ordered_1200_s_as_set	0.582
+huge_pages_ordered_1200_s_without	0.604
+process_Q3_original_peak_rss_mb	632
 process_Q3_original_peak_at_share_of_run	0.99
 process_Q3_original_parquet_open_at_peak	0
-process_Q3_original_max_parquet_open	11
+process_Q3_original_max_parquet_open	12
 process_Q3_original_rss_mb_when_most_parquet_open	58
 process_Q3_original_max_temp_open	22
-process_Q3_original_max_descriptors	33
-process_Q3_accept-groups_peak_rss_mb	1483
+process_Q3_original_max_descriptors	32
+process_Q3_accept-groups_peak_rss_mb	2005
 process_Q3_accept-groups_peak_at_share_of_run	0.97
 process_Q3_accept-groups_parquet_open_at_peak	0
-process_Q3_accept-groups_max_parquet_open	358
-process_Q3_accept-groups_rss_mb_when_most_parquet_open	457
-process_Q3_accept-groups_max_temp_open	4356
-process_Q3_accept-groups_max_descriptors	4366
-process_Q1_original_peak_rss_mb	364
+process_Q3_accept-groups_max_parquet_open	590
+process_Q3_accept-groups_rss_mb_when_most_parquet_open	411
+process_Q3_accept-groups_max_temp_open	4401
+process_Q3_accept-groups_max_descriptors	4411
+process_Q1_original_peak_rss_mb	359
 process_Q1_original_peak_at_share_of_run	0.98
 process_Q1_original_parquet_open_at_peak	0
-process_Q1_original_max_parquet_open	10
-process_Q1_original_rss_mb_when_most_parquet_open	58
+process_Q1_original_max_parquet_open	3
+process_Q1_original_rss_mb_when_most_parquet_open	60
 process_Q1_original_max_temp_open	0
-process_Q1_original_max_descriptors	20
-process_Q1_accept-groups_peak_rss_mb	784
-process_Q1_accept-groups_peak_at_share_of_run	0.46
+process_Q1_original_max_descriptors	13
+process_Q1_accept-groups_peak_rss_mb	749
+process_Q1_accept-groups_peak_at_share_of_run	0.44
 process_Q1_accept-groups_parquet_open_at_peak	0
-process_Q1_accept-groups_max_parquet_open	246
-process_Q1_accept-groups_rss_mb_when_most_parquet_open	397
+process_Q1_accept-groups_max_parquet_open	383
+process_Q1_accept-groups_rss_mb_when_most_parquet_open	453
 process_Q1_accept-groups_max_temp_open	0
-process_Q1_accept-groups_max_descriptors	256
+process_Q1_accept-groups_max_descriptors	393

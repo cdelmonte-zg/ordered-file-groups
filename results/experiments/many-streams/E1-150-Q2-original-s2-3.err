@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   404           7.9 K      30      
-  abandoned :   247         667           8      
-  reclaima  :    85      
-  reclaimf  :   411      
-  reabandon :   180      
+  pages     :   397           4.2 K      31      
+  abandoned :   241         673          10      
+  reclaima  :   134      
+  reclaimf  :   201      
+  reabandon :   378      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   399.6 MiB   399.6 MiB   399.6 MiB                          
+  committed :   440.1 MiB   440.1 MiB   440.1 MiB                          
   reset     :     0      
-  purged    :   394.5 MiB
+  purged    :   435.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   178      
+  purges    :   129      
   guarded   :     0      
-  theaps    :    44          44           0      
+  theaps    :    45          45           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    45          45           1      
+  threads   :    46          46           1      
   numa nodes:     1
-  elapsed   :     0.087 s
-  process   : user: 0.173 s, system: 0.050 s, faults: 0, peak rss: 348.8 MiB, peak commit: 399.6 MiB
+  elapsed   :     0.092 s
+  process   : user: 0.155 s, system: 0.079 s, faults: 0, peak rss: 371.1 MiB, peak commit: 440.1 MiB
 
-BENCH wall=0.09 user=0.17 sys=0.05 rss_kb=357212 minor=4230
+BENCH wall=0.09 user=0.15 sys=0.08 rss_kb=380096 minor=4226

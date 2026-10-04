@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   495           2.9 K      31      
-  abandoned :   243         990          10      
-  reclaima  :   260      
-  reclaimf  :   483      
-  reabandon :   449      
+  pages     :   491           3.4 K      31      
+  abandoned :   247           1.0 K      10      
+  reclaima  :   276      
+  reclaimf  :   540      
+  reabandon :   462      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   358.9 MiB   358.9 MiB   358.9 MiB                          
+  committed :   353.9 MiB   353.9 MiB   353.9 MiB                          
   reset     :     0      
-  purged    :   353.7 MiB
+  purged    :   348.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   166      
+  purges    :   164      
   guarded   :     0      
-  theaps    :    44          44           0      
+  theaps    :    42          42           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    45          45           1      
+  threads   :    43          43           1      
   numa nodes:     1
-  elapsed   :     0.165 s
-  process   : user: 0.236 s, system: 0.155 s, faults: 0, peak rss: 385.5 MiB, peak commit: 358.9 MiB
+  elapsed   :     0.163 s
+  process   : user: 0.257 s, system: 0.130 s, faults: 0, peak rss: 381.7 MiB, peak commit: 353.9 MiB
 
-BENCH wall=0.16 user=0.23 sys=0.15 rss_kb=394764 minor=27880
+BENCH wall=0.16 user=0.25 sys=0.13 rss_kb=390892 minor=27897

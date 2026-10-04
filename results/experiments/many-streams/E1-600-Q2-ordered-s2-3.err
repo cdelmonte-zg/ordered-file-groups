@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.2 K       4.8 K      35      
-  abandoned :   260           1.0 K      14      
-  reclaima  :    79      
-  reclaimf  :   641      
-  reabandon :   357      
+  pages     :     1.2 K       5.2 K      35      
+  abandoned :   266           1.1 K      14      
+  reclaima  :   105      
+  reclaimf  :   657      
+  reabandon :   434      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   710.6 MiB   710.6 MiB   710.6 MiB                          
+  committed :   719.3 MiB   719.3 MiB   719.3 MiB                          
   reset     :     0      
-  purged    :   701.9 MiB
+  purged    :   710.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :     1.2 K  
+  purges    :   528      
   guarded   :     0      
-  theaps    :   302         302           0      
+  theaps    :   292         292           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   303         303           1      
+  threads   :   293         293           1      
   numa nodes:     1
-  elapsed   :     0.153 s
-  process   : user: 0.534 s, system: 0.262 s, faults: 0, peak rss: 689.7 MiB, peak commit: 710.6 MiB
+  elapsed   :     0.154 s
+  process   : user: 0.522 s, system: 0.285 s, faults: 0, peak rss: 699.5 MiB, peak commit: 719.3 MiB
 
-BENCH wall=0.15 user=0.53 sys=0.26 rss_kb=706276 minor=10206
+BENCH wall=0.15 user=0.52 sys=0.28 rss_kb=716352 minor=10033

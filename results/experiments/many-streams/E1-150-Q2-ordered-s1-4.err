@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   449           2.7 K      31      
-  abandoned :    37           1.0 K      10      
-  reclaima  :    22      
-  reclaimf  :   832      
-  reabandon :    69      
+  pages     :   668           2.4 K      31      
+  abandoned :    35           1.0 K      10      
+  reclaima  :    20      
+  reclaimf  :   826      
+  reabandon :    63      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   729.3 MiB   729.3 MiB   729.3 MiB                          
+  committed :   738.0 MiB   738.0 MiB   738.0 MiB                          
   reset     :     0      
-  purged    :   723.8 MiB
+  purged    :   732.5 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   400      
+  purges    :   328      
   guarded   :     0      
-  theaps    :    81          81           0      
+  theaps    :    75          75           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    82          82           1      
+  threads   :    76          76           1      
   numa nodes:     1
-  elapsed   :     0.111 s
-  process   : user: 0.528 s, system: 0.220 s, faults: 0, peak rss: 574.7 MiB, peak commit: 729.3 MiB
+  elapsed   :     0.112 s
+  process   : user: 0.504 s, system: 0.229 s, faults: 0, peak rss: 592.1 MiB, peak commit: 738.0 MiB
 
-BENCH wall=0.11 user=0.52 sys=0.22 rss_kb=588548 minor=5096
+BENCH wall=0.11 user=0.50 sys=0.22 rss_kb=606324 minor=4918

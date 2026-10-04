@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.2 K      16.6 K      28      
-  abandoned :   993          10.0 K       6      
-  reclaima  :     1.7 K  
-  reclaimf  :     6.1 K  
-  reabandon :     2.6 K  
+  pages     :     1.3 K      74.7 K      31      
+  abandoned :   984          10.1 K      10      
+  reclaima  :     2.8 K  
+  reclaimf  :     5.0 K  
+  reabandon :     3.6 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.4 avg
+  searches  :     2.1 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   621.6 MiB   621.6 MiB   621.6 MiB                          
+  committed :   602.7 MiB   602.7 MiB   602.7 MiB                          
   reset     :     0      
-  purged    :   617.0 MiB
+  purged    :   597.6 MiB
   arenas    :     1      
   rollback  :     0      
   mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   230      
+  purges    :   276      
   guarded   :     0      
-  theaps    :    41          41           0      
+  theaps    :    42          42           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    42          42           1      
+  threads   :    43          43           1      
   numa nodes:     1
-  elapsed   :     0.761 s
-  process   : user: 1.553 s, system: 0.209 s, faults: 0, peak rss: 639.4 MiB, peak commit: 621.6 MiB
+  elapsed   :     0.742 s
+  process   : user: 1.564 s, system: 0.218 s, faults: 0, peak rss: 641.0 MiB, peak commit: 602.7 MiB
 
-BENCH wall=0.76 user=1.55 sys=0.20 rss_kb=654796 minor=43658
+BENCH wall=0.74 user=1.56 sys=0.21 rss_kb=656428 minor=42481
