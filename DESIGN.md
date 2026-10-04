@@ -245,15 +245,15 @@ files, temporary files of the spills, other). It answers what a peak alone
 cannot: when the peak falls, what is open then, and how many descriptors of
 which kind the ordered plan holds. Nothing in the engine is changed.
 
-**Page faults by call stack (`experiments/page-faults/`).** The same case
-under `perf record -e page-faults` with call stacks: every page that enters
-the resident set is attributed to the part of the engine whose code touched
-it first. It is an attribution observed from outside, where the model of the
-many-stream memory only estimates; it says who brought a page in, not who
-holds it at the peak. It needs perf, the permission to use it
-(`kernel.perf_event_paranoid` at most 2) and binaries with their symbol
-table, which the build keeps. Where one is missing the experiment is
-recorded as not run, with the reason.
+**Transparent huge pages (`experiments/huge-pages/`).** The peak RSS counts
+whole pages, and where the kernel backs memory with 2 MB pages a page is
+resident as soon as one byte of it is touched. A plan that spreads many small
+buffers over many streams and channels can therefore show a large resident
+set while touching little of it. The many-stream cases run twice, as the
+machine is set and with transparent huge pages switched off for the measured
+process alone (`prctl(PR_SET_THP_DISABLE)`, which needs no privilege and
+changes nothing on the machine): if the excess memory of the ordered plan is
+memory in use, it stays; if it is page rounding, it goes.
 
 ## Limits
 

@@ -424,10 +424,11 @@ def depth(out, matrix, manifests, figures):
         return missing("Depth 1 against depth 2: backpressure", out)
     rows = read_tsv(path)
     sizes = sorted({int(r["batch_size"]) for r in rows if r["kind"] == "batch"})
+    per_config = max(len(select(rows, name=n)) for n in {r["name"] for r in rows})
     lines = ["### Depth 1 against depth 2: backpressure", "",
              "`experiments/depth/run.py`: the deduplication with two ordered groups whose key "
              "ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, "
-             "ten runs per configuration. Wall and CPU time of the whole process; cores are CPU "
+             f"{per_config} runs per configuration. Wall and CPU time of the whole process; cores are CPU "
              "over wall. Means over the completed runs, standard deviation in parentheses.", "",
              "| batch size | depth 1: completed, wall s, CPU s, cores | "
              "depth 2: completed, wall s, CPU s, cores | gap in cores | "
@@ -604,38 +605,63 @@ def process(out, figures):
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------- page faults
+# ---------------------------------------------------------------- huge pages
 
-def page_faults(out, figures):
+def huge_pages(out, figures):
     path = Path(out) / "results.tsv"
     if not path.is_file():
-        return missing("Page faults by call stack", out)
+        return missing("How much of the resident memory is transparent huge pages", out)
     rows = read_tsv(path)
-    lines = ["### Page faults by call stack", "",
-             "`experiments/page-faults/run.py`: the same case under `perf record -e page-faults` "
-             "with call stacks, one run per plan. Every page that enters the resident set is "
-             "attributed to the innermost frame of its stack that belongs to a part of the "
-             "engine. It says who brought a page in, not who holds it at the peak.", ""]
-    notes = [r["note"] for r in rows if r["note"]]
-    data = [r for r in rows if r["part"]]
-    if not data:
-        lines += [("Not run on this machine: " + notes[0].replace("not run: ", "") + ".")
-                  if notes else "No result.", ""]
-        figures.append(("page_faults", notes[0] if notes else "no result"))
-        return "\n".join(lines)
-    parts = sorted({r["part"] for r in data},
-                   key=lambda p: -sum(float(r["mb"]) for r in data if r["part"] == p))
-    lines += ["| part of the engine | original plan: MB touched, share | ordered plan: MB touched, share |",
-              "|---|---|---|"]
-    for part in parts:
-        cells = []
-        for variant in ("original", "accept-groups"):
-            r = next((r for r in data if r["variant"] == variant and r["part"] == part), None)
-            cells.append(f"{float(r['mb']):.0f}, {float(r['share_pct']):.0f} %" if r else "0")
-            if r:
-                figures.append((f"page_faults_{variant}_{part}_mb", f"{float(r['mb']):.0f}"))
-        lines.append(f"| {part} | {cells[0]} | {cells[1]} |")
-    for note in notes:
-        lines += ["", note]
-    lines.append("")
+    names = []
+    for r in rows:
+        if r["name"] not in names:
+            names.append(r["name"])
+    plan = {"original": "original", "accept-groups": "ordered"}
+    lines = ["### How much of the resident memory is transparent huge pages", "",
+             "`experiments/huge-pages/run.py`: the many-stream cases as the machine is set and with "
+             "transparent huge pages switched off for the measured process alone "
+             "(`prctl(PR_SET_THP_DISABLE)`). The peak RSS counts whole pages: a 2 MB page is "
+             "resident as soon as one byte of it is touched. Medians of the completed runs.", "",
+             "| case | plan | completed | peak RSS as set, MB | peak RSS without huge pages, MB | "
+             "elapsed as set, s | elapsed without, s | minor faults as set | without |",
+             "|" + "---|" * 9]
+    med = {}
+    for name in names:
+        sel = select(rows, name=name)
+        on, off = completed(select(sel, huge_pages="as set")), completed(select(sel, huge_pages="off"))
+        med[name] = {"on": median(on, "rss_mb"), "off": median(off, "rss_mb"),
+                     "t_on": median(on, "elapsed_s"), "t_off": median(off, "elapsed_s")}
+        lines.append(f"| {sel[0]['case']} | {plan[sel[0]['variant']]} | {n_of(sel)} | "
+                     f"{num(med[name]['on'], 0)} | {num(med[name]['off'], 0)} | "
+                     f"{num(med[name]['t_on'])} | {num(med[name]['t_off'])} | "
+                     f"{num(median(on, 'minor_faults'), 0)} | {num(median(off, 'minor_faults'), 0)} |")
+
+    def excess(files, mode):
+        return med[f"dedup-{files}-accept-groups"][mode] - med[f"dedup-{files}-original"][mode]
+
+    o, a = med["dedup-1200-original"], med["dedup-1200-accept-groups"]
+    t8 = med["dedup-1200-accept-groups-t8"]
+    lines += ["", f"- With about 1200 ordered streams the ordered plan peaks at {num(a['on'], 0)} MB as "
+              f"the machine is set and at {num(a['off'], 0)} MB without huge pages; the original plan "
+              f"at {num(o['on'], 0)} and {num(o['off'], 0)} MB. The excess of the ordered plan over the "
+              f"original is {num(excess(1200, 'on'), 0)} MB with huge pages and "
+              f"{num(excess(1200, 'off'), 0)} MB without.",
+              "- The same excess at 150, 300, 600 and 1200 files: "
+              + ", ".join(num(excess(f, "on"), 0) for f in (150, 300, 600, 1200)) + " MB with huge pages, "
+              + ", ".join(num(excess(f, "off"), 0) for f in (150, 300, 600, 1200)) + " MB without.",
+              f"- Going from 2 to 8 outputs at 1200 files adds {num(t8['on'] - a['on'], 0)} MB with huge "
+              f"pages and {num(t8['off'] - a['off'], 0)} MB without.",
+              f"- Elapsed time of the ordered plan at 1200 files: {num(a['t_on'])} s as set, "
+              f"{num(a['t_off'])} s without huge pages; of the original, {num(o['t_on'])} and "
+              f"{num(o['t_off'])} s.", ""]
+    figures += [("huge_pages_ordered_1200_rss_mb_as_set", num(a["on"], 0)),
+                ("huge_pages_ordered_1200_rss_mb_without", num(a["off"], 0)),
+                ("huge_pages_original_1200_rss_mb_as_set", num(o["on"], 0)),
+                ("huge_pages_original_1200_rss_mb_without", num(o["off"], 0)),
+                ("huge_pages_excess_1200_mb_as_set", num(excess(1200, "on"), 0)),
+                ("huge_pages_excess_1200_mb_without", num(excess(1200, "off"), 0)),
+                ("huge_pages_added_2_to_8_outputs_mb_as_set", num(t8["on"] - a["on"], 0)),
+                ("huge_pages_added_2_to_8_outputs_mb_without", num(t8["off"] - a["off"], 0)),
+                ("huge_pages_ordered_1200_s_as_set", num(a["t_on"])),
+                ("huge_pages_ordered_1200_s_without", num(a["t_off"]))]
     return "\n".join(lines)

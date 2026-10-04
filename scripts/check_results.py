@@ -41,7 +41,6 @@ COMPARED = {
     "Q4": ["col_3", "col_4", "col_5", "col_6", "n"],
     "Q5": ["col_1", "col_2", "col_3", "col_4", "col_5", "col_6"],
 }
-ORDERED = {"Q1", "Q2", "Q3"}
 
 
 def rows_of(case, variant, pool, timeout, scratch):
@@ -166,7 +165,7 @@ def main():
                     else:
                         row["rows"] = table.num_rows
                         row["sha256_compared_columns"] = digest(table, columns)
-                        if case.query in ORDERED:
+                        if case.query in rm.ORDER_BY:
                             row["sorted"] = int(is_sorted(table))
                             if not row["sorted"]:
                                 problems.append("not sorted by (col_1, col_2)")

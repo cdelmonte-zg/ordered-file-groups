@@ -14,8 +14,6 @@
 #     that lasts half a second is measured while the cores are still ramping up.
 #   power profile = performance, when power-profiles-daemon runs: it would
 #     otherwise put the governor back.
-#   kernel.perf_event_paranoid = 2: lets a user sample its own processes, which
-#     experiments/page-faults needs.
 #   swap off: the peak RSS is a measured quantity and must not be pages that
 #     the kernel moved out.
 #
@@ -57,7 +55,6 @@ status() {
   printf 'transparent_hugepage\t%s\n' "$(thp)"
   printf 'swap\t%s\n' "$(swap_in_use)"
   printf 'randomize_va_space\t%s\n' "$(first /proc/sys/kernel/randomize_va_space)"
-  printf 'perf_event_paranoid\t%s\n' "$(first $paranoid)"
 }
 
 check() {
@@ -82,11 +79,13 @@ case ${1:-} in
       echo "$state exists: the machine is already configured, or run restore first" >&2; exit 2
     fi
     {
-      printf 'governor\t%s\n' "$(first $cpus/cpu0/cpufreq/scaling_governor)"
-      printf 'energy_performance_preference\t%s\n' "$(first $cpus/cpu0/cpufreq/energy_performance_preference)"
+      for f in $cpus/cpu[0-9]*/cpufreq; do      # per CPU: they need not be alike
+        cpu=$(basename "$(dirname "$f")")
+        printf 'governor:%s\t%s\n' "$cpu" "$(first "$f/scaling_governor")"
+        printf 'energy_performance_preference:%s\t%s\n' "$cpu" "$(first "$f/energy_performance_preference")"
+      done
       printf 'power_profile\t%s\n' "$(profile)"
       printf 'boost\t%s\n' "$(first $boost)"
-      printf 'perf_event_paranoid\t%s\n' "$(first $paranoid)"
       printf 'swap\t%s\n' "$(swapon --noheadings --show=NAME 2>/dev/null | tr '\n' ' ')"
     } > "$state"
     [ -n "${SUDO_UID:-}" ] && chown "$SUDO_UID:${SUDO_GID:-$SUDO_UID}" "$state"
@@ -94,8 +93,7 @@ case ${1:-} in
     write_all scaling_governor performance
     write_all energy_performance_preference performance
     if [ "${BOOST:-}" = 0 ] && [ -w "$boost" ]; then echo 0 > "$boost"; fi
-    echo 2 > "$paranoid"
-    swapoff -a
+    swapoff -a || echo "swapoff failed: swap stays on; restore still puts the rest back" >&2
     status
     check
     ;;
@@ -103,12 +101,20 @@ case ${1:-} in
     need_root restore
     [ -e "$state" ] || { echo "no saved state in $state" >&2; exit 2; }
     saved() { awk -F'\t' -v k="$1" '$1 == k {print $2}' "$state"; }
-    write_all scaling_governor "$(saved governor)"
-    [ "$(saved energy_performance_preference)" = "n/a" ] || \
-      write_all energy_performance_preference "$(saved energy_performance_preference)"
+    put() {                              # the value saved for one CPU, or the one saved for all
+      local file=$1 key=$2 cpu=$3 value
+      value=$(saved "$key:$cpu"); [ -n "$value" ] || value=$(saved "$key")
+      [ -n "$value" ] && [ "$value" != "n/a" ] && [ -w "$file" ] && echo "$value" > "$file" || true
+    }
+    for f in $cpus/cpu[0-9]*/cpufreq; do
+      cpu=$(basename "$(dirname "$f")")
+      put "$f/scaling_governor" governor "$cpu"
+      put "$f/energy_performance_preference" energy_performance_preference "$cpu"
+    done
     [ "$(saved power_profile)" = "n/a" ] || powerprofilesctl set "$(saved power_profile)" || true
     if [ "$(saved boost)" != "n/a" ] && [ -w "$boost" ]; then echo "$(saved boost)" > "$boost"; fi
-    echo "$(saved perf_event_paranoid)" > "$paranoid"
+    # a state saved by an earlier version of this script may hold it
+    [ -z "$(saved perf_event_paranoid)" ] || echo "$(saved perf_event_paranoid)" > "$paranoid"
     for device in $(saved swap); do swapon "$device" || true; done
     rm -f "$state"
     status

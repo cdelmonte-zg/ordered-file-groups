@@ -247,11 +247,13 @@ def format_cpu_list(cpus):
 def lab_cpus():
     """The CPUs the lab runs on.
 
-    LAB_CPUS names them ('0-7,16-23'), or 'all' for no pinning. By default they
-    are the CPUs that share the largest last-level cache: on a processor whose
-    cores are not alike (two cache sizes, or performance and efficiency cores)
-    the scheduler would otherwise move the work between unlike cores from one
-    run to the next. On a processor with one such cache it is every CPU.
+    LAB_CPUS names them ('0-7,16-23'), or 'all' for no pinning. By default,
+    where the last-level caches of the machine differ in size, they are the
+    CPUs that share the largest one: on such a processor the scheduler would
+    otherwise move the work between unlike cores from one run to the next.
+    Where the caches are alike (one cache, or several sockets with equal ones)
+    nothing is chosen and every CPU is used. Cores that differ in other ways
+    while sharing one cache are not told apart: name them with LAB_CPUS.
     """
     allowed = os.sched_getaffinity(0)
     wanted = os.environ.get("LAB_CPUS", "")
@@ -271,7 +273,8 @@ def lab_cpus():
         except (OSError, ValueError):
             return allowed                # no last-level cache described: no pinning
         domains.setdefault((size, shared), set()).add(cpu)
-    # the largest cache; among equals the domain of the lowest CPU number
+    if len({size for size, _ in domains}) < 2:
+        return allowed                    # caches alike: nothing to choose
     (_, shared), _ = max(domains.items(), key=lambda kv: (kv[0][0], -min(kv[1])))
     return parse_cpu_list(shared) & allowed
 

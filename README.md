@@ -47,8 +47,8 @@ and nothing else.
   (`collect_metrics.py`), the report (`make_report.py`), the configuration of
   the machine (`machine_setup.sh`) and the driver (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
-  `depth`, `open-files`), the two views of the process from outside
-  (`process`, `page-faults`), their shared runner (`common.py`) and the code of
+  `depth`, `open-files`, `huge-pages`), the view of the process from outside
+  (`process`), their shared runner (`common.py`) and the code of
   their report sections (`report.py`).
 
 The repository holds one run. Nothing in it was collected by hand, and no
@@ -66,8 +66,7 @@ DataFusion checkout, and a machine doing nothing else.
     sudo scripts/machine_setup.sh restore                 # the machine as it was
 
 `machine_setup.sh` sets the frequency governor and the energy preference to
-performance, switches the swap off and lets a user run perf on its own
-processes; `status` prints the settings without root, and the report records
+performance and switches the swap off; `status` prints the settings without root, and the report records
 them. `run_lab.sh` refuses to measure on a machine that is not configured,
 unless `ALLOW_UNCONFIGURED=1` is set. The runners pin themselves and the
 processes they start to the CPUs that share the largest last-level cache, so

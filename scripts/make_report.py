@@ -34,7 +34,10 @@ AXES = [
 NOT_MEASURED = """\
 - The memory of single operators. The peak RSS of the whole process is what
   is measured; the terms of the model of the many-stream memory are estimates
-  from how that peak grows, and its residual is a property of the model.
+  from how that peak grows, and its residual is a property of the model. An
+  attribution of the page faults to call stacks with perf was tried and
+  dropped: the binaries have no frame pointers and no debug information, and
+  perf could not reconstruct the callers.
 - Which allocations stand behind the growth with the outputs: the crossing of
   streams and outputs says how the growth scales, not what the repartition
   holds for each pair of input and output partition, which was not traced in
@@ -230,19 +233,20 @@ def plan_table(rows):
 
 # ------------------------------------------------------------------ engine metrics
 
-def engine_times(results):
-    """Seconds metrics of the matrix runs: (case, pool, variant) -> operator -> metric -> values."""
+def engine_times(results, runs):
+    """Seconds metrics of the completed matrix runs: (case, pool, variant) -> operator -> metric -> values."""
     path = Path(results) / "metrics.tsv"
     times = {}
     if not path.is_file():
         return times
+    completed = {(r["case"], r["pool"], r["variant"], r["run"]) for r in runs if r["result"] == "ok"}
     for r in read_tsv(path):
         parts = Path(r["file"]).parts
         if r["kind"] != "seconds" or len(parts) != 4 or parts[0] != "matrix":
             continue
         variant, _, run = parts[3][:-len(".out")].rpartition("-")
-        if not run.isdigit():
-            continue                      # the warm-up
+        if (parts[1], parts[2], variant, run) not in completed:
+            continue                      # the warm-up, or a run that failed
         cell = times.setdefault((parts[1], parts[2], variant), {})
         cell.setdefault(r["operator"], {}).setdefault(r["metric"], []).append(float(r["value"]))
     return times
@@ -627,7 +631,7 @@ case, "within the quartiles" otherwise. A gain is the reduction of the median.
   `scripts/machine_setup.sh` and recorded when the matrix started: frequency
   driver {machine.get("scaling_driver", "?")}, governor {machine.get("governor", "?")}, energy preference
   {machine.get("energy_performance_preference", "?")}, boost {machine.get("boost", "?")}, SMT {machine.get("smt", "?")}, swap {machine.get("swap", "?")},
-  transparent huge pages {machine.get("transparent_hugepage", "?")}, `perf_event_paranoid` {machine.get("perf_event_paranoid", "?")}. `datafusion-cli
+  transparent huge pages {machine.get("transparent_hugepage", "?")}. `datafusion-cli
   --mem-pool-type fair --memory-limit <pool>`; `target_partitions = 2` except
   for `original-target`, where it equals the ordered groups the overlap needs;
   `split_file_groups_by_statistics = true` except for `original-split-off`.
@@ -692,7 +696,7 @@ where each plan spends its computing time; they are the engine's own
 decomposition of what the comparison of the elapsed times gives only as a
 whole.
 
-{engine_section(engine_times(res))}
+{engine_section(engine_times(res, runs))}
 ## The predictions of DESIGN.md
 
 Each prediction is checked by the rule beside it. "Reported" marks the points
@@ -709,8 +713,8 @@ One-variable tests on the costs the matrix shows, each in
 {experiments.many_streams(exp / "many-streams", figures)}
 {experiments.depth(exp / "depth", matrix, manifests, figures)}
 {experiments.open_files(exp / "open-files", figures)}
+{experiments.huge_pages(exp / "huge-pages", figures)}
 {experiments.process(exp / "process", figures)}
-{experiments.page_faults(exp / "page-faults", figures)}
 ## Not measured
 
 {NOT_MEASURED}

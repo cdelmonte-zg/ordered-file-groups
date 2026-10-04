@@ -1,6 +1,7 @@
 """What the experiment scripts share: the output directory and one timed run."""
 import argparse
 import csv
+import ctypes
 import os
 import re
 import resource
@@ -10,8 +11,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import run_matrix as rm  # noqa: E402
+from collect_metrics import metrics_of  # noqa: E402
 
-TIME = re.compile(r"BENCH wall=([\d.]+) user=([\d.]+) sys=([\d.]+) rss_kb=(\d+)")
+TIME = re.compile(r"BENCH wall=([\d.]+) user=([\d.]+) sys=([\d.]+) rss_kb=(\d+) minor=(\d+)")
+PR_SET_THP_DISABLE = 41
+
+
+def without_huge_pages():
+    """Switch transparent huge pages off for this process and those it starts.
+
+    For use as preexec_fn: the setting is kept across exec and inherited by
+    children. Needs no privilege and changes nothing on the machine.
+    """
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(PR_SET_THP_DISABLE, 1, 0, 0, 0) != 0:
+        raise OSError(ctypes.get_errno(), "prctl(PR_SET_THP_DISABLE) failed")
 
 
 def output_dir(name):
@@ -29,21 +43,18 @@ def output_dir(name):
     return out
 
 
-DURATION = re.compile(r"([\d.]+)(ns|µs|us|ms|s)\b")
-SECONDS = {"ns": 1e-9, "µs": 1e-6, "us": 1e-6, "ms": 1e-3, "s": 1.0}
-
-
 def repartition_time(out_text, metric):
-    """A time metric of the RepartitionExec of a plan, in seconds; '' when absent."""
-    for line in out_text.splitlines():
-        if "RepartitionExec" in line and f"{metric}=" in line:
-            m = DURATION.match(line.split(f"{metric}=", 1)[1])
-            if m:
-                return round(float(m.group(1)) * SECONDS[m.group(2)], 4)
-    return ""
+    """A time metric summed over the RepartitionExec operators of a plan, in seconds.
+
+    Read with the parser of scripts/collect_metrics.py; '' when the plan has none.
+    """
+    values = [value for operator, name, _, value, kind in metrics_of(out_text)
+              if operator.startswith("RepartitionExec") and name == metric and kind == "seconds"]
+    return round(sum(values), 4) if values else ""
 
 
-def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300):
+def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300,
+              huge_pages=True):
     """Run one SQL file with one of the binaries of bin/ under /usr/bin/time.
 
     Writes <stem>.out and <stem>.err.
@@ -52,14 +63,21 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
     over wall), the peak RSS, the Elapsed of the last statement and the plan
     features and operator metrics that run_matrix.parse reads. `nofile` sets the
     open-file limit of the child process; the caller checks that the hard limit
-    allows it.
+    allows it. `huge_pages=False` runs the process with transparent huge pages
+    switched off for it alone.
     """
-    cmd = ["/usr/bin/time", "-f", "BENCH wall=%e user=%U sys=%S rss_kb=%M",
+    cmd = ["/usr/bin/time", "-f", "BENCH wall=%e user=%U sys=%S rss_kb=%M minor=%R",
            str(rm.binary(binary)), "--memory-limit", pool, "--mem-pool-type", "fair",
            "-f", str(sql_path)]
-    limit = (lambda: resource.setrlimit(resource.RLIMIT_NOFILE, (nofile, nofile))) if nofile else None
+    def before_exec():
+        if nofile:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (nofile, nofile))
+        if not huge_pages:
+            without_huge_pages()
+
     status = rm.run_process(cmd, f"{stem}.out", f"{stem}.err", timeout,
-                            env=dict(os.environ, **(env or {})), preexec_fn=limit)
+                            env=dict(os.environ, **(env or {})),
+                            preexec_fn=before_exec if nofile or not huge_pages else None)
     out, err = Path(f"{stem}.out").read_text(), Path(f"{stem}.err").read_text()
     tm = TIME.search(err)
     failed = rm.run_failed(status, out, err)
@@ -74,6 +92,7 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
            "user_s": user, "sys_s": system,
            "cores": round((user + system) / wall, 3) if tm and wall else "",
            "rss_mb": round(int(tm.group(4)) / 1024) if tm else "",
+           "minor_faults": int(tm.group(5)) if tm else "",
            "elapsed_s": "" if failed else feats["elapsed_seconds"],
            "scan_groups": feats["scan_groups"],
            "error": messages[0][:160] if failed and messages else ""}
