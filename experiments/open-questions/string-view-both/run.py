@@ -19,13 +19,13 @@ HERE = Path(__file__).resolve().parent
 NOVIEW = ("SET datafusion.execution.parquet.schema_force_view_types = false;\n"
           "SET datafusion.sql_parser.map_string_types_to_utf8view = false;\n")
 RUNS = 5
-REF = "results/round-6"   # the round whose SQL files are reused
+CASES = {c.name: c for c in rm.MATRIX}
 
 configs = []
 for shape in ("S0", "S2"):
     for pool in ("128m", "512m"):
         for variant in ("original", "accept-groups"):
-            src = (ROOT / REF / f"A4-{shape}" / pool / f"{variant}.sql").read_text()
+            src = rm.sql_for(CASES[f"A4-{shape}"], variant)
             for views in ("views", "utf8"):
                 sql = src if views == "views" else src.replace(
                     "SET datafusion.execution.split_file_groups_by_statistics = true;\n",
