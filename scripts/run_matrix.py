@@ -1,10 +1,11 @@
-"""Runner for the matrix of PLAN.md (round 5): cases, variants, pools.
+"""Runner for the matrix of DESIGN.md: cases, variants, pools.
 
 Run from the repository root, with the two binaries in bin/ and the datasets of
-scripts/generate_round5.sh in /tmp:
+scripts/datasets.sh in /tmp (scripts/run_lab.sh does all of this):
 
-  python scripts/run_matrix.py --plan-check --out results/round-5   # plans only, once per case and variant
-  python scripts/run_matrix.py --runs 10 --out results/round-5      # the measurement
+  python scripts/run_matrix.py --plan-check --out results/matrix   # plans only, once per case and variant
+  python scripts/run_matrix.py --runs 10 --out results/matrix      # the measurement
+  python scripts/run_matrix.py --recheck-plans --out results/matrix   # validate recorded plans, run nothing
   python scripts/run_matrix.py --only base A1-Q1 --runs 1 --out /tmp/dry   # a dry run
 
 For every case, pool and variant: one unrecorded warm-up, then the recorded
@@ -16,6 +17,7 @@ import argparse
 import csv
 import os
 import re
+import resource
 import signal
 import statistics
 import subprocess
@@ -176,16 +178,19 @@ def parse(out_text, statements=None):
         count = re.search(r"\bspill_count=(\d+)", line)
         size = re.search(r"\bspilled_bytes=([\d.]+ ?[KMG]?B)", line)
         out = re.search(r"\boutput_bytes=([\d.]+ ?[KMG]?B)", line)
-        c, b, o = metrics.get(op, (0, 0, 0))
+        batches = re.search(r"\boutput_batches=(\d+)", line)
+        c, b, o, n = metrics.get(op, (0, 0, 0, 0))
         metrics[op] = (c + (int(count.group(1)) if count else 0),
                        b + (to_bytes(size.group(1)) if size else 0),
-                       o + (to_bytes(out.group(1)) if out else 0))
+                       o + (to_bytes(out.group(1)) if out else 0),
+                       n + (int(batches.group(1)) if batches else 0))
     for key, name in OPERATORS.items():
-        c, b, o = metrics.get(name, (0, 0, 0))
+        c, b, o, n = metrics.get(name, (0, 0, 0, 0))
         if key not in ("scan", "spm"):
             row[f"{key}_spills"] = c
             row[f"{key}_spill_mb"] = round(b / (1 << 20), 1)
         row[f"{key}_out_mb"] = round(o / (1 << 20), 1)
+        row[f"{key}_out_batches"] = n
     elapsed = re.findall(r"^Elapsed ([\d.]+) seconds\.$", out_text, re.M)
     # statements: SET ..., CREATE EXTERNAL TABLE, EXPLAIN ANALYZE
     if statements is None:
@@ -258,7 +263,7 @@ def binary_of(variant):
 
 
 def expected_plan(case, variant):
-    """Every plan property the round relies on, as the plan must show it."""
+    """Every plan property the matrix relies on, as the plan must show it."""
     _, split, target = VARIANTS[variant]
     target = case.groups if target == "groups" else DEFAULT_TARGET
     if target < 2:
@@ -403,10 +408,14 @@ def record_machine(out):
                 if l.startswith("Model name")), "unknown CPU")
     threads = subprocess.run(["nproc"], capture_output=True, text=True).stdout.strip()
     kernel = subprocess.run(["uname", "-r"], capture_output=True, text=True).stdout.strip()
+    memory = next((l.split()[1] for l in Path("/proc/meminfo").read_text().splitlines()
+                   if l.startswith("MemTotal")), "0")
+    nofile = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
     hashes = subprocess.run(["sha256sum"] + sorted(str(p) for p in BIN.glob("datafusion-cli-*")),
                             capture_output=True, text=True).stdout
     (out / "machine.txt").write_text(
-        f"cpu\t{cpu}\nthreads\t{threads}\nkernel\tLinux {kernel}\n"
+        f"cpu\t{cpu}\nthreads\t{threads}\nmemory_gb\t{int(memory) / 2**20:.0f}\n"
+        f"kernel\tLinux {kernel}\nopen_file_limit\t{nofile}\n"
         f"date\t{time.strftime('%Y-%m-%d %H:%M %Z')}\nbinaries\n{hashes}")
 
 
@@ -416,7 +425,8 @@ COLUMNS = ["case", "axis", "query", "dataset", "pool", "variant", "run", "result
            "sort_spills", "sort_spill_mb", "partial_agg_spills", "partial_agg_spill_mb",
            "final_agg_spills", "final_agg_spill_mb", "repartition_spills", "repartition_spill_mb",
            "scan_out_mb", "partial_agg_out_mb", "repartition_out_mb", "final_agg_out_mb",
-           "sort_out_mb", "spm_out_mb", "error"]
+           "sort_out_mb", "spm_out_mb", "partial_agg_out_batches", "repartition_out_batches",
+           "error"]
 
 
 def quartiles(values):
@@ -487,7 +497,7 @@ def main():
             raise SystemExit(f"Missing binary for {v[0]} in {BIN}")
     for c in cases:
         if not Path(c.location).is_dir():
-            raise SystemExit(f"Missing dataset {c.location}; run scripts/generate_round5.sh")
+            raise SystemExit(f"Missing dataset {c.location}; run scripts/datasets.sh")
     args.out.mkdir(parents=True, exist_ok=True)
     if args.plan_check:
         plan_check(cases, args.out)
@@ -496,7 +506,7 @@ def main():
     results = args.out / "results.tsv"
     if results.exists():
         raise SystemExit(f"{results} exists: a run would overwrite the summary of the whole "
-                         f"round; use a new --out directory")
+                         f"matrix; use a new --out directory")
     if not plan_check_passed(cases, args.out):
         raise SystemExit(f"run the plan check first and let it pass: "
                          f"python scripts/run_matrix.py --plan-check --out {args.out}")

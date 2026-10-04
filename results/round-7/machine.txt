@@ -1,7 +1,0 @@
-cpu	AMD Ryzen 9 7950X3D 16-Core Processor
-threads	32
-kernel	Linux 7.0.0-38-generic
-date	2026-10-04 15:52 CEST
-binaries
-6542a3b7fb3d8a1cf8285fc4366fe89781f48f84b88ba14019a656d48cf3bf2c  /home/sp4/Workspace/ordered-file-groups/bin/datafusion-cli-accept-groups-release
-ed7ee0d11f8c609e4d559ffb7bebac27ded445edb71b32a30fac4ae7a5e8faca  /home/sp4/Workspace/ordered-file-groups/bin/datafusion-cli-original-release

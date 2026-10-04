@@ -1,2 +1,0 @@
-IO error: Too many open files (os error 24)
-BENCH wall=0.32 user=1.55 sys=1.24 rss_kb=1820560

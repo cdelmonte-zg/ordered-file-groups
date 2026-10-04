@@ -1,7 +1,0 @@
-variant	run	exit_code	result	scan_groups	elapsed_seconds	wall_seconds	max_rss_kb	sort_spills	final_aggregate_spills	repartition_spills
-original	1	0	ok	2	0.849	0.89	523984	14	24	0
-accept-groups	1	0	ok	1000	0.863	0.91	1419692	0	83	1
-accept-groups	2	0	ok	1000	0.789	0.83	1465776	0	83	1
-original	2	0	ok	2	0.752	0.79	474500	15	24	0
-original	3	0	ok	2	0.753	0.79	510920	15	26	0
-accept-groups	3	0	ok	1000	0.819	0.87	1977372	0	82	1

@@ -1,7 +1,0 @@
-16919: file group sorted = false
-16919: file group sorted = false
-Resources exhausted: Additional allocation failed for FinalHashAggregateStream[0] with top memory consumers (across reservations) as:
-  ExternalSorter[1]#12(can spill: true) consumed 73.7 MB, peak 73.7 MB,
-  ExternalSorter[0]#8(can spill: true) consumed 73.7 MB, peak 73.7 MB,
-  FinalHashAggregateStream[0]#7(can spill: true) consumed 11.4 MB, peak 95.5 MB.
-Error: Failed to allocate additional 4.8 MB for FinalHashAggregateStream[0] with 2.8 MB already allocated for this reservation - 1871.7 KB remain available for the total memory pool: greedy(used: 190.2 MB, pool_size: 192.0 MB)

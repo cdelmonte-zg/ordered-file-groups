@@ -6,7 +6,7 @@ cached); only the assignment of rows to files changes. Each file is sorted by
 range: file i and file i+d are disjoint, file i and file i+d-1 overlap, so d
 is the minimum number of ordered file groups.
 
-Three assignments (PLAN.md, axis A5):
+Three assignments (DESIGN.md, axis A5):
 
 - `entity` (default): the overlap is built on col_1, whose distinct values are
   spread over the slots; a file's bounds are exact, because DataFusion assembles

@@ -1,2 +1,0 @@
-IO error: Too many open files (os error 24) at path "/tmp/.tmpUATFfp/.tmpsxHSMn"
-BENCH_WALL_SECONDS=0.19 BENCH_MAX_RSS_KB=622436

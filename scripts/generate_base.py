@@ -1,4 +1,4 @@
-"""Synthetic rows for the queries of PLAN.md, with the schema of apache/datafusion#16919.
+"""Synthetic rows for the queries of DESIGN.md, with the schema of apache/datafusion#16919.
 
     col_1  VARCHAR NOT NULL   entity id, a few dozen distinct values
     col_2  BIGINT  NOT NULL   timestamp in milliseconds, clustered per entity
@@ -10,7 +10,7 @@
     col_8  DOUBLE             value
 
 The three code columns are generated as integer ids and rendered to strings
-with a *shape* (PLAN.md, axis A4): a constant prefix and a zero-padded
+with a *shape* (DESIGN.md, axis A4): a constant prefix and a zero-padded
 number, so that key equality and lexicographic order are the same in every
 shape and only the byte length changes. Twelve bytes is the inline limit of
 Arrow string views.

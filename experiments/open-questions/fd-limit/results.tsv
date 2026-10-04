@@ -1,9 +1,0 @@
-open_file_limit	variant	completed	rss_mb	scan_groups	error
-1024	original	1	657	2	
-1024	accept-groups	0	523		IO error: Too many open files (os error 24)
-4096	original	1	692	2	
-4096	accept-groups	0	1778		IO error: Too many open files (os error 24)
-8192	original	1	633	2	
-8192	accept-groups	1	1762	1196	
-16384	original	1	623	2	
-16384	accept-groups	1	2164	1196	

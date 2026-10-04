@@ -48,7 +48,7 @@ def rows_of(case, variant, pool, timeout, scratch):
 
     The rows are written with COPY to one Parquet file, which keeps their order
     and streams them: printed to the terminal, datafusion-cli would hold the
-    whole result in the same memory pool and fail under the limits of the round.
+    whole result in the same memory pool and fail under the limits of the matrix.
     """
     out = scratch / "rows.parquet"
     out.unlink(missing_ok=True)
@@ -56,7 +56,7 @@ def rows_of(case, variant, pool, timeout, scratch):
     copy = f"COPY ({query.rstrip().rstrip(';')}) TO '{out}' STORED AS PARQUET;"
     base = [str(rm.binary_of(variant)), "-q", "--memory-limit", pool, "--mem-pool-type", "fair"]
     # The COPY is another statement than the timed one: check that the plan under
-    # its sink has the properties the round expects of this case and variant.
+    # its sink has the properties the matrix expects of this case and variant.
     explain = rm.sql_for(case, variant, explain="EXPLAIN FORMAT INDENT").replace(query, copy)
     try:
         plan = subprocess.run(base + ["-c", explain], capture_output=True, text=True,

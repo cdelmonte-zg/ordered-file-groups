@@ -1,9 +1,0 @@
-open_file_limit	variant	ok	wall_s	cpu_s	cores	rss_mb	elapsed_s	scan_groups	error
-1024	original	1	0.82	2.04	2.488	694	0.779	2	
-1024	accept-groups	0	0.17	1.03	6.059	548			"IO error: Too many open files (os error 24) at path ""/tmp/.tmpH3zDJl/.tmpjCjRfA"""
-4096	original	1	0.81	1.88	2.321	627	0.766	2	
-4096	accept-groups	0	0.34	2.77	8.147	1677			IO error: Too many open files (os error 24)
-8192	original	1	0.75	1.73	2.307	613	0.715	2	
-8192	accept-groups	1	0.68	3.3	4.853	1878	0.625	1196	
-16384	original	1	0.8	1.83	2.288	630	0.757	2	
-16384	accept-groups	1	0.7	3.39	4.843	1906	0.647	1196	

@@ -1,7 +1,0 @@
-variant	lengths	run	result	elapsed_seconds	max_rss_mb	final_agg_spills	final_agg_spill_mb	repartition_spills	error
-refs-12	{'entities': 15, 'references': 12, 'instances': 12}	1	ok	0.377	296	0	0.0	0	
-refs-12	{'entities': 15, 'references': 12, 'instances': 12}	2	ok	0.396	297	0	0.0	0	
-refs-12	{'entities': 15, 'references': 12, 'instances': 12}	3	ok	0.382	309	0	0.0	0	
-refs-13	{'entities': 15, 'references': 13, 'instances': 13}	1	ok	0.605	388	14	94.5	4	
-refs-13	{'entities': 15, 'references': 13, 'instances': 13}	2	ok	0.621	382	14	94.5	4	
-refs-13	{'entities': 15, 'references': 13, 'instances': 13}	3	ok	0.596	423	8	49.8	4	

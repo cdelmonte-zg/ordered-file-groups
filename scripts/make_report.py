@@ -1,38 +1,115 @@
-"""Write RESULTS.md, the report of round 7 (the design of PLAN.md run again), from results/round-7/.
+"""Write RESULTS.md from results/: tables, findings and checks, all computed.
 
-Run from the repository root:
-  python scripts/make_report.py
+Run from the repository root (scripts/run_lab.sh does it as its last step):
+  python scripts/make_report.py [--results DIR]
 
-Tables come from summary.tsv, plan-check.tsv and the manifests. The prose of
-the observations and of the hypothesis verdicts is in this file and was
-written after reading the tables; every figure in it is taken from them.
+Nothing in the report is written by hand. The tables come from the recorded
+runs; the findings are sentences whose numbers and whose qualitative words
+("faster", "within the quartiles") are computed from them; the predictions of
+DESIGN.md are checked by rules stated next to each one. Also writes
+results/figures.tsv, the figures the companion article quotes.
 """
+import argparse
 import csv
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-REF = ROOT / "results" / "round-7"
-MANIFESTS = ROOT / "results" / "manifests"
-PROVENANCE = ROOT / "results" / "round-4"   # binaries, patch, build logs of rounds 3 to 5
+sys.path.insert(0, str(ROOT / "experiments"))
+import report as experiments  # noqa: E402
 
+VARIANT_ORDER = ["original", "accept-groups", "original-target", "original-split-off"]
 AXES = [
     ("base", "The base case", "12 files, depth 4, shape S1, 256 MB, Q3, four variants."),
     ("A1", "A1: the consumer of the order", "Base data and pool; the query changes."),
     ("A2", "A2: the overlap depth", "Base data at depth 1, 2 and 12 (depth 4 is the base case)."),
     ("A3", "A3: the memory budget", "Base data and query at 128 and 512 MB (256 MB is the base case)."),
-    ("A4", "A4 and A4 x A3: the width of the strings", "Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base case and A3. A separate test attributes the effect to the string-view representation, not to the width as such (observation 5)."),
+    ("A4", "A4 and A4 x A3: the width of the strings", "Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base case and A3."),
     ("A5", "A5 and A5 x A3: the number of files for the same rows", "120 and 1200 files, with depth 4 (one entity per file) and with depth equal to the files (total overlap); the 12-file points are the base case and A2 at depth 12."),
-    ("A6", "A6: the share of duplicates", "Base data with half the rows copied. The base data itself has 24 duplicate rows out of 600,000 (share 0.00004), so the axis compares almost no duplicates with half."),
+    ("A6", "A6: the share of duplicates", "Base data with half the rows copied."),
 ]
-
-VARIANT_ORDER = ["original", "accept-groups", "original-target", "original-split-off"]
+NOT_MEASURED = """\
+- What the order-preserving repartition holds for each pair of input and
+  output partition: the per-pair cost is a coefficient derived from the growth
+  of the RSS with the outputs, not traced in the code.
+- The work of the merge itself, the comparisons among the heads of the
+  streams, apart from the memory and the waiting it brings.
+- The partial aggregates' share of the many-stream memory: the query with a
+  small aggregate state also reads fewer columns.
+- What `output_bytes` measures beyond its definition (the cumulative bytes of
+  the batches an operator emitted, as Arrow accounts for their buffers): it is
+  not peak resident memory and not necessarily unique bytes.
+- How much of the final-aggregate spills on the wide strings comes from the
+  repartition's reservations and how much from other consumers of the fair
+  pool. No run changed the accounting itself or instrumented the reservations.
+- A pool at which the original plan does not spill, the greedy pool, and
+  larger data: every query here runs under a second on a few MB of Parquet.
+- The per-file overhead of small files is inside the elapsed time and the
+  `CREATE` time, not broken down into opens, footer reads and metadata.
+- The `GROUP BY` on the whole sort key at a size where the hash aggregate
+  would spill.
+- Which descriptors the ordered plan holds when it meets the open-file limit."""
 
 
 def read_tsv(path):
-    with path.open() as f:
+    with Path(path).open() as f:
         return list(csv.DictReader(f, delimiter="\t"))
 
+
+def num(x, digits=3):
+    return f"{x:.{digits}f}"
+
+
+class Matrix:
+    """The summary of the matrix, addressed by case, pool and variant."""
+
+    def __init__(self, summary):
+        self.rows = summary
+        self.by = {(r["case"], r["pool"], r["variant"]): r for r in summary}
+
+    def has(self, case, pool, variant):
+        return (case, pool, variant) in self.by
+
+    def get(self, case, pool, variant, key):
+        value = self.by[case, pool, variant][key]
+        return float(value) if value != "" else float("nan")
+
+    def med(self, case, pool, variant):
+        return self.get(case, pool, variant, "elapsed_med")
+
+    def rss(self, case, pool, variant):
+        return self.get(case, pool, variant, "rss_mb_med")
+
+    def spills(self, case, pool, variant, operator):
+        return self.get(case, pool, variant, f"{operator}_spills")
+
+    def ok(self, case, pool, variant):
+        return self.by[case, pool, variant]["ok"]
+
+    def gain(self, case, pool, variant="accept-groups", against="original"):
+        """Percent by which `variant` is faster than `against` (medians)."""
+        return 100 * (1 - self.med(case, pool, variant) / self.med(case, pool, against))
+
+    def compare(self, a, b):
+        """How `a` stands to `b`, both (case, pool, variant): by quartiles."""
+        if self.get(*a, "elapsed_q3") < self.get(*b, "elapsed_q1"):
+            return "faster"
+        if self.get(*a, "elapsed_q1") > self.get(*b, "elapsed_q3"):
+            return "slower"
+        return "within the quartiles"
+
+    def versus(self, a, b, name):
+        """'faster than <name>', 'slower than <name>' or 'within the quartiles of <name>'."""
+        word = self.compare(a, b)
+        return f"{word} of {name}" if word.startswith("within") else f"{word} than {name}"
+
+    def pair(self, case, pool, variant="accept-groups", against="original"):
+        """'0.377 against 0.660 s' for a variant and its reference."""
+        return f"{num(self.med(case, pool, variant))} against {num(self.med(case, pool, against))} s"
+
+
+# ------------------------------------------------------------------ tables
 
 def rows_of(summary, axis):
     sel = [r for r in summary if r["axis"] == axis]
@@ -42,21 +119,19 @@ def rows_of(summary, axis):
                                        VARIANT_ORDER.index(r["variant"])))
 
 
-def ok_cell(r):
-    return "" if r["ok"].endswith("/10") and r["ok"].startswith("10/") else f" ({r['ok']})"
-
-
 def elapsed(r):
-    if r["ok"].startswith("0/"):
+    done, total = r["ok"].split("/")
+    if done == "0":
         return f"fails ({r['ok']})"
-    return f"{r['elapsed_med']} [{r['elapsed_q1']}..{r['elapsed_q3']}]{ok_cell(r)}"
+    note = "" if done == total else f" ({r['ok']})"
+    return f"{r['elapsed_med']} [{r['elapsed_q1']}..{r['elapsed_q3']}]{note}"
 
 
 def spill(r, key):
     c, mb = r[f"{key}_spills"], r[f"{key}_spill_mb"]
     if c == "":
         return "-"
-    return "0" if float(c) == 0 else f"{float(c):.0f} / {mb} MB"
+    return "0" if float(c) == 0 else f"{float(c):g} / {mb} MB"
 
 
 def table(summary, axis, with_bytes=False):
@@ -79,20 +154,22 @@ def table(summary, axis, with_bytes=False):
     return "\n".join(lines)
 
 
-def datasets():
-    lines = ["| dataset | files | depth | assignment | shape | rows | distinct keys | duplicate rows | groups by bounds | bytes | row groups |",
-             "|---|---|---|---|---|---|---|---|---|---|---|"]
-    for path in sorted(MANIFESTS.glob("*.tsv")):
-        text = path.read_text().splitlines()
-        meta = {}
-        for line in text:
-            if not line.startswith("# "):
-                break
+def manifest_meta(path):
+    meta, body = {}, []
+    for line in Path(path).read_text().splitlines():
+        if line.startswith("# "):
             parts = line[2:].split("\t")
             meta[parts[0]] = parts[1]
-        if "assign" not in meta:
-            continue  # manifests of the earlier rounds
-        body = [l.split("\t") for l in text if l and not l.startswith("#")][1:]
+        elif line and line.split("\t")[0].isdigit():
+            body.append(line.split("\t"))
+    return meta, body
+
+
+def datasets(manifests):
+    lines = ["| dataset | files | depth | assignment | shape | rows | distinct keys | duplicate rows | groups by bounds | bytes | row groups |",
+             "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for path in sorted(Path(manifests).glob("*.tsv")):
+        meta, body = manifest_meta(path)
         size = sum(int(b[2]) for b in body)
         rgs = sum(int(b[3]) for b in body)
         lines.append(f'| {meta["dataset"]} | {meta["files"]} | {meta["depth"]} | {meta["assign"]} '
@@ -101,67 +178,312 @@ def datasets():
     return "\n".join(lines)
 
 
-def plan_check():
-    rows = read_tsv(REF / "plan-check.tsv")
-    lines = ["| case | variant | query | groups | SortExec | preserve_order | partial mode | final mode | output_ordering |",
-             "|---|---|---|---|---|---|---|---|---|"]
+def plan_table(rows):
+    lines = ["| case | variant | query | groups | SortExec | preserve_order | partial mode | final mode | output_ordering | check |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         lines.append(f'| {r["case"]} | {r["variant"]} | {r["query"]} | {r["scan_groups"]} | {r["sort_exec"]} '
-                     f'| {r["preserve_order"]} | {r["partial_mode"] or "-"} | {r["final_mode"] or "-"} | {r["output_ordering"]} |')
+                     f'| {r["preserve_order"]} | {r["partial_mode"] or "-"} | {r["final_mode"] or "-"} '
+                     f'| {r["output_ordering"]} | {r["check"]} |')
     return "\n".join(lines)
 
 
+# ------------------------------------------------------------------ findings
+
+def findings(m, manifests, figures):
+    """Numbered sentences on the matrix; every number and comparison is computed."""
+    B, P = "base", "256m"
+    O, A, T = (B, P, "original"), (B, P, "accept-groups"), (B, P, "original-target")
+    out = []
+
+    def spilled(case, pool, variant, operator):
+        return f"{m.spills(case, pool, variant, operator):g}"
+
+    # 1 base
+    text = (f"Base case, 256 MB, deduplication. The original plan takes {num(m.med(*O))} s, with "
+            f"{spilled(*O, 'sort')} spills in the sort and {spilled(*O, 'final_agg')} in the final "
+            f"aggregate. The ordered plan takes {num(m.med(*A))} s, {m.gain(B, P):.0f} percent less, "
+            f"with {spilled(*A, 'final_agg')} spills in the final aggregate and "
+            f"{spilled(*A, 'repartition')} in the repartition, and {m.rss(*O) - m.rss(*A):.0f} MB less "
+            f"RSS ({m.rss(*A):.0f} against {m.rss(*O):.0f}). ")
+    text += (f"Raising `target_partitions` to the groups needed (`original-target`) takes "
+             f"{num(m.med(*T))} s, {m.versus(T, A, 'the ordered plan')}, with {m.rss(*T):.0f} MB of RSS. ")
+    if m.has(B, P, "original-split-off"):
+        S = (B, P, "original-split-off")
+        text += (f"With the grouping by statistics off the time is {num(m.med(*S))} s, "
+                 f"{m.versus(S, O, 'the original')}.")
+    out.append(text)
+    figures += [("base_original_s", num(m.med(*O))), ("base_ordered_s", num(m.med(*A))),
+                ("base_gain_pct", f"{m.gain(B, P):.0f}"), ("base_original_rss_mb", f"{m.rss(*O):.0f}"),
+                ("base_ordered_rss_mb", f"{m.rss(*A):.0f}"), ("base_target_s", num(m.med(*T))),
+                ("base_target_rss_mb", f"{m.rss(*T):.0f}")]
+
+    # 2 consumers
+    parts = []
+    names = {"A1-Q1": "`ORDER BY` only (Q1)", "A1-Q2": "`GROUP BY` on the whole sort key (Q2)",
+             "A1-Q4": "`GROUP BY` without the sort key (Q4)"}
+    for case, label in names.items():
+        o, a = (case, P, "original"), (case, P, "accept-groups")
+        parts.append(f"{label}: {m.pair(case, P)}, the ordered plan {m.compare(a, o)}, RSS "
+                     f"{m.rss(*a):.0f} against {m.rss(*o):.0f} MB")
+        figures += [(f"{case}_original_s", num(m.med(*o))), (f"{case}_ordered_s", num(m.med(*a))),
+                    (f"{case}_original_rss_mb", f"{m.rss(*o):.0f}"), (f"{case}_ordered_rss_mb", f"{m.rss(*a):.0f}")]
+    out.append("A1, who uses the order. " + "; ".join(parts) + f"; the deduplication (Q3) is the base "
+               f"case, {m.pair(B, P)}. In Q3 two things change together, a sort disappears and the "
+               f"aggregate can close completed prefixes early; the comparison measures their "
+               f"combined effect.")
+
+    # 3 depth
+    parts = []
+    for d in (1, 2):
+        case = f"A2-depth-{d}"
+        parts.append(f"depth {d}: {m.pair(case, P)}, {m.compare((case, P, 'accept-groups'), (case, P, 'original'))}")
+    c12 = "A2-depth-12"
+    text = ("A2, the overlap depth. At depth 1 and 2 both binaries produce the same plan; "
+            + "; ".join(parts) + f". At depth 12, twelve ordered groups: {m.pair(c12, P)}, a "
+            f"{m.gain(c12, P):.0f} percent reduction against {m.gain(B, P):.0f} at depth 4, with "
+            f"{spilled(c12, P, 'accept-groups', 'repartition')} spills in the order-preserving "
+            f"repartition and {m.rss(c12, P, 'accept-groups'):.0f} MB of RSS against "
+            f"{m.rss(c12, P, 'original'):.0f} for the original.")
+    if m.has(c12, P, "original-target"):
+        t = (c12, P, "original-target")
+        text += (f" `original-target` with twelve partitions takes {num(m.med(*t))} s, "
+                 f"{m.versus(t, (c12, P, 'accept-groups'), 'the ordered plan')}, with "
+                 f"{spilled(*t, 'final_agg')} spills in the final aggregate and {m.rss(*t):.0f} MB of RSS.")
+    out.append(text)
+    d1, d2 = m.med("A2-depth-1", P, "original"), m.med("A2-depth-2", P, "original")
+    figures += [("depth12_original_s", num(m.med(c12, P, "original"))),
+                ("depth12_ordered_s", num(m.med(c12, P, "accept-groups"))),
+                ("depth12_gain_pct", f"{m.gain(c12, P):.0f}"),
+                ("depth12_original_rss_mb", f"{m.rss(c12, P, 'original'):.0f}"),
+                ("depth12_ordered_rss_mb", f"{m.rss(c12, P, 'accept-groups'):.0f}"),
+                ("depth12_ordered_repartition_spills", spilled(c12, P, "accept-groups", "repartition")),
+                ("depth1_original_s", num(d1)), ("depth2_original_s", num(d2))]
+
+    # 4 pools
+    pools = [("A3", "128m"), (B, "256m"), ("A3", "512m")]
+    gains = [m.gain(c, p) for c, p in pools]
+    orig_spills = [m.spills(c, p, "original", "final_agg") for c, p in pools]
+    ord_spills = [m.spills(c, p, "accept-groups", "final_agg") for c, p in pools]
+    text = ("A3, the memory budget. Gain of the ordered plan at 128, 256 and 512 MB: "
+            + ", ".join(f"{g:.0f}" for g in gains) + " percent. The final aggregate of the original "
+            "plan spills " + ", ".join(f"{s:g}" for s in orig_spills) + " times, that of the ordered "
+            "plan " + ", ".join(f"{s:g}" for s in ord_spills) + ". ")
+    if all(s > 0 for s in orig_spills) and all(s == 0 for s in ord_spills):
+        text += ("One plan spills there at every pool and the other at none, so this series does "
+                 "not separate the benefit of early emission from that of the spills avoided.")
+    else:
+        text += "The two plans differ in whether they spill at some pools and not at others."
+    out.append(text)
+    figures += [("gain_pct_128_256_512", " / ".join(f"{g:.0f}" for g in gains))]
+    for (c, p) in pools:
+        figures += [(f"budget_{p}_original_rss_mb", f"{m.rss(c, p, 'original'):.0f}"),
+                    (f"budget_{p}_ordered_rss_mb", f"{m.rss(c, p, 'accept-groups'):.0f}"),
+                    (f"budget_{p}_original_sort_spills", spilled(c, p, "original", "sort"))]
+
+    # 5 strings
+    shapes = {"S0": "A4-S0", "S1": None, "S2": "A4-S2"}
+    def case_of(shape, pool):
+        if shape == "S1":
+            return B if pool == "256m" else "A3"
+        return shapes[shape]
+    rows = []
+    for shape in ("S0", "S1", "S2"):
+        rows.append(f"{shape}: " + ", ".join(f"{m.gain(case_of(shape, p), p):.0f}" for p in ("128m", "256m", "512m")))
+    s2 = ("A4-S2", "128m", "accept-groups")
+    out.append("A4 x A3, the width of the strings. Gain of the ordered plan at 128, 256 and 512 MB, "
+               "percent: " + "; ".join(rows) + f". On the wide strings (S2) at 128 MB the final "
+               f"aggregate of the ordered plan spills {spilled(*s2, 'final_agg')} times and the "
+               f"plan takes {m.pair('A4-S2', '128m')} ({m.ok('A4-S2', '128m', 'original')} runs of "
+               f"the original completed). At 256 MB the order-preserving repartition reports "
+               f"{m.get('A4-S0', P, 'accept-groups', 'repartition_out_mb'):.0f}, "
+               f"{m.get(B, P, 'accept-groups', 'repartition_out_mb'):.0f} and "
+               f"{m.get('A4-S2', P, 'accept-groups', 'repartition_out_mb'):.0f} MB of output for S0, S1 "
+               f"and S2, the scan {m.get('A4-S0', P, 'accept-groups', 'scan_out_mb'):.0f}, "
+               f"{m.get(B, P, 'accept-groups', 'scan_out_mb'):.0f} and "
+               f"{m.get('A4-S2', P, 'accept-groups', 'scan_out_mb'):.0f}. The experiment on string "
+               f"views below changes the representation alone.")
+    figures += [("matrix_gain_S2_128_pct", f"{m.gain('A4-S2', '128m'):.0f}"),
+                ("matrix_gain_S0_128_pct", f"{m.gain('A4-S0', '128m'):.0f}")]
+
+    # 6 files
+    few = [(B, "12"), ("A5-120-depth-4", "120"), ("A5-1200-depth-4", "1200")]
+    meta = {}
+    for path in Path(manifests).glob("*.tsv"):
+        mm, _ = manifest_meta(path)
+        meta[mm["dataset"]] = mm
+    g1200 = meta.get("df-16919-partial-1200-depth-4-entity-rank", {}).get("groups_by_bounds", "?")
+    text = ("A5, the number of files. With depth 4, at 12, 120 and 1200 files the original takes "
+            + ", ".join(num(m.med(c, P, "original")) for c, _ in few) + " s and the ordered plan "
+            + ", ".join(num(m.med(c, P, "accept-groups")) for c, _ in few) + f" s; at 1200 files the "
+            f"bounds give {g1200} groups. ")
+    many = "A5-1200-depth-1200"
+    c120 = "A5-120-depth-120"
+    text += (f"With total overlap, 120 groups at 256 MB: {m.pair(c120, P)}, "
+             f"{m.compare((c120, P, 'accept-groups'), (c120, P, 'original'))}, with "
+             f"{spilled(c120, P, 'accept-groups', 'repartition')} spills in the repartition and "
+             f"{m.rss(c120, P, 'accept-groups'):.0f} MB of RSS against {m.rss(c120, P, 'original'):.0f}. "
+             f"With {m.by[many, P, 'accept-groups']['groups']} groups: ")
+    parts, rss_a, rss_o = [], [], []
+    for pool in ("128m", "256m", "512m"):
+        a, o = (many, pool, "accept-groups"), (many, pool, "original")
+        parts.append(f"{pool[:-1]} MB {m.pair(many, pool)}, {m.compare(a, o)}, "
+                     f"{spilled(*a, 'final_agg')} spills in the ordered final aggregate")
+        rss_a.append(m.rss(*a))
+        rss_o.append(m.rss(*o))
+        figures += [(f"many_groups_{pool}_original_s", num(m.med(*o))), (f"many_groups_{pool}_ordered_s", num(m.med(*a))),
+                    (f"many_groups_{pool}_ordered_final_spills", spilled(*a, "final_agg")),
+                    (f"many_groups_{pool}_ordered_rss_mb", f"{m.rss(*a):.0f}")]
+    text += ("; ".join(parts) + f"; RSS {min(rss_a) / 1024:.1f} to {max(rss_a) / 1024:.1f} GB against "
+             f"{min(rss_o) / 1024:.2f} to {max(rss_o) / 1024:.2f}. The two 1200-file layouts differ in the "
+             f"streams and also in how the rows are assigned to the files.")
+    out.append(text)
+    figures += [("files_1200_depth4_original_s", num(m.med("A5-1200-depth-4", P, "original"))),
+                ("files_1200_depth4_ordered_s", num(m.med("A5-1200-depth-4", P, "accept-groups"))),
+                ("files_1200_depth4_ordered_rss_mb", f"{m.rss('A5-1200-depth-4', P, 'accept-groups'):.0f}"),
+                ("files_1200_depth4_groups", str(g1200)),
+                ("many_groups_ordered_rss_gb", f"{min(rss_a) / 1024:.1f} to {max(rss_a) / 1024:.1f}"),
+                ("many_groups_original_rss_gb", f"{min(rss_o) / 1024:.2f} to {max(rss_o) / 1024:.2f}")]
+
+    # 7 duplicates
+    dup = "A6-dup-0.5"
+    drop_o = 100 * (1 - m.med(dup, P, "original") / m.med(*O))
+    drop_a = 100 * (1 - m.med(dup, P, "accept-groups") / m.med(*A))
+    out.append(f"A6, half the rows duplicated: {m.pair(dup, P)}, a gain of {m.gain(dup, P):.0f} percent "
+               f"against {m.gain(B, P):.0f} without duplicates. The time of the original falls by "
+               f"{drop_o:.0f} percent, that of the ordered plan by {drop_a:.0f}.")
+    figures += [("dup_original_s", num(m.med(dup, P, "original"))), ("dup_ordered_s", num(m.med(dup, P, "accept-groups"))),
+                ("dup_gain_pct", f"{m.gain(dup, P):.0f}")]
+
+    # 8 workaround
+    verdicts = {"faster": [], "within the quartiles": [], "slower": []}
+    more_rss = 0
+    cells = [(c, p) for (c, p, v) in m.by if v == "original-target" and m.by[c, p, v]["query"] == "Q3"]
+    for c, p in sorted(cells, key=lambda x: (x[0], int(x[1][:-1]))):
+        t, a = (c, p, "original-target"), (c, p, "accept-groups")
+        verdicts[m.compare(t, a)].append(f"{c} at {p[:-1]} MB ({m.pair(c, p, 'original-target', 'accept-groups')})")
+        more_rss += m.rss(*t) > m.rss(*a)
+    text = "The workaround, `original-target`, against the ordered plan on the deduplication. "
+    for word, label in (("faster", "Faster"), ("within the quartiles", "Within the quartiles"), ("slower", "Slower")):
+        if verdicts[word]:
+            text += f"{label}: " + "; ".join(verdicts[word]) + ". "
+    text += f"It has more RSS in {more_rss} of {len(cells)} cases."
+    out.append(text)
+
+    # 9 depth 1 against 2
+    o1, o2 = ("A2-depth-1", P, "original"), ("A2-depth-2", P, "original")
+    out.append(f"Depth 1 against depth 2, same plan, unmodified binary: {num(d1)} against {num(d2)} s, "
+               f"depth 1 {m.compare(o1, o2)}. The experiment on depth below varies the batch size.")
+    return "\n".join(f"{i}. {t}" for i, t in enumerate(out, 1))
+
+
+def predictions(m):
+    """The hypotheses of DESIGN.md, each with the rule that checks it and its outcome."""
+    B, P = "base", "256m"
+    rows = []
+
+    def add(name, prediction, rule, value, holds):
+        outcome = {True: "holds", False: "does not hold", None: "reported"}[holds]
+        rows.append(f"| {name} | {prediction} | {rule} | {value} | {outcome} |")
+
+    g = {q: m.gain(c, P) for q, c in (("Q1", "A1-Q1"), ("Q2", "A1-Q2"), ("Q3", B), ("Q4", "A1-Q4"))}
+    add("H1", "the order buys the most for Q2 and Q3", "gain of Q2 and of Q3 above that of Q1",
+        ", ".join(f"{q} {v:.0f} %" for q, v in g.items()), g["Q2"] > g["Q1"] and g["Q3"] > g["Q1"])
+    q4 = m.compare(("A1-Q4", P, "accept-groups"), ("A1-Q4", P, "original"))
+    add("H1", "Q4: whatever differs is described", "quartiles of the two variants", q4, None)
+    same = [m.compare((f"A2-depth-{d}", P, "accept-groups"), (f"A2-depth-{d}", P, "original")) for d in (1, 2)]
+    add("H2", "at depth 1 and 2 the variants are identical", "both within the quartiles",
+        "; ".join(same), all(s == "within the quartiles" for s in same))
+    g4, g12 = m.gain(B, P), m.gain("A2-depth-12", P)
+    add("H2", "the gain shrinks at depth 12", "gain at depth 12 below gain at depth 4",
+        f"{g12:.0f} % against {g4:.0f} %", g12 < g4)
+    gp = [m.gain("A3", "128m"), m.gain(B, P), m.gain("A3", "512m")]
+    add("H3", "the gain grows with the pool", "gain at 128 < 256 < 512 MB",
+        " / ".join(f"{x:.0f} %" for x in gp), gp[0] < gp[1] < gp[2])
+    w = m.compare(("A3", "128m", "accept-groups"), ("A3", "128m", "original"))
+    add("H3", "at 128 MB the ordered plan still wins", "ordered faster beyond the quartiles", w, w == "faster")
+    s2 = m.spills("A4-S2", "128m", "accept-groups", "final_agg")
+    gs = (m.gain("A4-S2", "128m"), m.gain("A3", "128m"))
+    add("H4", "wide strings bring spills to the ordered plan at 128 MB and shrink its gain",
+        "final-aggregate spills above zero and gain below that of S1",
+        f"{s2:g} spills; {gs[0]:.0f} % against {gs[1]:.0f} %", s2 > 0 and gs[0] < gs[1])
+    r512 = m.compare(("A4-S2", "512m", "accept-groups"), ("A4-S2", "512m", "original"))
+    add("H4", "at 512 MB the ranking does not change", "ordered faster beyond the quartiles on S2", r512, r512 == "faster")
+    gap12 = m.med(B, P, "original") - m.med(B, P, "accept-groups")
+    gap1200 = m.med("A5-1200-depth-4", P, "original") - m.med("A5-1200-depth-4", P, "accept-groups")
+    add("H5", "at depth 4 the gap between the variants stays from 12 to 1200 files",
+        "gap at 1200 files within 25 % of the gap at 12", f"{gap1200:.3f} s against {gap12:.3f} s",
+        abs(gap1200 - gap12) / gap12 < 0.25)
+    many = "A5-1200-depth-1200"
+    lo = m.compare((many, "128m", "accept-groups"), (many, "128m", "original"))
+    hi = m.compare((many, "512m", "accept-groups"), (many, "512m", "original"))
+    add("H5", "about 1200 groups lose at 128 MB and not at 512 MB", "slower at 128, not slower at 512",
+        f"128 MB: {lo}; 512 MB: {hi}", lo == "slower" and hi != "slower")
+    dup = "A6-dup-0.5"
+    add("H6", "no prediction on which plan profits more from duplicates", "gain with and without duplicates",
+        f"{m.gain(dup, P):.0f} % against {m.gain(B, P):.0f} %", None)
+    t = m.compare((B, P, "original-target"), (B, P, "accept-groups"))
+    add("H7", "the workaround's time is not predicted to equal the ordered plan's", "quartiles at the base case", t, None)
+    return "\n".join(["| hypothesis | prediction | rule | value | outcome |", "|---|---|---|---|---|"] + rows)
+
+
+# ------------------------------------------------------------------ report
+
 def main():
-    summary = read_tsv(REF / "summary.tsv")
-    machine = dict(l.split("\t", 1) for l in (REF / "machine.txt").read_text().splitlines()
-                   if "\t" in l)
-    cpu, threads, kernel = machine["cpu"], machine["threads"], machine["kernel"]
-    hashes = (PROVENANCE / "binaries.sha256").read_text().strip()
-    toolchain = (PROVENANCE / "toolchain.txt").read_text().splitlines()
-    patch = (PROVENANCE / "accept-extra-groups.patch").read_text().strip()
+    p = argparse.ArgumentParser()
+    p.add_argument("--results", type=Path, default=ROOT / "results")
+    args = p.parse_args()
+    res, prov = args.results, ROOT / "provenance"
+    matrix, manifests = res / "matrix", res / "manifests"
+    summary = read_tsv(matrix / "summary.tsv")
+    m = Matrix(summary)
+    machine = dict(l.split("\t", 1) for l in (matrix / "machine.txt").read_text().splitlines() if "\t" in l)
+    runs = read_tsv(matrix / "results.tsv")
+    plans = read_tsv(matrix / "plan-check.tsv")
+    checks = read_tsv(res / "result-check" / "result-check.tsv") if (res / "result-check" / "result-check.tsv").is_file() else []
+    recorded = (prov / "binaries.sha256").read_text().strip()
+    measured = (matrix / "machine.txt").read_text().split("binaries\n", 1)[1].strip()
+    same = {l.split()[0] for l in recorded.splitlines()} == {l.split()[0] for l in measured.splitlines()}
+    figures = []
 
-    sections = []
-    for axis, title, intro in AXES:
-        sections.append(f"### {title}\n\n{intro}\n\n{table(summary, axis, with_bytes=(axis == 'A4'))}")
-    axis_tables = "\n\n".join(sections)
+    sections = [f"### {title}\n\n{intro}\n\n{table(summary, axis, with_bytes=(axis == 'A4'))}"
+                for axis, title, intro in AXES]
+    failed_runs = [r for r in runs if r["result"] != "ok"]
+    plan_ok = sum(r["check"] == "ok" for r in plans)
+    check_ok = sum(r["check"] == "ok" for r in checks)
+    exp = res / "experiments"
+    body = f"""# Results
 
-    (ROOT / "RESULTS.md").write_text(f"""# Round 7: one base case, six axes, two crossings
+Generated by `scripts/make_report.py` from `results/`, the outputs of one run of
+`scripts/run_lab.sh`. Nothing below is written by hand: the tables are the
+recorded runs, and the numbers and comparisons in the findings are computed
+from them. The design and the hypotheses are in `DESIGN.md`.
 
-Generated by `scripts/make_report.py` from `results/round-7/`. The design and the
-hypotheses are in `PLAN.md`, written before round 5. Round 7 runs that design
-again, unchanged, on 2026-10-04, with `scripts/run_lab.sh`, after reviews of
-the scripts; it adds a check that the variants return the same rows. Rounds 5
-(2026-10-02) and 6 (2026-10-04) are kept in `results/round-5/` and
-`results/round-6/`, each with its `REPORT.md`, and gave the same picture; the
-medians move by a few percent from one round to the next. Rounds 1 to 4, a
-single scenario, are reported in `results/round-4/REPORT.md`.
-
-Keeping file order can remove a sort and help some ordered aggregations, but
-accepting extra ordered groups is not beneficial in every case. It trades
-sorting for merging, buffering, spills, memory and open streams. The
-binaries are the same files as in rounds 3 and 4, by SHA-256 (see Provenance).
+Comparisons use the quartiles of ten runs: a variant is "faster" than another
+when its third quartile is below the other's first, "slower" in the opposite
+case, "within the quartiles" otherwise. A gain is the reduction of the median.
 
 ## Provenance
 
-- DataFusion commit e1aa7d956a5aa67452c9e8bd2a033599767055d8 (55.1.0, 2026-09-28),
-  built in a clean detached worktree with {toolchain[0]}; {toolchain[-1]};
-  `cargo build --release -p datafusion-cli`. `original` is the commit as it is,
-  `accept-groups` the commit plus `patch/accept-extra-groups.patch`, the only change:
+- DataFusion commit {(prov / "datafusion-commit.txt").read_text().strip()}, built by
+  `scripts/build_binaries.sh` on {(prov / "built-at.txt").read_text().strip()} in a detached worktree with
+  {(prov / "toolchain.txt").read_text().splitlines()[0]}; `{(prov / "build-command.txt").read_text().strip()}`.
+  `original` is the commit as it is, `accept-groups` the commit plus
+  `patch/accept-extra-groups.patch`, the only change:
 
 ```diff
-{patch}
+{(prov / "applied.patch").read_text().strip()}
 ```
 
-- SHA-256 of the binaries (`results/round-4/binaries.sha256`, the same files as
-  in rounds 3 to 6; the hashes the runner wrote to
-  `results/round-7/machine.txt` when the round started match):
+- SHA-256 of the binaries as built (`provenance/binaries.sha256`); the hashes the
+  runner recorded when the matrix started {"match" if same else "DO NOT MATCH"}:
 
 ```
-{hashes}
+{recorded}
 ```
 
-- {cpu}, {threads} threads, {kernel} (`results/round-7/machine.txt`, recorded
-  by the runner; round 5 ran on the same machine under Linux 7.0.0-34); `datafusion-cli
+- {machine["cpu"]}, {machine["threads"]} threads, {machine.get("memory_gb", "?")} GB, {machine["kernel"]}, open-file
+  limit {machine.get("open_file_limit", "?")}; matrix started {machine["date"]}. `datafusion-cli
   --mem-pool-type fair --memory-limit <pool>`; `target_partitions = 2` except
   for `original-target`, where it equals the ordered groups the overlap needs;
   `split_file_groups_by_statistics = true` except for `original-split-off`.
@@ -171,29 +493,35 @@ binaries are the same files as in rounds 3 and 4, by SHA-256 (see Provenance).
   statistics reads of the scan; spills and `output_bytes` per operator from the
   plan metrics; RSS from `/usr/bin/time`. Medians with first and third quartile
   over completed runs; the count of completed runs is given when below ten.
-- Every run's SQL, output and stderr: `results/round-7/<case>/<pool>/`.
-- The rows each variant returns were compared after the round
-  (`scripts/check_results.py`, `results/round-7/result-check/result-check.tsv`): for
-  every case and pool the variants return the same rows in the deterministic
-  columns, sorted where the query asks for it, and the deduplication returns as
-  many rows as the dataset has distinct keys. All 59 checks pass.
+  {len(runs)} runs, {len(failed_runs)} failed.
+- Every run's SQL, output and stderr: `results/matrix/<case>/<pool>/`.
 
 ## Datasets
 
-All from `scripts/generate_round5.sh`, fixed seeds, fixed time origin; the same
+All from `scripts/datasets.sh`, fixed seeds, fixed time origin; the same
 600,000 rows redistributed, except the duplicate dataset, which holds the same
 number of rows with half of them copies.
 
-{datasets()}
+{datasets(manifests)}
 
 ## Plans, checked before timing
 
-`EXPLAIN FORMAT INDENT` once per case and variant (`results/round-7/<case>/plan-check/`).
-The check validates the sort, the advertised ordering, the scan groups, the aggregate
-modes and `preserve_order`; all 40 plans pass.
+`EXPLAIN FORMAT INDENT` once per case and variant
+(`results/matrix/<case>/plan-check/`), validated for the sort, the advertised
+ordering, the scan groups, the aggregate modes and `preserve_order`.
+{plan_ok} of {len(plans)} plans as expected.
 
-{plan_check()}
+{plan_table(plans)}
 
+## Rows returned
+
+`scripts/check_results.py` runs every query plainly, for every case, pool and
+variant, and compares the rows with those of `original` in the deterministic
+columns; it checks that the rows are sorted where the query orders them, that
+the deduplication returns as many rows as the dataset has distinct keys, and
+that the plan under the statement that writes the rows is the timed one.
+{check_ok} of {len(checks)} checks pass (`results/result-check/result-check.tsv`).
+{"" if check_ok == len(checks) else chr(10) + chr(10).join("- " + " ".join((r["case"], r["pool"], r["variant"], r["check"])) for r in checks if r["check"] != "ok") + chr(10)}
 ## Results by axis
 
 Spill cells: count / spilled MB (medians over completed runs). Modes: of the
@@ -202,222 +530,36 @@ cumulative `output_bytes` an operator reports in its metrics, the bytes of
 the batches it emitted as Arrow accounts for their buffers; not peak resident
 memory, and not necessarily unique bytes.
 
-{axis_tables}
+{(chr(10) * 2).join(sections)}
 
-## Observations
+## Findings on the matrix
 
-{OBSERVATIONS}
+{findings(m, manifests, figures)}
 
-## Hypotheses
+## The predictions of DESIGN.md
 
-{HYPOTHESES}
+Each prediction is checked by the rule beside it. "Reported" marks the points
+on which the design made no prediction.
 
+{predictions(m)}
+
+## Experiments
+
+One-variable tests on the costs the matrix shows, each in
+`results/experiments/<name>/`. Their design is in `DESIGN.md`.
+
+{experiments.string_views(exp / "string-views", figures)}
+{experiments.many_streams(exp / "many-streams", figures)}
+{experiments.depth(exp / "depth", matrix, manifests, figures)}
+{experiments.open_files(exp / "open-files", figures)}
 ## Not measured
 
 {NOT_MEASURED}
-""")
+"""
+    (ROOT / "RESULTS.md").write_text(body)
+    with (res / "figures.tsv").open("w") as f:
+        f.write("figure\tvalue\n" + "".join(f"{k}\t{v}\n" for k, v in figures))
     print(ROOT / "RESULTS.md")
-
-
-OBSERVATIONS = """\
-1. Base case, 256 MB, Q3. The original plan sorts and spills (sort 8 spills, 72.7
-   MB; final aggregate 10 spills, 73.0 MB) in 0.660 s. `accept-groups` keeps the
-   order with four groups, spills nowhere, and takes 0.377 s with 156 MB less RSS.
-   `original-target`, the workaround, is faster still at 0.302 s, with four
-   partitions above the scan, 10 small spills in the repartition and 97 MB more
-   RSS than `accept-groups`. `original-split-off` is the same plan as the
-   original (0.657 s, within the quartiles): with the grouping by statistics off,
-   the fallback is the plan a user gets anyway.
-2. A1. Q1 (`ORDER BY` only): the order replaces a sort by a merge, 0.055 s against
-   0.029 s, and lowers the RSS from 351 to 194 MB. Q2 (`GROUP BY` on the whole
-   sort key): the ordered plan runs in `Sorted` mode and takes the same time as
-   the hash plan, 0.058 against 0.058 s, with no spill in either and a higher RSS
-   (300 against 243 MB); at this size, where the hash aggregate stays in
-   memory, the full streaming mode buys nothing measurable in time. Q3: 0.377
-   against 0.660 s, the base case; two things change in it, a sort disappears
-   and the aggregate can close completed prefixes early, and the comparison
-   measures their combined effect. Q4 (`GROUP BY` without the sort key): the
-   optimizer projects the ordering away. The expectation written before round
-   5 was that Q4 would produce different scan groupings, four ordered groups
-   of whole files against two byte-range groups. The plan check shows two
-   byte-range groups in both binaries, with the same operators. The assignment
-   of the files differs: the first group opens with files 00, 01, 02 in the
-   original and with 00, 04, 08 in `accept-groups`, so the original takes the
-   files by name and `accept-groups` in the order of the statistics groups;
-   EXPLAIN prints five entries per group, so the full assignment is not in the
-   recorded output. The times agree within touching quartiles, 0.018 against 0.020 s, so no
-   difference is attributed to the scan for this query. `original-target`, with
-   four groups, has the same time and 64 MB more RSS.
-3. A2. At depth 1 and 2 the variants have the same plan, and the times agree
-   within the quartiles (depth 1: 0.485 against 0.504 s; depth 2: 0.416 against
-   0.424 s). At depth 12 the gain of `accept-groups` is not smaller than at depth 4
-   (0.356 against 0.655 s, a 46 percent reduction, against 43 at depth 4); what
-   grows is the cost beside the time: 17 spills (19.8 MB) in the order-preserving
-   repartition and 589 MB of RSS, against 371 MB at depth 4. `original-target`
-   with twelve partitions takes 0.363 s, within the quartiles of
-   `accept-groups`, at the price of a median of 68.5 spills (138 MB) in the final
-   aggregate, 139 (36.0 MB) in the repartition and 867 MB of RSS.
-4. A3. With the base data the times do not move with the pool: the original
-   0.661, 0.660, 0.636 s at 128, 256, 512 MB; `accept-groups` 0.365, 0.377,
-   0.360 s. The original spills at every pool (more at 128 MB: 15 sort spills,
-   22 in the final aggregate, 140 MB), the ordered plan never spills in the
-   final aggregate and only lightly in the repartition at 128 MB (7 spills,
-   4.5 MB). Since one plan always spills in the final aggregate and the other
-   never does, this series does not separate the benefit of early emission
-   from that of the spills avoided; it shows that the amount the original
-   spills moves its time little. `original-target` loses its edge at 128 MB
-   (0.376 s, with spills in the final aggregate).
-5. A4 x A3. The width of the strings changes the output bytes the operators
-   above the scan report: at 256 MB, the partial aggregate of the ordered plan
-   reports 136 MB in S0, 248 MB in S1 and 453 MB in S2 for the same 600,000
-   rows; the order-preserving repartition 64, 471 and 1151 MB; the scan 68 MB
-   in every shape. Crossing the 12-byte limit on `col_3` and `col_4` (S2) is what brings
-   spills to the ordered plan at 128 MB (final aggregate 14 spills, 92 MB) and
-   shrinks its gain there to 12 percent (0.665 against 0.754 s), where S0 and S1
-   gain 44 and 45 percent; at 256 and 512 MB S2 gains 40 and 39 percent, S0 and
-   S1 39 to 43. The original plan on S2 at 128 MB completed all ten runs in this
-   round and in round 6; in round 5 two of ten failed with an allocation error
-   in `SortPreservingMergeExec[0]`.
-   Crossing the limit on `col_1` alone (S0 to S1) raises the reported bytes,
-   adds small spills in the repartition at 128 MB (7 spills, 4.5 MB, against
-   none in S0) and none in the final aggregate, and costs 0.01 s.
-   A separate test (`experiments/open-questions/`) changes one variable, the
-   string representation: read as plain `Utf8` instead of Arrow string views,
-   S2 at 128 MB does not spill in the ordered plan and the gain returns to 43
-   percent (0.404 against 0.704 s); the original plan is affected too, less.
-   That the effect belongs to the representation and not to the width of the
-   data is therefore measured. The source code supports an explanation in
-   terms of the repartition's memory accounting: the hash repartition reorders
-   a batch with one `take`, hands each output a slice of it, and reserves for
-   every slice the full capacity of the buffers it refers to; with string
-   views the slices also share, and count, every data buffer of the source
-   batch, and strings of up to 12 bytes have no data buffer, hence the
-   threshold. That this accounting is what pushes the final aggregate into
-   spilling is an inference.
-6. A5. With depth 4 and one entity per file, going from 12 to 120 to 1200 files
-   costs both variants at 1200 files: the original 0.660, 0.675, 0.756 s,
-   `accept-groups` 0.377, 0.343, 0.449 s, that is +15 and +19 percent from 12
-   to 1200; the gap between them stays between 0.28 and 0.33 s. At 1200 files
-   the statistics produce five groups, not four. The fifth group is forced by
-   the bounds, not by the placement heuristic: on the recorded bounds five
-   closed key intervals share one point, so no placement under the strict
-   `min > previous_max` condition can do with four, and the non-strict
-   `min >= previous_max` gives four. Files 6 and 10 of the first entity touch,
-   the maximum of one equal to the minimum of the other (a repeated timestamp
-   on the boundary), and the placement requires a strictly greater minimum;
-   248 pairs of files touch in that layout. The `CREATE EXTERNAL TABLE`
-   statement takes 0.002, 0.006 and 0.028 s. With the intended total overlap,
-   120 ordered groups win at 256 MB (0.398 against 0.663 s) with about 125
-   spills (39 MB) in the repartition and 1047 MB of RSS against 669; 1196 groups (of
-   1200 intended) lose at 128 MB (0.836 against 0.738 s, 27 spills and 96 MB in the final
-   aggregate), win at 256 MB (0.657 against 0.754) and at 512 MB (0.661
-   against 0.701), with 1.8 to 2.2 GB of RSS against 0.57 to 0.67; the RSS of
-   this case falls on one of two levels from run to run, about 1.8 and about
-   2.1 GB. The two 1200-file layouts compare few and
-   many streams for the same files, 0.449 s and 500 MB with five groups
-   against 0.657 s and about 2 GB with 1196, but they also differ in how the
-   rows are assigned to the files.
-7. A6. With half the rows duplicated both plans get faster, the original from
-   0.660 to 0.398 s, `accept-groups` from 0.377 to 0.195 s; the ratio between
-   them moves from 0.57 to 0.49, and the original's spills halve in size.
-8. The workaround (`original-target`) is the fastest variant in most cases
-   (base, 512 MB, S0 at every pool, S2 at every pool, the duplicate
-   dataset), at the price of more RSS; it keeps
-   that edge on S2 at 128 MB even while spilling in the final aggregate
-   (0.485 against 0.665 s). It loses it in two cases, where the two variants
-   come within each other's quartiles: the base data at 128 MB (0.376 against
-   0.365 s) and twelve groups (0.363 against 0.356 s), both with spills in the
-   final aggregate. With many ordered streams it costs more memory, not less:
-   at 1196 inputs, going from 2 to 8 output partitions raises the RSS from
-   about 2.1 to 3.6 GB (`experiments/open-questions/`).
-9. Depth 1 is slower than depth 2 with the same plan, in the unmodified
-   binary too (0.504 against 0.424 s). `experiments/open-questions/depth/`
-   traces it to backpressure in the order-preserving repartition: at depth 1
-   the two groups read disjoint key ranges at every moment, the merge
-   downstream can consume one at a time, and the other stops after about one
-   batch per output. With batches of 32768 rows instead of 8192 the gap closes
-   (0.423 against 0.417 s); with 131072 rows six of twelve runs fail for
-   memory."""
-
-HYPOTHESES = """\
-- **H1, partly supported.** Q1 and Q3 as predicted. Q2 not: the `Sorted` mode
-  and the hash plan take the same time at 256 MB with 600,000 rows, and the
-  ordered plan uses more memory; the order buys the most for Q3, not for Q2.
-  An operator that uses the order is necessary for a gain (Q4) and not
-  sufficient (Q2). Q4: `original` and `accept-groups` have the same operators
-  and two byte-range groups each, with a different assignment of the files,
-  and the same time; no scan effect is attributed. The four-group scan of
-  `original-target` costs 64 MB of RSS and no time outside the quartiles.
-- **H2, half supported.** Depth 1 and 2 equal within the quartiles, as
-  predicted. The gain does
-  not shrink at depth 12 at 256 MB (46 percent, against 43 at depth 4); the
-  repartition's spills and the RSS grow, the time does not. The prediction
-  was wrong about where the extra groups show up.
-- **H3, not supported in its first part.** The gain does not grow with the pool:
-  it is 45 percent at 128, 43 at 256, 43 at 512 MB. With the base data the
-  ordered plan never spills in the final aggregate at any pool and the
-  original always does, so the series cannot tell early emission from
-  avoided spills. The second part holds: at 128 MB the ordered plan wins on Q3.
-- **H4, supported as an observed effect; its cause revised by the string
-  test.** Crossing the limit on `col_3` and `col_4` raises the output bytes
-  the operators report (the repartition's most, 471 to 1151 MB at 256 MB),
-  brings spills to the ordered plan at 128 MB and shrinks its gain there; at
-  512 MB the ranking is unchanged. The hypothesis attributed this to the
-  width of the rows. The string test shows that it belongs to the string-view
-  representation: with plain `Utf8` strings the same wide data keeps the gain
-  at 128 MB. That the repartition's memory accounting is the mechanism is an
-  inference (observation 5).
-- **H5, partly supported.** Depth 4: the per-file costs are not small (+15
-  percent for the original, +19 for `accept-groups` from 12 to 1200 files) and
-  the groups are five, not four, so the control on the number of streams is
-  imperfect; what holds is that the gap between the variants stays. Intended
-  total overlap: 1196 groups lose at 128 MB and win at 256 and 512 MB, with
-  1.8 to 2.2 GB of RSS throughout; the distinction between a few streams and
-  about 1200 is the result that stands.
-  `experiments/open-questions/many-streams/` decomposes that memory: between
-  0.33 and 0.42 MB per active read stream in the scan and between 0.20 and
-  0.25 MB per pair of input and output partition in the order-preserving
-  repartition, over three runs of the test; the second is a coefficient
-  derived from the increase with the outputs. Eager purging by the allocator
-  lowered the RSS of the deduplication query in two of three runs, by up to
-  0.4 GB, so allocator retention is part of the excess; how much is not
-  established.
-- **H6, measured.** The ordered plan profits more from the duplicates than the
-  hash plan: its time falls by 48 percent, the original's by 40.
-- **H7, supported.** `original-target` has the operator kinds of `accept-groups`
-  with four partitions above the scan, a different time (faster at the base
-  case, not faster at 128 MB and at twelve groups) and more RSS everywhere;
-  on Q1 it equals `accept-groups`, on Q4 it is the only variant with a
-  different number of scan partitions."""
-
-NOT_MEASURED = """\
-- What the order-preserving repartition holds for each pair of input and
-  output partition; the partial aggregates were not isolated. What the scan
-  and the repartition do not account for of the many-stream RSS varies from
-  0.1 to 0.6 GB between runs of the test, because the RSS of that case falls
-  on one of two levels (`experiments/open-questions/README.md`, section 2).
-- The work of the merge itself, the comparisons among the heads of the
-  streams, apart from the memory and the waiting it brings.
-- What `output_bytes` measures beyond its definition (the cumulative bytes of
-  the batches an operator emitted, as Arrow accounts for their buffers): it is
-  not peak resident memory and not necessarily unique bytes, and in the
-  original plan the partial aggregate of S0 reports 521, 975 and 424 MB at
-  the three pools for the same rows. A slice counts the whole batch it comes
-  from, and with string views the shared data buffers too
-  (see `experiments/open-questions/README.md`).
-- How much of the final-aggregate spills of S2 at 128 MB comes from the
-  repartition's inflated reservations and how much from other consumers of
-  the fair pool; removing the string views removes them, the shares were not
-  separated. No run changed the accounting itself.
-- A pool at which the original plan does not spill, the greedy pool, and
-  larger data: every query here runs under a second on about 9 MB of Parquet.
-- The per-file overhead of small files is inside the elapsed time and the
-  `CREATE` time, not broken down into opens, footer reads and metadata.
-- Q2 at a size where the hash aggregate would spill; here it does not.
-- How many open files the ordered plan needs as a function of streams and
-  outputs. With 1196 streams and two outputs it fails at a limit of 1024 and
-  of 4096 open files and completes at 8192; the original completes at 1024
-  (`experiments/open-questions/fd-limit/`)."""
 
 
 if __name__ == "__main__":

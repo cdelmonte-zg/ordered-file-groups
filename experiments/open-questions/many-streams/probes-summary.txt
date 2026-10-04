@@ -1,6 +1,0 @@
-probe	completed	scan groups	process RSS (MB)	elapsed (s)
-dedup query	3 of 3	1196	2135, 2220, 1961	0.64 to 0.68
-dedup query, strings as plain Utf8	3 of 3	1196	1982, 1933, 2118	0.62 to 0.65
-dedup query, batch size 1024 instead of 8192	3 of 3	1196	2145, 1982, 1844	0.72 to 0.75
-ORDER BY only, ordered plan	3 of 3	1196	726, 714, 830	0.21 to 0.21
-ORDER BY only, original plan	3 of 3	2	401, 429, 405	0.21 to 0.23

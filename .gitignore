@@ -1,4 +1,4 @@
-# release binaries of datafusion-cli (about 100 MB each); their SHA-256 is in results/round-3-rebuilt/binaries.sha256
+# release binaries of datafusion-cli (about 100 MB each); their SHA-256 is in provenance/binaries.sha256
 bin/
 # generated datasets live in /tmp/df-16919-*; never commit Parquet
 *.parquet
