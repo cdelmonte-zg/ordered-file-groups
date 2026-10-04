@@ -16,7 +16,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1]))
 from common import fresh, interleaved, mean_sd, rm, timed_run, write_tsv  # noqa: E402
 
-RESULTS = fresh(HERE / "results.tsv")
+RESULTS = fresh(HERE / "results.tsv", outputs=HERE)
 RUNS = 6
 SIZES = (2048, 8192, 32768, 131072)
 SPLIT = "SET datafusion.execution.split_file_groups_by_statistics = true;\n"

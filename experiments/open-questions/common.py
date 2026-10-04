@@ -14,10 +14,16 @@ import run_matrix as rm  # noqa: E402
 TIME = re.compile(r"BENCH wall=([\d.]+) user=([\d.]+) sys=([\d.]+) rss_kb=(\d+)")
 
 
-def fresh(path):
-    """Refuse to overwrite the results of an earlier run; returns the path."""
-    if Path(path).exists():
-        raise SystemExit(f"{path} exists: move the outputs of the earlier run to a dated "
+def fresh(path, outputs=None):
+    """Refuse to overwrite an earlier run, finished or interrupted; returns the path.
+
+    `path` is the table the script writes at the end; `outputs` is the directory
+    of its per-run files, where a leftover .out means an earlier attempt.
+    """
+    leftovers = sorted(Path(outputs).glob("*.out")) if outputs else []
+    if Path(path).exists() or leftovers:
+        what = path if Path(path).exists() else leftovers[0]
+        raise SystemExit(f"{what} exists: move the outputs of the earlier run to a dated "
                          f"subdirectory first (experiments/open-questions/archive.py)")
     return Path(path)
 
@@ -42,11 +48,13 @@ def timed_run(variant, sql_path, stem, pool="256m", env=None, nofile=None, timeo
     messages = [l for l in err.splitlines() if l.strip() and not l.startswith("BENCH ")]
     if status == 124:
         messages = [f"timeout after {timeout} s, process group killed"]
-    wall, user, system = (float(tm.group(i)) for i in (1, 2, 3)) if tm else (0.0, 0.0, 0.0)
+    # no BENCH line (a killed process): the times are unknown, not zero
+    wall, user, system = (float(tm.group(i)) for i in (1, 2, 3)) if tm else ("", "", "")
     feats = rm.parse(out, statements=Path(sql_path).read_text().count(";"))
-    return {"ok": int(not failed), "wall_s": wall, "cpu_s": round(user + system, 2),
+    return {"ok": int(not failed), "wall_s": wall,
+            "cpu_s": round(user + system, 2) if tm else "",
             "user_s": user, "sys_s": system,
-            "cores": round((user + system) / wall, 3) if wall else "",
+            "cores": round((user + system) / wall, 3) if tm and wall else "",
             "rss_mb": round(int(tm.group(4)) / 1024) if tm else "",
             "elapsed_s": "" if failed else feats["elapsed_seconds"],
             "scan_groups": feats["scan_groups"],

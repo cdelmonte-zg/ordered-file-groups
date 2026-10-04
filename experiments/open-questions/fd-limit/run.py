@@ -18,7 +18,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 from common import fresh, rm, timed_run, write_tsv  # noqa: E402
 
-RESULTS = fresh(HERE / "results.tsv")
+RESULTS = fresh(HERE / "results.tsv", outputs=HERE)
 CASE = next(c for c in rm.MATRIX if c.name == "A5-1200-depth-1200")
 LIMITS = (1024, 4096, 8192, 16384)
 HARD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]

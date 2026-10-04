@@ -10,9 +10,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 from common import fresh, interleaved, rm, timed_run, write_tsv  # noqa: E402
 
-RESULTS = fresh(HERE / "results.tsv")
 OUT = HERE / "runs-plan"
 OUT.mkdir(exist_ok=True)
+RESULTS = fresh(HERE / "results.tsv", outputs=OUT)
 
 
 def dataset(files):

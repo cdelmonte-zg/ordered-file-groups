@@ -16,10 +16,10 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
 from common import fresh, interleaved, timed_run, write_tsv  # noqa: E402
 
-RESULTS = fresh(HERE / "probes.tsv")
-RUNS = 3
 OUT = HERE / "probes"
 OUT.mkdir(exist_ok=True)
+RESULTS = fresh(HERE / "probes.tsv", outputs=OUT)
+RUNS = 3
 # label, variant, SQL file
 PROBES = [
     ("dedup query", "accept-groups", "base.sql"),

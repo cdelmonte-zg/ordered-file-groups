@@ -10,7 +10,9 @@ script runs each query plainly and checks, per case and pool:
   as in `original` (a SHA-256 of the rows, sorted, is recorded);
 - for the queries with ORDER BY, the rows come back sorted by (col_1, col_2);
 - for the deduplication, the number of rows equals the distinct grouping keys
-  of the dataset manifest.
+  of the dataset manifest;
+- the plan under the COPY that writes the rows has the sort, the scan groups,
+  the aggregate modes and preserve_order of the timed plan.
 
 `first_value` over a group with several rows may legitimately differ between
 plans, so those columns are left out of the comparison: Q1 compares all eight
@@ -52,15 +54,22 @@ def rows_of(case, variant, pool, timeout, scratch):
     out.unlink(missing_ok=True)
     query = rm.QUERIES[case.query]
     copy = f"COPY ({query.rstrip().rstrip(';')}) TO '{out}' STORED AS PARQUET;"
-    sql = rm.sql_for(case, variant, explain="").replace(query, copy)
-    cmd = [str(rm.binary_of(variant)), "-q", "--memory-limit", pool, "--mem-pool-type", "fair",
-           "-c", sql]
+    base = [str(rm.binary_of(variant)), "-q", "--memory-limit", pool, "--mem-pool-type", "fair"]
+    # The COPY is another statement than the timed one: check that the plan under
+    # its sink has the properties the round expects of this case and variant.
+    explain = rm.sql_for(case, variant, explain="EXPLAIN FORMAT INDENT").replace(query, copy)
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        plan = subprocess.run(base + ["-c", explain], capture_output=True, text=True,
+                              timeout=timeout)
+        _, problems = rm.check_plan(case, variant, plan.stdout)
+        if problems:
+            return None, "plan of the COPY: " + "; ".join(problems)
+        res = subprocess.run(base + ["-c", rm.sql_for(case, variant, explain="").replace(query, copy)],
+                             capture_output=True, text=True, timeout=timeout)
     except subprocess.TimeoutExpired:
         return None, f"timeout after {timeout} s"
     err = res.stderr.strip()
-    if res.returncode != 0 or err or not out.is_file():
+    if res.returncode != 0 or rm.FAILURE.search(err) or not out.is_file():
         return None, (err.splitlines()[0][:160] if err else f"exit {res.returncode}, no rows")
     table = pq.read_table(out)
     out.unlink()
@@ -135,6 +144,8 @@ def main():
     unknown = set(args.only or ()) - {c.name for c in rm.MATRIX}
     if unknown or not cases:
         raise SystemExit(f"no such case: {', '.join(sorted(unknown)) or '(empty selection)'}")
+    if (args.out / "result-check.tsv").exists():
+        raise SystemExit(f"{args.out / 'result-check.tsv'} exists: use another --out directory")
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
     with tempfile.TemporaryDirectory(prefix="df-16919-result-check-") as scratch:

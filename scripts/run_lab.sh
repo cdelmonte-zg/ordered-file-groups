@@ -22,14 +22,20 @@ e=experiments/open-questions
 failed=()
 step() { echo "== $*" >&2; "$@" || failed+=("$*"); }
 
+# refuse before anything is touched: a round that exists, a label that is taken
+if [ -e "$round/results.tsv" ] || [ -e "$round/plan-check.tsv" ]; then
+  echo "$round already holds a round: use a new directory" >&2; exit 2
+fi
+$py $e/archive.py --check "$label" || exit 2
+
 # the datasets and the matrix are the base of everything else: stop if they fail
 set -e
+$py $e/archive.py "$label"
 scripts/generate_round5.sh
 for f in 150 300 600; do $g --files $f --depth $f --assign rank; done      # many-streams
 for d in 1 2; do $g --files 120 --depth $d --assign entity-rank; done       # depth probes
 $py scripts/run_matrix.py --plan-check --out "$round"
 $py scripts/run_matrix.py --runs 10 --out "$round"
-$py $e/archive.py "$label"
 set +e
 
 step $py scripts/check_results.py --out "$round/result-check"
