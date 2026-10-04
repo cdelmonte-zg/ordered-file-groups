@@ -1,11 +1,16 @@
-"""Analysis of results.tsv for PLAN.md: slopes with 95 percent intervals, E2, E3."""
+"""Analysis of results.tsv for PLAN.md: slopes with 95 percent intervals, E2, E3.
+
+Failed runs are listed and then left out of every statistic below.
+"""
 import csv
+import random
 import statistics as st
 from math import sqrt
 
-rows = [r for r in csv.DictReader(open("results.tsv"), delimiter="\t")]
-bad = [r["name"] + "/" + r["run"] for r in rows if r["ok"] != "1"]
+every = [r for r in csv.DictReader(open("results.tsv"), delimiter="\t")]
+bad = [r["name"] + "/" + r["run"] for r in every if r["ok"] != "1"]
 print("failed runs:", bad or "none")
+rows = [r for r in every if r["ok"] == "1"]
 T = {18: 2.101, 13: 2.160, 8: 2.306, 3: 3.182}  # t quantiles 0.975
 
 
@@ -46,6 +51,32 @@ for metric in ("rss_mb", "mi_peak_commit_mb"):
                     xs.append(int(r["groups"])); ys.append(float(r[metric]) - base)
         a, b, ci, r2 = ols(xs, ys)
         print(f"  {metric:18} {q}: slope {b*1024:6.0f} KB/stream  [95% {(b-ci)*1024:6.0f} .. {(b+ci)*1024:6.0f}]  intercept {a:6.0f} MB  R2 {r2:.2f}  n={len(xs)}")
+
+# The interval above takes each baseline, the median of three original runs, as
+# exact, although the five differences of a file count share it. The bootstrap
+# below resamples the ordered and the original runs of every file count, so the
+# uncertainty of the baseline enters the interval. With three baseline runs per
+# point it is a rough interval, not a precise one.
+print("\nE1: the same slopes, bootstrap over ordered and original runs (10,000 resamples, seed 16919, 2.5 to 97.5 percentiles)")
+rng = random.Random(16919)
+for metric in ("rss_mb", "mi_peak_commit_mb"):
+    for q in ("Q1", "Q2", "Q3"):
+        cells = []
+        for f in ("150", "300", "600", "1200"):
+            sel = [r for r in rows if r["experiment"] == "E1" and r["files"] == f and r["query"] == q]
+            o = [(int(r["groups"]), float(r[metric])) for r in sel if r["binary"] == "accept-groups"]
+            b = [float(r[metric]) for r in sel if r["binary"] == "original"]
+            cells.append((o, b))
+        slopes = []
+        for _ in range(10000):
+            xs, ys = [], []
+            for o, b in cells:
+                base = st.median(rng.choices(b, k=len(b)))
+                for g, v in rng.choices(o, k=len(o)):
+                    xs.append(g); ys.append(v - base)
+            slopes.append(ols(xs, ys)[1])
+        slopes.sort()
+        print(f"  {metric:18} {q}: slope [95% {slopes[249]*1024:6.0f} .. {slopes[9749]*1024:6.0f}] KB/stream")
 
 print("\nE2: Q3, 1200 files, outputs = target_partitions")
 e2 = {"2": [r for r in rows if r["experiment"] == "E1" and r["files"] == "1200" and r["query"] == "Q3" and r["binary"] == "accept-groups"]}

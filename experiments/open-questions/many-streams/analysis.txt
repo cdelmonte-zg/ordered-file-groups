@@ -22,6 +22,14 @@ E1: excess over the original (ordered run minus median original), regressed on o
   mi_peak_commit_mb  Q2: slope   -149 KB/stream  [95%   -214 ..    -85]  intercept    604 MB  R2 0.57  n=20
   mi_peak_commit_mb  Q3: slope   1568 KB/stream  [95%   1178 ..   1959]  intercept    340 MB  R2 0.80  n=20
 
+E1: the same slopes, bootstrap over ordered and original runs (10,000 resamples, seed 16919, 2.5 to 97.5 percentiles)
+  rss_mb             Q1: slope [95%    341 ..    424] KB/stream
+  rss_mb             Q2: slope [95%    -61 ..     30] KB/stream
+  rss_mb             Q3: slope [95%    813 ..   1141] KB/stream
+  mi_peak_commit_mb  Q1: slope [95%    147 ..    246] KB/stream
+  mi_peak_commit_mb  Q2: slope [95%   -197 ..    -83] KB/stream
+  mi_peak_commit_mb  Q3: slope [95%   1259 ..   1873] KB/stream
+
 E2: Q3, 1200 files, outputs = target_partitions
   outputs 2: rss median 1843 [1755, 1821, 1843, 2117, 2173]  commit median 2458 [2355, 2355, 2458, 3072, 3072]  elapsed 0.639
   outputs 4: rss median 2451 [2217, 2444, 2451, 2458, 2458]  commit median 3277 [2765, 3174, 3277, 3379, 3379]  elapsed 0.593

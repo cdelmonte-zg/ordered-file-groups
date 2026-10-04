@@ -36,6 +36,7 @@ Run from the repository root:
   python scripts/generate_partial_overlap.py --files 1200 --depth 1200 --assign rank
 """
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -52,18 +53,24 @@ MANIFESTS = HERE.parent / "results" / "manifests"
 
 
 def base_table(rows, seed, duplicate_share, cache):
-    """The one table every variant redistributes: integer ids, sorted, cached."""
+    """The one table every variant redistributes: integer ids, sorted, cached.
+
+    The parameters of a cache are recorded beside it, in `<cache>.params.json`,
+    so that the Parquet file itself stays byte for byte what it was. A cache
+    whose record is missing or names other parameters is regenerated.
+    """
+    params = {"rows": rows, "seed": seed, "duplicate_share": float(duplicate_share)}
+    record = cache.with_name(cache.name + ".params.json")
     if cache.exists():
-        names = pq.read_schema(cache).names
-        # a cache of the duplicate table written before the stable row ids were
-        # added has `origin` but not `rid`: regenerate it (the rows are the same)
-        stale = ("origin" in names) != ("rid" in names)
-        if not stale:
+        if record.exists() and json.loads(record.read_text()) == params:
             return pq.read_table(cache)
+        print(f"cache {cache} is not recorded as generated with these parameters: "
+              f"regenerating", file=sys.stderr)
         cache.unlink()
     cache.parent.mkdir(parents=True, exist_ok=True)
     table = generate_table(rows, seed, duplicate_share=duplicate_share)
     pq.write_table(table.sort_by(ID_SORT_KEY), cache, compression="zstd")
+    record.write_text(json.dumps(params, sort_keys=True) + "\n")
     return pq.read_table(cache)
 
 

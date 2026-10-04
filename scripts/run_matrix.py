@@ -87,6 +87,7 @@ class Case:
     pools: tuple = ("256m",)
     variants: tuple = ("original", "accept-groups", "original-target")
     note: str = ""
+    produced: int = 0     # groups an ordered scan shows, when the bounds give another number
 
     @property
     def location(self):
@@ -112,10 +113,11 @@ MATRIX = [
     Case("A4-S2", "A4", "df-16919-partial-12-depth-4-S2", 4, pools=ALL_POOLS),
     # A5: the 12-file points are the base case (depth 4) and A2-depth-12 (depth = files)
     Case("A5-120-depth-4", "A5", "df-16919-partial-120-depth-4-entity-rank", 4, variants=TWO),
-    Case("A5-1200-depth-4", "A5", "df-16919-partial-1200-depth-4-entity-rank", 4, variants=TWO),
+    Case("A5-1200-depth-4", "A5", "df-16919-partial-1200-depth-4-entity-rank", 4, variants=TWO,
+         produced=5, note="touching bounds force a fifth group"),
     Case("A5-120-depth-120", "A5", "df-16919-partial-120-depth-120-rank", 120, variants=TWO),
     Case("A5-1200-depth-1200", "A5", "df-16919-partial-1200-depth-1200-rank", 1200,
-         variants=TWO, pools=ALL_POOLS),
+         variants=TWO, pools=ALL_POOLS, produced=1196),
     Case("A6-dup-0.5", "A6", "df-16919-partial-12-depth-4-dup0.5", 4),
 ]
 
@@ -180,8 +182,9 @@ def parse(out_text):
             row[f"{key}_spill_mb"] = round(b / (1 << 20), 1)
         row[f"{key}_out_mb"] = round(o / (1 << 20), 1)
     elapsed = re.findall(r"^Elapsed ([\d.]+) seconds\.$", out_text, re.M)
-    # statements: SET, SET, CREATE EXTERNAL TABLE, EXPLAIN ANALYZE
-    row["create_seconds"] = elapsed[2] if len(elapsed) >= 4 else ""
+    # statements: SET ..., CREATE EXTERNAL TABLE, EXPLAIN ANALYZE. The CREATE is the
+    # statement before the last one, however many SETs precede it.
+    row["create_seconds"] = elapsed[-2] if len(elapsed) >= 4 else ""
     row["elapsed_seconds"] = elapsed[-1] if elapsed else ""
     return row
 
@@ -229,20 +232,66 @@ def binary_of(variant):
 
 
 def expected_plan(case, variant):
-    """(SortExec count, output_ordering advertised) the plan must show."""
-    if case.query == "Q4":
-        return (0, 0)                 # the ordering is projected away, no sort needed
+    """Every plan property the round relies on, as the plan must show it."""
     _, split, target = VARIANTS[variant]
+    raised = case.groups if target == "groups" else DEFAULT_TARGET
+    if case.query == "Q4":            # the ordering is projected away, no sort needed
+        return {"sort_exec": 0, "output_ordering": 0, "scan_groups": str(raised),
+                "preserve_order": 0, "partial_mode": "Linear", "final_mode": "Linear"}
     ordered = split and (target == "groups" or case.groups <= DEFAULT_TARGET
                          or variant == "accept-groups")
-    return (0, 1) if ordered else (1, 0)
+    if not ordered:
+        mode = "" if case.query == "Q1" else "Linear"
+        return {"sort_exec": 1, "output_ordering": 0, "scan_groups": str(DEFAULT_TARGET),
+                "preserve_order": 0, "partial_mode": mode, "final_mode": mode}
+    mode = {"Q1": "", "Q2": "Sorted", "Q3": "PartiallySorted([0, 1])"}[case.query]
+    groups = case.produced or max(case.groups, DEFAULT_TARGET)
+    return {"sort_exec": 0, "output_ordering": 1, "scan_groups": str(groups),
+            "preserve_order": 0 if case.query == "Q1" else 1,
+            "partial_mode": mode, "final_mode": mode}
+
+
+def check_plan(case, variant, text):
+    """(features, problems) of one EXPLAIN FORMAT INDENT output."""
+    feats = parse(text)
+    feats = {k: feats[k] for k in ("scan_groups", "sort_exec", "preserve_order",
+                                   "partial_mode", "final_mode")}
+    feats["output_ordering"] = int("output_ordering=" in text)
+    problems = []
+    if "physical_plan" not in text:
+        problems.append("no physical plan")
+    for key, want in expected_plan(case, variant).items():
+        if feats[key] != want:
+            problems.append(f"{key}: expected {want!r}, found {feats[key]!r}")
+    return feats, problems
+
+
+def write_plan_check(rows, out, name="plan-check.tsv"):
+    with (out / name).open("w") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0].keys()), delimiter="\t")
+        w.writeheader()
+        w.writerows(rows)
+    bad = [r for r in rows if r["check"] != "ok"]
+    if bad:
+        print(f"{len(bad)} plan(s) not as expected", file=sys.stderr)
+        sys.exit(1)
+
+
+def plan_row(case, variant, feats, problems):
+    return {"case": case.name, "variant": variant, "query": case.query,
+            "scan_groups": feats["scan_groups"], "sort_exec": feats["sort_exec"],
+            "preserve_order": feats["preserve_order"],
+            "partial_mode": feats["partial_mode"], "final_mode": feats["final_mode"],
+            "output_ordering": feats["output_ordering"],
+            "check": "ok" if not problems else "; ".join(problems)}
 
 
 def plan_check(cases, out):
     """EXPLAIN FORMAT INDENT once per case and variant, validated against expectations.
 
-    Writes plan-check.tsv with a `check` column ("ok" or what differs) and exits
-    with status 1 when any plan is missing, failed or unexpected.
+    Checks the sort, the advertised ordering, the scan groups, the aggregate modes
+    and preserve_order. Writes plan-check.tsv with a `check` column ("ok" or what
+    differs) and exits with status 1 when any plan is missing, failed or unexpected.
     """
     rows = []
     for case in cases:
@@ -254,35 +303,34 @@ def plan_check(cases, out):
             with open(d / f"{variant}.out", "w") as o, open(d / f"{variant}.err", "w") as e:
                 status = subprocess.run([str(binary_of(variant)), "-f", str(sql_path)],
                                         stdout=o, stderr=e).returncode
-            text = (d / f"{variant}.out").read_text()
             err = (d / f"{variant}.err").read_text()
-            feats = parse(text)
-            ordering = int("output_ordering=" in text)
-            problems = []
+            feats, problems = check_plan(case, variant, (d / f"{variant}.out").read_text())
             if status != 0:
-                problems.append(f"exit {status}")
-            if "physical_plan" not in text:
-                problems.append("no physical plan")
+                problems.insert(0, f"exit {status}")
             if re.search(r"Error|error:", err):
                 problems.append("stderr: " + err.strip().splitlines()[0][:80])
-            want = expected_plan(case, variant)
-            if (feats["sort_exec"], ordering) != want:
-                problems.append(f"expected sort={want[0]} ordering={want[1]}")
-            rows.append({"case": case.name, "variant": variant, "query": case.query,
-                         "scan_groups": feats["scan_groups"], "sort_exec": feats["sort_exec"],
-                         "preserve_order": feats["preserve_order"],
-                         "partial_mode": feats["partial_mode"], "final_mode": feats["final_mode"],
-                         "output_ordering": ordering,
-                         "check": "ok" if not problems else "; ".join(problems)})
+            rows.append(plan_row(case, variant, feats, problems))
             print("\t".join(str(rows[-1][k]) for k in rows[-1]), flush=True)
-    columns = list(rows[0].keys())
-    with (out / "plan-check.tsv").open("w") as f:
-        w = csv.DictWriter(f, fieldnames=columns, delimiter="\t")
-        w.writeheader()
-        w.writerows(rows)
-    bad = [r for r in rows if r["check"] != "ok"]
+    write_plan_check(rows, out)
+
+
+def recheck_plans(cases, out):
+    """Validate the plan outputs already recorded under `out`, without running anything.
+
+    Prints one line per plan and exits with status 1 when any differs. Writes nothing.
+    """
+    bad = 0
+    for case in cases:
+        for variant in case.variants:
+            path = out / case.name / "plan-check" / f"{variant}.out"
+            if not path.is_file():
+                feats, problems = {}, ["no recorded plan"]
+            else:
+                feats, problems = check_plan(case, variant, path.read_text())
+            bad += bool(problems)
+            print(case.name, variant, "ok" if not problems else "; ".join(problems), sep="\t")
     if bad:
-        print(f"{len(bad)} plan(s) not as expected", file=sys.stderr)
+        print(f"{bad} plan(s) not as expected", file=sys.stderr)
         sys.exit(1)
 
 
@@ -371,9 +419,14 @@ def main():
     p.add_argument("--only", nargs="*", help="case names")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--plan-check", action="store_true")
+    p.add_argument("--recheck-plans", action="store_true",
+                   help="validate the plans already recorded under --out; runs nothing")
     args = p.parse_args()
 
     cases = [c for c in MATRIX if not args.only or c.name in args.only]
+    if args.recheck_plans:
+        recheck_plans(cases, args.out)
+        return
     for v in VARIANTS.values():
         if not (BIN / f"datafusion-cli-{v[0]}-release").is_file():
             raise SystemExit(f"Missing binary for {v[0]} in {BIN}")

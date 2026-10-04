@@ -112,6 +112,15 @@ DataFusion checkout.
     python scripts/run_matrix.py --plan-check --out results/round-6
     python scripts/run_matrix.py --runs 10 --out results/round-6
     python scripts/make_report.py                        # reads results/round-5 by default; set REF
+    python scripts/run_matrix.py --recheck-plans --out results/round-5   # validates the recorded plans, runs nothing
+
+The plan check validates, for every case and variant, the number of
+`SortExec`, the ordering the scan advertises, the scan groups, the modes of
+the two aggregates and `preserve_order`. The runner checks that a query
+completes and reads its metrics; it does not compare the rows the two
+binaries return, so the equality of the results is not verified by the
+round. The base table cache records its parameters beside it and is
+regenerated when they differ.
 
 Datasets are written from fixed seeds and a fixed time origin
 (2026-09-29T00:00:00Z); regenerating gives byte-identical files. Every

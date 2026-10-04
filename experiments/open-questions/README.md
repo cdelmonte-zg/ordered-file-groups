@@ -146,13 +146,21 @@ from `/usr/bin/time`, peak commit from mimalloc's statistics. Raw runs in
 `results.tsv`, analysis in `analyze.py` and `analysis.txt`. No run failed.
 
 **E1, excess RSS over the original plan regressed on the number of ordered
-groups** (20 runs per query; 95 percent interval on the slope):
+groups** (20 runs per query; 95 percent interval on the slope, taking the
+baseline of each file count, the median of three original runs, as exact):
 
 | query | columns read | slope per stream | 95 % interval | R² |
 |---|---|---|---|---|
 | Q1, `ORDER BY` only | 8 | 383 KB | 330 to 437 KB | 0.93 |
 | Q2, `GROUP BY col_1, col_2` | 3 | -15 KB | -63 to 34 KB | 0.02 |
 | Q3, deduplication | 8 | 973 KB | 767 to 1179 KB | 0.85 |
+
+A bootstrap that resamples both the ordered and the original runs of every
+file count, so that the uncertainty of the baseline enters, gives 341 to 424
+KB for Q1, -61 to 30 KB for Q2 and 813 to 1141 KB for Q3 (10,000 resamples;
+with three baseline runs per point a rough interval). The two intervals
+agree. `analyze.py` leaves failed runs out of every statistic; this series
+has none.
 
 **E2, Q3 at 1200 files, number of output partitions:**
 
