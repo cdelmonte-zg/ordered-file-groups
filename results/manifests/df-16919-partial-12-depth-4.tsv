@@ -5,7 +5,8 @@
 # shape	S1
 # rows	600000
 # distinct_grouping_keys	599976
-# duplicate_share	0.0000
+# duplicate_rows	24
+# duplicate_share	0.000040
 # groups_by_bounds	4	[[0, 4, 8], [1, 5, 9], [2, 6, 10], [3, 7, 11]]
 file	rows	bytes	row_groups	min_col_1	min_col_2	max_col_1	max_col_2
 0	83258	1185276	1	ENTITY-0000000	1790062995193	ENTITY-0000007	1790633008751

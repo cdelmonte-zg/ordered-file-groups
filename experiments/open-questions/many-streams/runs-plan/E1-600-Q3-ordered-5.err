@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.0 K      12.1 K      38      
-  abandoned :   523           4.1 K      16      
-  reclaima  :   131      
+  pages     :     1.4 K      10.8 K      34      
+  abandoned :   549           4.1 K      12      
+  reclaima  :   132      
   reclaimf  :     3.3 K  
-  reabandon :   365      
+  reabandon :   411      
   waits     :     0      
   extended  :     0      
   retire    :     0      
   searches  :     2.1 avg
 
  arenas          peak       total     current       block      total#   
-  reserved  :     3.0 GiB     3.0 GiB     3.0 GiB                          
-  committed :     2.4 GiB     2.4 GiB     2.4 GiB                          
+  reserved  :     2.0 GiB     2.0 GiB     2.0 GiB                          
+  committed :     1.2 GiB     1.2 GiB     1.2 GiB                          
   reset     :     0      
-  purged    :     2.3 GiB
-  arenas    :     3      
+  purged    :     1.2 GiB
+  arenas    :     2      
   rollback  :     0      
-  mmaps     :    10      
+  mmaps     :     6      
   commits   :     0      
   resets    :     0      
-  purges    :   788      
+  purges    :   659      
   guarded   :     0      
-  theaps    :   399         399           0      
+  theaps    :   134         134           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   400         400           1      
+  threads   :   135         135           1      
   numa nodes:     1
-  elapsed   :     0.562 s
-  process   : user: 2.312 s, system: 1.048 s, faults: 0, peak rss: 1.7 GiB, peak commit: 2.4 GiB
+  elapsed   :     0.542 s
+  process   : user: 2.228 s, system: 0.871 s, faults: 0, peak rss: 1.1 GiB, peak commit: 1.2 GiB
 
-BENCH user=2.31 sys=1.05 rss_kb=1812688
+BENCH user=2.22 sys=0.87 rss_kb=1184532

@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   875           9.3 K      32      
-  abandoned :   200           4.5 K      10      
-  reclaima  :    95      
-  reclaimf  :     3.8 K  
-  reabandon :   181      
+  pages     :   939          10.2 K      36      
+  abandoned :   256           4.3 K      14      
+  reclaima  :   141      
+  reclaimf  :     3.6 K  
+  reabandon :   175      
   waits     :     0      
   extended  :     0      
   retire    :     0      
   searches  :     2.2 avg
 
  arenas          peak       total     current       block      total#   
-  reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :  1011.1 MiB  1011.1 MiB  1011.1 MiB                          
+  reserved  :     2.0 GiB     2.0 GiB     2.0 GiB                          
+  committed :     1.5 GiB     1.5 GiB     1.5 GiB                          
   reset     :     0      
-  purged    :  1005.6 MiB
-  arenas    :     1      
+  purged    :     1.5 GiB
+  arenas    :     2      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     7      
   commits   :     0      
   resets    :     0      
-  purges    :   459      
+  purges    :   918      
   guarded   :     0      
-  theaps    :    72          72           0      
+  theaps    :   171         171           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    73          73           1      
+  threads   :   172         172           1      
   numa nodes:     1
-  elapsed   :     0.465 s
-  process   : user: 2.223 s, system: 0.696 s, faults: 0, peak rss: 896.7 MiB, peak commit: 1011.1 MiB
+  elapsed   :     0.494 s
+  process   : user: 2.206 s, system: 0.764 s, faults: 0, peak rss: 1.1 GiB, peak commit: 1.5 GiB
 
-BENCH user=2.22 sys=0.69 rss_kb=918316
+BENCH user=2.20 sys=0.76 rss_kb=1242420

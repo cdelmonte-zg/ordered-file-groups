@@ -24,45 +24,55 @@ workaround of the issue, `target_partitions` raised to the groups needed
 (`original-target`), and the grouping by statistics switched off
 (`original-split-off`).
 
-The measurement of record is round 5, designed in `PLAN.md` before the runs
-and reported in `RESULTS.md`: one base case and six axes varied one at a time
-(the query that consumes the order, the overlap depth, the memory budget, the
-width of the string columns, the number of files for the same rows, the share
-of duplicates), two declared crossings, hypotheses written down beforehand and
-judged against the tables. Ten runs per case, pool and variant.
+The measurement of record is round 6, reported in `RESULTS.md`. It runs the
+design of `PLAN.md`, written before round 5: one base case and six axes varied
+one at a time (the query that consumes the order, the overlap depth, the
+memory budget, the width of the string columns, the number of files for the
+same rows, the share of duplicates), two declared crossings, hypotheses
+written down beforehand and judged against the tables. Ten runs per case,
+pool and variant. Round 5 (2026-10-02) is the first run of that design and is
+kept with its report; round 6 (2026-10-04) repeats it after a review of the
+scripts, and the two agree.
 
 ## What the measurements support
 
 Keeping the file order removes the sort and, for a `GROUP BY` whose key
-begins with the sort key, lets the aggregate emit groups early; on the base
-case that is 0.376 s against 0.647 s with no spill in the final aggregate at
+begins with the sort key, lets the aggregate close groups early; on the base
+case that is 0.389 s against 0.654 s with no spill in the final aggregate at
 any pool size from 128 to 512 MB, and a few small spills in the
-order-preserving repartition at 128 MB. The order buys nothing measurable for a `GROUP BY` on the whole
-sort key at this size, and nothing at all for a `GROUP BY` without it, where
-the optimizer projects the ordering away, both plans scan two byte-range
-groups and the times are equal. More
-ordered groups cost memory and spills in the order-preserving repartition
-before they cost time: twelve groups keep the gain at 256 MB, 1196 groups lose
-at 128 MB and win at 256 and 512 MB with about 2 GB of RSS throughout. With
-strings longer than 12 bytes, the 128 MB gain falls from 46 to 11 percent.
-The cause is not the width of the data but its representation: Arrow string
-views share their data buffers among the fragments the repartition sends, and
-the repartition reserves memory for each fragment as if those buffers were its
-own. Read as plain strings, the same data keeps a 43 percent gain at 128 MB
-(`experiments/open-questions/`): the role of the representation is measured,
-the accounting mechanism comes from the source code. Raising `target_partitions` instead, the workaround, is the
-fastest variant in most cases and the most memory-hungry; it falls behind on
-the base data at 128 MB and at twelve groups, and stays ahead on the wide
-strings at 128 MB even while spilling.
+order-preserving repartition at 128 MB. Since the original plan spills in the
+final aggregate at every pool and the ordered plan never does, the round does
+not separate the benefit of early emission from that of the spills avoided.
+The order buys nothing measurable for a `GROUP BY` on the whole sort key at
+this size, where the hash aggregate stays in memory, and nothing at all for a
+`GROUP BY` without it, where the optimizer projects the ordering away, both
+plans scan two byte-range groups and the times are equal. More ordered groups
+cost memory and spills in the order-preserving repartition before they cost
+time: twelve groups keep the gain at 256 MB, 1196 groups lose at 128 MB,
+where the ordered final aggregate spills too, and win at 256 and 512 MB with
+about 2 GB of RSS throughout. With strings longer than 12 bytes, the 128 MB
+gain falls from 45 to 13 percent. The cause is not the width of the data but
+its representation. The repartition reorders a batch with one `take`, hands
+each output a slice, and reserves for every slice the full capacity of the
+buffers it refers to; with Arrow string views the slices also share, and
+count, every data buffer of the source batch. Read as plain strings, the same
+data keeps a 41 percent gain at 128 MB (`experiments/open-questions/`): the
+role of the representation is measured, the accounting mechanism comes from
+the source code, and it affects the original plan too. Raising
+`target_partitions` instead, the workaround, is the fastest variant in most
+cases and the most memory-hungry; it loses its edge on the base data at
+128 MB and at twelve groups, and stays ahead on the wide strings at 128 MB
+even while spilling.
 
-A follow-up after the round (`experiments/open-questions/`) explains the
-three points the round left open, and they share one operator: the
-order-preserving repartition. It holds memory for every pair of input and
-output partition (about 0.24 MB per pair, on top of about 0.38 MB per open
-stream in the scan); it serializes ordered groups that read disjoint key
-ranges at the same moment, which is why depth 1 is slower than depth 2; and it
-counts shared string-view buffers once per fragment, which is the wide-string
-result above.
+Further tests (`experiments/open-questions/`) examine the three points the
+design left open. The costs they find differ in evidence and reach. The
+memory of the many streams grows by about 0.42 MB per active read stream in
+the scan and by about 0.25 MB per pair of input and output partition of the
+order-preserving repartition, a coefficient derived from the increase with
+the outputs. Ordered groups that read disjoint key ranges at the same moment
+are serialized by backpressure, which is why depth 1 is slower than depth 2,
+in the unmodified binary too. And the repartition counts shared buffers once
+per slice it sends, in both plans, which is the wide-string result above.
 
 None of this is an argument for removing the check unconditionally. It is
 evidence for choosing the number of ordered groups from the overlap, the
@@ -70,10 +80,19 @@ memory budget and the expected cost per stream, which the engine today
 compares with the parallelism target only; and such a choice is only as good
 as the memory accounting it relies on.
 
+## Limits
+
+One machine, one DataFusion commit, synthetic data. Every query runs under a
+second on about 9 MB of Parquet, a scale at which fixed costs per stream
+weigh heavily. Only the fair pool was used. The mechanisms are read in the
+source and set beside the measurements; no run changed the accounting or
+instrumented the reservations. The runner does not compare the rows the two
+binaries return.
+
 ## Layout
 
-- `PLAN.md`: the design of round 5, written before the runs.
-- `RESULTS.md`: the report of round 5, generated by `scripts/make_report.py`.
+- `PLAN.md`: the design, written before round 5.
+- `RESULTS.md`: the report of round 6, generated by `scripts/make_report.py`.
 - `patch/accept-extra-groups.patch`: the only difference between the two builds.
 - `scripts/`: the generator (`generate_base.py`), the overlap builder
   (`generate_partial_overlap.py`), the dataset list of round 5
@@ -82,12 +101,14 @@ as the memory accounting it relies on.
   `build_binaries.sh` and `fd_limit_test.sh`; `run_bench.py`,
   `generate_earlier_datasets.py`, `generate_overlap_12_target_2.py` and
   `make_report_round4.py` belong to rounds 1 to 4.
-- `results/round-5/`: the measurement of record. The plans checked before
+- `results/round-5/`: the first run of the design (2026-10-02), with its
+  report in `REPORT.md`.
+- `results/round-6/`: the measurement of record. The plans checked before
   timing (`plan-check.tsv` and one output per case and variant), every run's
   SQL, `EXPLAIN ANALYZE` output and stderr, `results.tsv` (one row per run)
   and `summary.tsv` (medians and quartiles).
 - `results/round-4/`: the single-scenario rounds 1 to 4 (`REPORT.md`), with
-  the build logs, toolchain and SHA-256 of the binaries used in rounds 3 to 5,
+  the build logs, toolchain and SHA-256 of the binaries used in rounds 3 to 6,
   and the open-file-limit test. The binaries are not in the repository.
 - `results/round-3-rebuilt/`, `results/round-2/`, `results/round-1/`: the
   rounds of 2026-09-29 on datasets derived from the issue reporter's
@@ -97,8 +118,9 @@ as the memory accounting it relies on.
   share and the groups the statistics produce.
 - `experiments/`: two one-variable tests of 2026-10-02 (prefix cardinality,
   string width) that led to axis A4, and `experiments/open-questions/`, the
-  follow-up on the three points round 5 left open, with its own plans
-  written before the runs.
+  tests on the three points the design left open, with their own plans
+  written before the runs; each keeps its first run in a `2026-10-02/`
+  subdirectory.
 - `exploratory/2026-09-28/`: the first runs and single plans, superseded;
   see the README there.
 
@@ -109,10 +131,11 @@ DataFusion checkout.
 
     scripts/build_binaries.sh /path/to/datafusion        # two binaries in bin/
     scripts/generate_round5.sh                            # eleven datasets in /tmp/df-16919-*
-    python scripts/run_matrix.py --plan-check --out results/round-6
-    python scripts/run_matrix.py --runs 10 --out results/round-6
-    python scripts/make_report.py                        # reads results/round-5 by default; set REF
-    python scripts/run_matrix.py --recheck-plans --out results/round-5   # validates the recorded plans, runs nothing
+    PYTHON=python; for f in 150 300 600; do $PYTHON scripts/generate_partial_overlap.py --files $f --depth $f --assign rank; done   # for experiments/open-questions/many-streams
+    python scripts/run_matrix.py --plan-check --out results/round-7
+    python scripts/run_matrix.py --runs 10 --out results/round-7
+    python scripts/make_report.py                        # reads results/round-6
+    python scripts/run_matrix.py --recheck-plans --out results/round-6   # validates the recorded plans, runs nothing
 
 The plan check validates, for every case and variant, the number of
 `SortExec`, the ordering the scan advertises, the scan groups, the modes of

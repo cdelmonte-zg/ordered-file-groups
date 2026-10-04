@@ -19,12 +19,13 @@ HERE = Path(__file__).resolve().parent
 NOVIEW = ("SET datafusion.execution.parquet.schema_force_view_types = false;\n"
           "SET datafusion.sql_parser.map_string_types_to_utf8view = false;\n")
 RUNS = 5
+REF = "results/round-6"   # the round whose SQL files are reused
 
 configs = []
 for shape in ("S0", "S2"):
     for pool in ("128m", "512m"):
         for variant in ("original", "accept-groups"):
-            src = (ROOT / "results/round-5" / f"A4-{shape}" / pool / f"{variant}.sql").read_text()
+            src = (ROOT / REF / f"A4-{shape}" / pool / f"{variant}.sql").read_text()
             for views in ("views", "utf8"):
                 sql = src if views == "views" else src.replace(
                     "SET datafusion.execution.split_file_groups_by_statistics = true;\n",
@@ -57,10 +58,12 @@ def med(sel, k):
     v = [float(r[k]) for r in sel if r[k] != ""]
     return statistics.median(v) if v else float("nan")
 
-print("shape pool  variant        strings  ok   median_s  rss_mb  sort  final  repart  repart_out_mb")
+lines = ["shape pool  variant        strings  ok   median_s  rss_mb  sort  final  repart  repart_out_mb"]
 for name, shape, pool, variant, views, path in configs:
     sel = [r for r in rows if (r["shape"], r["pool"], r["variant"], r["strings"]) == (shape, pool, variant, views)]
     ok = [r for r in sel if r["result"] == "ok"]
-    print(f"{shape:5} {pool:5} {variant:14} {views:7} {len(ok)}/{len(sel)}  {med(ok,'elapsed_seconds'):.3f}    "
-          f"{med(sel,'max_rss_mb'):5.0f}  {med(ok,'sort_spills'):4.0f}  {med(ok,'final_agg_spills'):5.0f}  "
+    lines.append(f"{shape:5} {pool:5} {variant:14} {views:7} {len(ok)}/{len(sel)}  {med(ok,'elapsed_seconds'):.3f}    "
+          f"{med(ok,'max_rss_mb'):5.0f}  {med(ok,'sort_spills'):4.0f}  {med(ok,'final_agg_spills'):5.0f}  "
           f"{med(ok,'repartition_spills'):6.0f}  {med(ok,'repartition_out_mb'):8.1f}")
+(HERE / "summary.txt").write_text("\n".join(lines) + "\n")
+print("\n".join(lines))

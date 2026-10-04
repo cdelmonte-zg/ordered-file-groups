@@ -1,0 +1,42 @@
+failed runs: none
+
+E1: medians per file count (MB). ordered rss / commit | original rss / commit | groups
+  Q1   150:    558 /   633  [rss range 505-565] |   473 /  536 | groups 150 | user 0.25 sys 0.57
+  Q1   300:    527 /   491  [rss range 510-548] |   432 /  427 | groups 300 | user 0.35 sys 0.58
+  Q1   600:    696 /   600  [rss range 625-726] |   390 /  354 | groups 599 | user 0.48 sys 0.92
+  Q1  1200:    811 /   586  [rss range 774-855] |   367 /  330 | groups 1196 | user 0.65 sys 1.33
+  Q2   150:    786 /  1024  [rss range 758-805] |   342 /  382 | groups 150 | user 1.36 sys 0.66
+  Q2   300:    719 /   826  [rss range 661-737] |   319 /  313 | groups 300 | user 1.10 sys 0.56
+  Q2   600:    785 /   832  [rss range 756-834] |   335 /  322 | groups 599 | user 1.13 sys 0.68
+  Q2  1200:    744 /   756  [rss range 661-769] |   329 /  318 | groups 1196 | user 1.54 sys 0.73
+  Q3   150:   1041 /  1229  [rss range 1007-1090] |   674 /  717 | groups 150 | user 2.13 sys 0.88
+  Q3   300:   1073 /  1229  [rss range 897-1121] |   611 /  599 | groups 300 | user 2.16 sys 0.73
+  Q3   600:   1653 /  2150  [rss range 1402-1867] |   668 /  651 | groups 599 | user 2.33 sys 1.01
+  Q3  1200:   1843 /  2458  [rss range 1755-2173] |   621 /  605 | groups 1196 | user 2.25 sys 1.10
+
+E1: excess over the original (ordered run minus median original), regressed on ordered groups
+  rss_mb             Q1: slope    383 KB/stream  [95%    330 ..    437]  intercept     17 MB  R2 0.93  n=20
+  rss_mb             Q2: slope    -15 KB/stream  [95%    -63 ..     34]  intercept    431 MB  R2 0.02  n=20
+  rss_mb             Q3: slope    973 KB/stream  [95%    767 ..   1179]  intercept    248 MB  R2 0.85  n=20
+  mi_peak_commit_mb  Q1: slope    194 KB/stream  [95%    132 ..    256]  intercept     57 MB  R2 0.71  n=20
+  mi_peak_commit_mb  Q2: slope   -149 KB/stream  [95%   -214 ..    -85]  intercept    604 MB  R2 0.57  n=20
+  mi_peak_commit_mb  Q3: slope   1568 KB/stream  [95%   1178 ..   1959]  intercept    340 MB  R2 0.80  n=20
+
+E1: the same slopes, bootstrap over ordered and original runs (10,000 resamples, seed 16919, 2.5 to 97.5 percentiles)
+  rss_mb             Q1: slope [95%    341 ..    424] KB/stream
+  rss_mb             Q2: slope [95%    -61 ..     30] KB/stream
+  rss_mb             Q3: slope [95%    813 ..   1141] KB/stream
+  mi_peak_commit_mb  Q1: slope [95%    147 ..    246] KB/stream
+  mi_peak_commit_mb  Q2: slope [95%   -197 ..    -83] KB/stream
+  mi_peak_commit_mb  Q3: slope [95%   1259 ..   1873] KB/stream
+
+E2: Q3, 1200 files, outputs = target_partitions
+  outputs 2: rss median 1843 [1755, 1821, 1843, 2117, 2173]  commit median 2458 [2355, 2355, 2458, 3072, 3072]  elapsed 0.639
+  outputs 4: rss median 2451 [2217, 2444, 2451, 2458, 2458]  commit median 3277 [2765, 3174, 3277, 3379, 3379]  elapsed 0.593
+  outputs 8: rss median 3540 [3459, 3535, 3540, 3554, 3626]  commit median 3994 [3482, 3789, 3994, 3994, 3994]  elapsed 0.781
+
+E3: 1200 files, default purge delay against MIMALLOC_PURGE_DELAY=0
+  Q1 default : rss [774, 806, 811, 820, 855] median 811 | commit [584, 586, 586, 586, 624] median 586 | elapsed 0.217
+  Q1 purge 0 : rss [714, 733, 743, 788, 794] median 743 | commit [512, 566, 580, 590, 605] median 580 | elapsed 0.230
+  Q3 default : rss [1755, 1821, 1843, 2117, 2173] median 1843 | commit [2355, 2355, 2458, 3072, 3072] median 2458 | elapsed 0.639
+  Q3 purge 0 : rss [1516, 1942, 1952, 1959, 1972] median 1952 | commit [2253, 3072, 3072, 3072, 3072] median 3072 | elapsed 0.788
