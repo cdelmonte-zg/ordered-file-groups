@@ -4,3 +4,4 @@ bin/
 *.parquet
 .venv/
 __pycache__/
+provenance.building.*/

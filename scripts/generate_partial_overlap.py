@@ -219,7 +219,7 @@ def main():
         copies = origin >= 0
         same = (file_of_row[copies] == file_of_rid[origin[copies]]).mean()
         header.append(f"# copies\t{int(copies.sum())}\t# same_file_share\t{same:.4f}")
-    MANIFESTS.mkdir(exist_ok=True)
+    MANIFESTS.mkdir(parents=True, exist_ok=True)
     (MANIFESTS / f"{name}.tsv").write_text(
         "\n".join(header) + "\nfile\trows\tbytes\trow_groups\tmin_col_1\tmin_col_2\tmax_col_1\tmax_col_2\n"
         + "\n".join(lines) + "\n")

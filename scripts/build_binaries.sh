@@ -7,7 +7,7 @@
 # `original` is built as it is, `accept-groups` with
 # patch/accept-extra-groups.patch applied. Each binary is copied to bin/ before
 # the next build. What identifies the build is written to provenance/, which is
-# tracked: the commit, the toolchain as seen inside the worktree, the build
+# meant to be committed with the results it produced: the commit, the toolchain as seen inside the worktree, the build
 # command, the patch as applied, the build logs and the SHA-256 of the binaries.
 # run_lab.sh refuses to run with binaries whose hashes differ from those.
 set -euo pipefail
@@ -16,12 +16,13 @@ commit=e1aa7d956a5aa67452c9e8bd2a033599767055d8
 checkout=${1:?path to a DataFusion git checkout}
 root=$(cd "$(dirname "$0")/.." && pwd)
 out=$root/bin
-prov=$root/provenance
+final=$root/provenance
+prov=$(mktemp -d "$root/provenance.building.XXXXXX")     # renamed to provenance/ on success
 worktree=$(mktemp -d "${TMPDIR:-/tmp}/datafusion-ordered-groups.XXXXXX")
 
-mkdir -p "$out" "$prov"
+mkdir -p "$out"
 git -C "$checkout" worktree add --detach "$worktree" "$commit"
-trap 'git -C "$checkout" worktree remove --force "$worktree"' EXIT
+trap 'git -C "$checkout" worktree remove --force "$worktree"; rm -rf "$prov"' EXIT
 
 build() {
   local variant=$1
@@ -43,4 +44,7 @@ echo "cargo build --release -p datafusion-cli" > "$prov/build-command.txt"
 (cd "$root" && sha256sum bin/datafusion-cli-original-release bin/datafusion-cli-accept-groups-release \
   > "$prov/binaries.sha256")
 date -u +%Y-%m-%dT%H:%M:%SZ > "$prov/built-at.txt"
-cat "$prov/binaries.sha256"
+# a build that fails leaves the previous provenance/ as it was
+rm -rf "$final"
+mv "$prov" "$final"
+cat "$final/binaries.sha256"

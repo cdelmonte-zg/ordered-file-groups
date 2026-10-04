@@ -4,7 +4,6 @@ import csv
 import os
 import re
 import resource
-import statistics as st
 import sys
 from pathlib import Path
 
@@ -110,10 +109,3 @@ def sql_for(dataset, query="Q3", target=2, split="true", settings=()):
 NOVIEW = (("datafusion.execution.parquet.schema_force_view_types", "false"),
           ("datafusion.sql_parser.map_string_types_to_utf8view", "false"))
 
-
-def mean(values):
-    return st.mean(values) if values else float("nan")
-
-
-def sd(values):
-    return st.stdev(values) if len(values) > 1 else float("nan")

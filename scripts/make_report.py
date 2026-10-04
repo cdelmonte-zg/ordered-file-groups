@@ -10,14 +10,16 @@ DESIGN.md are checked by rules stated next to each one. Also writes
 results/figures.tsv, the figures the companion article quotes.
 """
 import argparse
-import csv
 import sys
+from math import isnan
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT / "experiments"))
 import report as experiments  # noqa: E402
+from common import read_tsv  # noqa: E402
+from report import num, pct  # noqa: E402
 
 VARIANT_ORDER = ["original", "accept-groups", "original-target", "original-split-off"]
 AXES = [
@@ -52,15 +54,6 @@ NOT_MEASURED = """\
 - Which descriptors the ordered plan holds when it meets the open-file limit."""
 
 
-def read_tsv(path):
-    with Path(path).open() as f:
-        return list(csv.DictReader(f, delimiter="\t"))
-
-
-def num(x, digits=3):
-    return f"{x:.{digits}f}"
-
-
 class Matrix:
     """The summary of the matrix, addressed by case, pool and variant."""
 
@@ -92,7 +85,12 @@ class Matrix:
         return 100 * (1 - self.med(case, pool, variant) / self.med(case, pool, against))
 
     def compare(self, a, b):
-        """How `a` stands to `b`, both (case, pool, variant): by quartiles."""
+        """How `a` stands to `b`, both (case, pool, variant): by quartiles.
+
+        'not comparable' when either has no completed run.
+        """
+        if any(isnan(self.get(*x, k)) for x in (a, b) for k in ("elapsed_q1", "elapsed_q3")):
+            return "not comparable"
         if self.get(*a, "elapsed_q3") < self.get(*b, "elapsed_q1"):
             return "faster"
         if self.get(*a, "elapsed_q1") > self.get(*b, "elapsed_q3"):
@@ -102,6 +100,8 @@ class Matrix:
     def versus(self, a, b, name):
         """'faster than <name>', 'slower than <name>' or 'within the quartiles of <name>'."""
         word = self.compare(a, b)
+        if word == "not comparable":
+            return f"not comparable with {name} (no completed run)"
         return f"{word} of {name}" if word.startswith("within") else f"{word} than {name}"
 
     def pair(self, case, pool, variant="accept-groups", against="original"):
@@ -272,8 +272,6 @@ def findings(m, manifests, figures):
     if all(s > 0 for s in orig_spills) and all(s == 0 for s in ord_spills):
         text += ("One plan spills there at every pool and the other at none, so this series does "
                  "not separate the benefit of early emission from that of the spills avoided.")
-    else:
-        text += "The two plans differ in whether they spill at some pools and not at others."
     out.append(text)
     figures += [("gain_pct_128_256_512", " / ".join(f"{g:.0f}" for g in gains))]
     for (c, p) in pools:
@@ -384,6 +382,8 @@ def predictions(m):
 
     def add(name, prediction, rule, value, holds):
         outcome = {True: "holds", False: "does not hold", None: "reported"}[holds]
+        if "nan" in value or "not comparable" in value:
+            outcome = "not decided: a cell has no completed run"
         rows.append(f"| {name} | {prediction} | {rule} | {value} | {outcome} |")
 
     g = {q: m.gain(c, P) for q, c in (("Q1", "A1-Q1"), ("Q2", "A1-Q2"), ("Q3", B), ("Q4", "A1-Q4"))}
@@ -443,14 +443,32 @@ def main():
     checks = read_tsv(res / "result-check" / "result-check.tsv") if (res / "result-check" / "result-check.tsv").is_file() else []
     recorded = (prov / "binaries.sha256").read_text().strip()
     measured = (matrix / "machine.txt").read_text().split("binaries\n", 1)[1].strip()
-    same = {l.split()[0] for l in recorded.splitlines()} == {l.split()[0] for l in measured.splitlines()}
+
+    def by_name(text):
+        return {Path(l.split()[1]).name: l.split()[0] for l in text.splitlines() if l.strip()}
+
+    same = by_name(recorded) == by_name(measured)
+    cells = {(r["case"], r["pool"], r["variant"]) for r in summary}
+    checked = {(r["case"], r["pool"], r["variant"]) for r in checks}
+    unchecked = sorted(cells - checked)
+    not_ok = [r for r in checks if r["check"] != "ok"]
+    if not checks:
+        rows_verdict = "The check was not run or left no table: the rows were NOT compared."
+    else:
+        rows_verdict = (f"{len(checks) - len(not_ok)} of {len(checks)} checks pass, over {len(cells)} "
+                        f"cells of the matrix (`results/result-check/result-check.tsv`).")
+        if unchecked:
+            rows_verdict += (f" {len(unchecked)} cell(s) were NOT checked: "
+                             + ", ".join(" ".join(c) for c in unchecked) + ".")
+        if not_ok:
+            rows_verdict += " Not passed: " + "; ".join(
+                " ".join((r["case"], r["pool"], r["variant"], r["check"])) for r in not_ok) + "."
     figures = []
 
     sections = [f"### {title}\n\n{intro}\n\n{table(summary, axis, with_bytes=(axis == 'A4'))}"
                 for axis, title, intro in AXES]
     failed_runs = [r for r in runs if r["result"] != "ok"]
     plan_ok = sum(r["check"] == "ok" for r in plans)
-    check_ok = sum(r["check"] == "ok" for r in checks)
     exp = res / "experiments"
     body = f"""# Results
 
@@ -520,8 +538,8 @@ variant, and compares the rows with those of `original` in the deterministic
 columns; it checks that the rows are sorted where the query orders them, that
 the deduplication returns as many rows as the dataset has distinct keys, and
 that the plan under the statement that writes the rows is the timed one.
-{check_ok} of {len(checks)} checks pass (`results/result-check/result-check.tsv`).
-{"" if check_ok == len(checks) else chr(10) + chr(10).join("- " + " ".join((r["case"], r["pool"], r["variant"], r["check"])) for r in checks if r["check"] != "ok") + chr(10)}
+{rows_verdict}
+
 ## Results by axis
 
 Spill cells: count / spilled MB (medians over completed runs). Modes: of the

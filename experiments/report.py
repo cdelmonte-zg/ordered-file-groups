@@ -42,7 +42,19 @@ def stdev(rows, key):
 
 
 def num(x, digits=3):
+    """A number at fixed precision; 'n/a' when there is none (no completed run)."""
     return "n/a" if x is None or isnan(x) else f"{x:.{digits}f}"
+
+
+def pct(x):
+    return "n/a" if x is None or isnan(x) else f"{x:.0f}"
+
+
+def error_kinds(rows):
+    """The distinct errors of the runs that did not complete, shortened."""
+    kinds = sorted({(r.get("error") or "no error message").split(" at path")[0].split(":")[0]
+                    for r in rows if str(r.get("ok", r.get("completed"))) == "0"})
+    return "; ".join(kinds)
 
 
 def span(lo, hi, digits=2):
@@ -99,8 +111,8 @@ def string_views(out, figures):
     lines += ["", "Gain of the ordered plan over the original:", "",
               "| shape | pool | with string views | with plain Utf8 |", "|---|---|---|---|"]
     for shape, pool in cells:
-        lines.append(f"| {shape} | {pool} | {gain(shape, pool, 'views'):.0f} % | "
-                     f"{gain(shape, pool, 'utf8'):.0f} % |")
+        lines.append(f"| {shape} | {pool} | {pct(gain(shape, pool, 'views'))} % | "
+                     f"{pct(gain(shape, pool, 'utf8'))} % |")
 
     def med(variant, strings, key):
         return median(completed(cell("S2", "128m", variant, strings)), key)
@@ -108,9 +120,9 @@ def string_views(out, figures):
     gv, gu = gain("S2", "128m", "views"), gain("S2", "128m", "utf8")
     narrow = gain("S0", "128m", "views")
     failed = len(cell("S2", "128m", "original", "views")) - len(completed(cell("S2", "128m", "original", "views")))
-    lines += ["", f"- On the wide strings at 128 MB the ordered plan gains {gv:.0f} percent with "
-              f"string views and {gu:.0f} percent with plain `Utf8`; on the narrow strings, with "
-              f"views, {narrow:.0f} percent.",
+    lines += ["", f"- On the wide strings at 128 MB the ordered plan gains {pct(gv)} percent with "
+              f"string views and {pct(gu)} percent with plain `Utf8`; on the narrow strings, with "
+              f"views, {pct(narrow)} percent.",
               f"- The final aggregate of the ordered plan spills {num(med('accept-groups', 'views', 'final_agg_spills'), 0)} "
               f"times with views and {num(med('accept-groups', 'utf8', 'final_agg_spills'), 0)} with plain strings.",
               f"- The order-preserving repartition of the ordered plan reports "
@@ -123,9 +135,9 @@ def string_views(out, figures):
               f"{num(med('original', 'utf8', 'sort_spills'), 0)} with plain strings, its median is "
               f"{num(med('original', 'views', 'elapsed_s'))} against {num(med('original', 'utf8', 'elapsed_s'))} s"
               + (f", and {failed} of its five runs with views failed." if failed else "."), ""]
-    figures += [("string_test_gain_views_S2_128_pct", f"{gv:.0f}"),
-                ("string_test_gain_utf8_S2_128_pct", f"{gu:.0f}"),
-                ("string_test_gain_views_S0_128_pct", f"{narrow:.0f}"),
+    figures += [("string_test_gain_views_S2_128_pct", pct(gv)),
+                ("string_test_gain_utf8_S2_128_pct", pct(gu)),
+                ("string_test_gain_views_S0_128_pct", pct(narrow)),
                 ("string_test_ordered_utf8_s", num(med('accept-groups', 'utf8', 'elapsed_s'))),
                 ("string_test_original_utf8_s", num(med('original', 'utf8', 'elapsed_s'))),
                 ("string_test_ordered_views_s", num(med('accept-groups', 'views', 'elapsed_s'))),
@@ -354,17 +366,19 @@ def depth(out, matrix, manifests, figures):
         fails[size] = len(d1) + len(d2) - len(completed(d1)) - len(completed(d2))
         lines.append(f"| {size} | {shown(d1)} | {shown(d2)} | {num(gaps[size], 2)} |")
     default = 8192 if 8192 in gaps else sizes[0]
-    closed = next((s for s in sizes if abs(gaps[s]) < 0.1), None)
-    failing = [(s, fails[s], len(select(rows, kind='batch', batch_size=s))) for s in sizes if fails[s]]
+    # the smallest size from which the gap stays below 0.1 at every larger size tried
+    closed = next((s for s in sizes if all(abs(gaps[t]) < 0.1 for t in sizes if t >= s)), None)
+    failing = [(s, fails[s], len(select(rows, kind='batch', batch_size=s)),
+                error_kinds(select(rows, kind='batch', batch_size=s))) for s in sizes if fails[s]]
     d1w = mean(completed(select(rows, kind="batch", batch_size=default, depth=1)), "wall_s")
     d2w = mean(completed(select(rows, kind="batch", batch_size=default, depth=2)), "wall_s")
     lines += ["", f"- At the default batch size ({default} rows) depth 1 takes {num(d1w)} s against "
               f"{num(d2w)} s at depth 2 and uses {num(gaps[default], 2)} cores less.",
-              (f"- The gap in cores is below 0.1 from {closed} rows per batch."
-               if closed else "- The gap in cores stays above 0.1 at every batch size tried."),
-              ("- Runs that failed for memory: " + "; ".join(
-                  f"{n} of {total} at {s} rows" for s, n, total in failing) + "."
-               if failing else "- No run failed."), "",
+              (f"- The gap in cores is below 0.1 at {closed} rows per batch and at every larger size tried."
+               if closed else "- The gap in cores does not stay below 0.1 up to the largest batch size tried."),
+              ("- Runs that did not complete: " + "; ".join(
+                  f"{n} of {total} at {s} rows ({kinds})" for s, n, total, kinds in failing) + "."
+               if failing else "- Every run completed."), "",
               "Layout probes at the default batch size:", "",
               "| configuration | completed | scan groups | wall s | CPU s | cores |", "|---|---|---|---|---|---|"]
     labels = {"d1-120-files": "depth 1, 120 files", "d2-120-files": "depth 2, 120 files",
@@ -403,7 +417,7 @@ def depth(out, matrix, manifests, figures):
     lines.append("")
     figures += [("depth_gap_cores_by_batch_size", "; ".join(f"{s}: {num(gaps[s], 2)}" for s in sizes)),
                 ("depth_default_batch_wall_s_depth1_depth2", f"{num(d1w)} / {num(d2w)}"),
-                ("depth_failed_runs", "; ".join(f"{n} of {t} at {s}" for s, n, t in failing) or "none")]
+                ("depth_failed_runs", "; ".join(f"{n} of {t} at {s}" for s, n, t, _ in failing) or "none")]
     for size in sizes:
         d1 = completed(select(rows, kind="batch", batch_size=size, depth=1))
         d2 = completed(select(rows, kind="batch", batch_size=size, depth=2))
@@ -426,7 +440,7 @@ def open_files(out, figures):
              "256 MB, with the open-file limit of the process set to each value. Completed runs "
              "of those tried.", "",
              "| open-file limit | original plan | ordered plan |", "|---|---|---|"]
-    first = {}
+    complete = {}                      # (limit, variant) -> every run tried completed
 
     def shown(limit, variant):
         sel = select(rows, open_file_limit=limit, variant=variant)
@@ -434,8 +448,7 @@ def open_files(out, figures):
         tried = [r for r in sel if str(r["completed"]) != ""]
         if not tried:
             return sel[0]["error"] if sel else "not run"
-        if len(done) == len(tried) and variant not in first:
-            first[variant] = limit
+        complete[limit, variant] = len(done) == len(tried)
         errors = sorted({r["error"].split(" at path")[0] for r in tried if str(r["completed"]) == "0"})
         return f"{len(done)} of {len(tried)}" + (f" ({'; '.join(errors)})" if errors else "")
 
@@ -443,8 +456,17 @@ def open_files(out, figures):
         lines.append(f"| {limit} | {shown(limit, 'original')} | {shown(limit, 'accept-groups')} |")
     groups = sorted({r["scan_groups"] for r in rows if r["variant"] == "accept-groups" and r["scan_groups"]})
 
+    first = {}
+    for variant in ("original", "accept-groups"):
+        tried = [l for l in limits if (l, variant) in complete]
+        # the smallest limit from which every larger limit tried completes too
+        ok = [l for l in tried if all(complete[t, variant] for t in tried if t >= l)]
+        if ok:
+            first[variant] = ok[0]
+
     def need(variant):
-        return f"completes from a limit of {first[variant]}" if variant in first else "completes at no limit tried"
+        return (f"completes at a limit of {first[variant]} and at every larger one tried"
+                if variant in first else "does not complete reliably at any limit tried")
 
     lines += ["", f"With {', '.join(groups) or 'the'} ordered groups and two outputs, the ordered plan "
               f"{need('accept-groups')}; the original plan {need('original')}.", ""]

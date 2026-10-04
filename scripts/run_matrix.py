@@ -411,7 +411,8 @@ def record_machine(out):
     memory = next((l.split()[1] for l in Path("/proc/meminfo").read_text().splitlines()
                    if l.startswith("MemTotal")), "0")
     nofile = resource.getrlimit(resource.RLIMIT_NOFILE)[0]
-    hashes = subprocess.run(["sha256sum"] + sorted(str(p) for p in BIN.glob("datafusion-cli-*")),
+    # the two binaries the matrix runs, nothing else that may lie in bin/
+    hashes = subprocess.run(["sha256sum"] + sorted({str(binary_of(v)) for v in VARIANTS}),
                             capture_output=True, text=True).stdout
     (out / "machine.txt").write_text(
         f"cpu\t{cpu}\nthreads\t{threads}\nmemory_gb\t{int(memory) / 2**20:.0f}\n"
