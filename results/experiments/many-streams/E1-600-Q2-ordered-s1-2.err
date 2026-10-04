@@ -1,0 +1,36 @@
+subproc 0
+ pages           peak       total     current       block      total#   
+  touched   :     0           0           0                                ok
+  pages     :   476           5.7 K      38      
+  abandoned :   241         869          16      
+  reclaima  :    96      
+  reclaimf  :   414      
+  reabandon :   356      
+  waits     :     0      
+  extended  :     0      
+  retire    :     0      
+  searches  :     1.5 avg
+
+ arenas          peak       total     current       block      total#   
+  reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
+  committed :   939.5 MiB   939.5 MiB   939.5 MiB                          
+  reset     :     0      
+  purged    :   926.3 MiB
+  arenas    :     1      
+  rollback  :     0      
+  mmaps     :     5      
+  commits   :     0      
+  resets    :     0      
+  purges    :     1.0 K  
+  guarded   :     0      
+  theaps    :   353         353           0      
+  heaps     :     1           1           1      
+  heap waits:     0      
+
+ process         peak       total     current       block      total#   
+  threads   :   354         354           1      
+  numa nodes:     1
+  elapsed   :     0.186 s
+  process   : user: 1.138 s, system: 0.762 s, faults: 0, peak rss: 857.3 MiB, peak commit: 939.5 MiB
+
+BENCH wall=0.19 user=1.13 sys=0.76 rss_kb=877900

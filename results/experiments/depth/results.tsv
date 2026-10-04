@@ -1,0 +1,67 @@
+name	kind	depth	files	batch_size	split_by_statistics	run	ok	wall_s	cpu_s	user_s	sys_s	cores	rss_mb	elapsed_s	scan_groups	error	sort_spills	final_agg_spills	repartition_spills	repartition_out_mb
+d2-b2048	batch	2	12	2048	true	1	1	0.42	0.8	0.77	0.03	1.905	276	0.414	2		0	0	0	1209.8
+d1-b8192	batch	1	12	8192	true	1	1	0.5	0.78	0.74	0.04	1.56	299	0.498	2		0	0	0	319.5
+d2-b8192	batch	2	12	8192	true	1	1	0.4	0.81	0.78	0.03	2.025	333	0.398	2		0	0	0	386.6
+d1-b32768	batch	1	12	32768	true	1	1	0.41	0.81	0.77	0.04	1.976	418	0.407	2		0	0	0	172.2
+d2-b32768	batch	2	12	32768	true	1	1	0.4	0.82	0.78	0.04	2.05	432	0.394	2		0	0	0	177.2
+d1-b131072	batch	1	12	131072	true	1	0	0.7	1.48	1.37	0.11	2.114	594			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:				
+d2-b131072	batch	2	12	131072	true	1	1	0.77	1.58	1.46	0.12	2.052	593	0.762	2		0	8	0	121.5
+d1-120-files	layout	1	120	8192	true	1	1	0.37	0.84	0.78	0.06	2.27	321	0.357	2		0	0	0	470.1
+d2-120-files	layout	2	120	8192	true	1	1	0.33	0.9	0.83	0.07	2.727	390	0.324	3		0	0	0	468.8
+d1-split-by-name	layout	1	12	8192	false	1	1	0.51	0.78	0.76	0.02	1.529	284	0.505	2		0	0	0	327.8
+d1-b2048	batch	1	12	2048	true	1	1	0.52	0.77	0.74	0.03	1.481	261	0.514	2		0	0	0	907.5
+d1-b8192	batch	1	12	8192	true	2	1	0.47	0.74	0.71	0.03	1.574	296	0.466	2		0	0	0	319.5
+d2-b8192	batch	2	12	8192	true	2	1	0.45	0.87	0.83	0.04	1.933	312	0.448	2		0	0	0	386.6
+d1-b32768	batch	1	12	32768	true	2	1	0.42	0.83	0.8	0.03	1.976	369	0.412	2		0	0	0	172.2
+d2-b32768	batch	2	12	32768	true	2	1	0.43	0.87	0.82	0.05	2.023	386	0.422	2		0	0	0	177.2
+d1-b131072	batch	1	12	131072	true	2	1	0.7	1.46	1.36	0.1	2.086	601	0.688	2		0	8	0	120.4
+d2-b131072	batch	2	12	131072	true	2	1	0.72	1.49	1.38	0.11	2.069	597	0.710	2		0	8	0	121.5
+d1-120-files	layout	1	120	8192	true	2	1	0.37	0.87	0.83	0.04	2.351	321	0.362	2		0	0	0	470.1
+d2-120-files	layout	2	120	8192	true	2	1	0.33	0.91	0.81	0.1	2.758	429	0.322	3		0	0	0	468.8
+d1-split-by-name	layout	1	12	8192	false	2	1	0.52	0.77	0.73	0.04	1.481	288	0.512	2		0	0	0	327.8
+d1-b2048	batch	1	12	2048	true	2	1	0.52	0.76	0.73	0.03	1.462	287	0.519	2		0	0	0	907.5
+d2-b2048	batch	2	12	2048	true	2	1	0.41	0.78	0.74	0.04	1.902	280	0.399	2		0	0	0	1209.8
+d2-b8192	batch	2	12	8192	true	3	1	0.41	0.8	0.78	0.02	1.951	337	0.400	2		0	0	0	386.6
+d1-b32768	batch	1	12	32768	true	3	1	0.42	0.84	0.79	0.05	2.0	402	0.419	2		0	0	0	172.2
+d2-b32768	batch	2	12	32768	true	3	1	0.43	0.86	0.82	0.04	2.0	408	0.425	2		0	0	0	177.2
+d1-b131072	batch	1	12	131072	true	3	1	0.7	1.5	1.38	0.12	2.143	599	0.694	2		0	8	0	120.4
+d2-b131072	batch	2	12	131072	true	3	0	0.72	1.5	1.39	0.11	2.083	597			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:				
+d1-120-files	layout	1	120	8192	true	3	1	0.37	0.88	0.85	0.03	2.378	287	0.359	2		0	0	0	470.1
+d2-120-files	layout	2	120	8192	true	3	1	0.34	0.93	0.85	0.08	2.735	370	0.328	3		0	0	0	468.8
+d1-split-by-name	layout	1	12	8192	false	3	1	0.49	0.72	0.68	0.04	1.469	285	0.482	2		0	0	0	327.8
+d1-b2048	batch	1	12	2048	true	3	1	0.54	0.79	0.75	0.04	1.463	271	0.530	2		0	0	0	907.5
+d2-b2048	batch	2	12	2048	true	3	1	0.42	0.8	0.77	0.03	1.905	296	0.412	2		0	0	0	1209.8
+d1-b8192	batch	1	12	8192	true	3	1	0.47	0.74	0.71	0.03	1.574	321	0.463	2		0	0	0	319.5
+d1-b32768	batch	1	12	32768	true	4	1	0.43	0.87	0.83	0.04	2.023	398	0.421	2		0	0	0	172.2
+d2-b32768	batch	2	12	32768	true	4	1	0.38	0.78	0.74	0.04	2.053	408	0.376	2		0	0	0	177.2
+d1-b131072	batch	1	12	131072	true	4	0	0.66	1.4	1.28	0.12	2.121	574			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:				
+d2-b131072	batch	2	12	131072	true	4	1	0.7	1.44	1.34	0.1	2.057	601	0.695	2		0	8	0	121.5
+d1-120-files	layout	1	120	8192	true	4	1	0.37	0.87	0.83	0.04	2.351	291	0.361	2		0	0	0	470.1
+d2-120-files	layout	2	120	8192	true	4	1	0.35	0.92	0.88	0.04	2.629	387	0.335	3		0	0	0	468.8
+d1-split-by-name	layout	1	12	8192	false	4	1	0.51	0.75	0.71	0.04	1.471	293	0.502	2		0	0	0	327.8
+d1-b2048	batch	1	12	2048	true	4	1	0.55	0.8	0.76	0.04	1.455	258	0.544	2		0	0	0	907.5
+d2-b2048	batch	2	12	2048	true	4	1	0.42	0.81	0.78	0.03	1.929	281	0.409	2		0	0	0	1209.8
+d1-b8192	batch	1	12	8192	true	4	1	0.46	0.72	0.69	0.03	1.565	314	0.455	2		0	0	0	319.5
+d2-b8192	batch	2	12	8192	true	4	1	0.39	0.77	0.74	0.03	1.974	308	0.387	2		0	0	0	386.6
+d2-b32768	batch	2	12	32768	true	5	1	0.4	0.81	0.78	0.03	2.025	393	0.392	2		0	0	0	177.2
+d1-b131072	batch	1	12	131072	true	5	1	0.74	1.55	1.42	0.13	2.095	601	0.730	2		0	8	0	120.4
+d2-b131072	batch	2	12	131072	true	5	0	0.73	1.51	1.41	0.1	2.068	554			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:				
+d1-120-files	layout	1	120	8192	true	5	1	0.35	0.85	0.78	0.07	2.429	300	0.341	2		0	0	0	470.1
+d2-120-files	layout	2	120	8192	true	5	1	0.35	0.91	0.83	0.08	2.6	390	0.336	3		0	0	0	468.8
+d1-split-by-name	layout	1	12	8192	false	5	1	0.5	0.74	0.71	0.03	1.48	304	0.492	2		0	0	0	327.8
+d1-b2048	batch	1	12	2048	true	5	1	0.54	0.78	0.75	0.03	1.444	271	0.533	2		0	0	0	907.5
+d2-b2048	batch	2	12	2048	true	5	1	0.44	0.84	0.8	0.04	1.909	269	0.430	2		0	0	0	1209.8
+d1-b8192	batch	1	12	8192	true	5	1	0.49	0.75	0.72	0.03	1.531	314	0.484	2		0	0	0	319.5
+d2-b8192	batch	2	12	8192	true	5	1	0.4	0.76	0.73	0.03	1.9	328	0.392	2		0	0	0	386.6
+d1-b32768	batch	1	12	32768	true	5	1	0.4	0.81	0.78	0.03	2.025	374	0.394	2		0	0	0	172.2
+d1-b131072	batch	1	12	131072	true	6	0	0.74	1.59	1.47	0.12	2.149	590			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:				
+d2-b131072	batch	2	12	131072	true	6	1	0.7	1.44	1.32	0.12	2.057	578	0.693	2		0	8	0	121.5
+d1-120-files	layout	1	120	8192	true	6	1	0.38	0.91	0.85	0.06	2.395	332	0.369	2		0	0	0	470.1
+d2-120-files	layout	2	120	8192	true	6	1	0.34	0.91	0.87	0.04	2.676	428	0.325	3		0	0	0	468.8
+d1-split-by-name	layout	1	12	8192	false	6	1	0.49	0.71	0.68	0.03	1.449	279	0.482	2		0	0	0	327.8
+d1-b2048	batch	1	12	2048	true	6	1	0.56	0.82	0.79	0.03	1.464	267	0.553	2		0	0	0	907.5
+d2-b2048	batch	2	12	2048	true	6	1	0.42	0.81	0.77	0.04	1.929	285	0.412	2		0	0	0	1209.8
+d1-b8192	batch	1	12	8192	true	6	1	0.47	0.73	0.69	0.04	1.553	313	0.464	2		0	0	0	319.5
+d2-b8192	batch	2	12	8192	true	6	1	0.41	0.81	0.77	0.04	1.976	330	0.401	2		0	0	0	386.6
+d1-b32768	batch	1	12	32768	true	6	1	0.42	0.83	0.79	0.04	1.976	399	0.414	2		0	0	0	172.2
+d2-b32768	batch	2	12	32768	true	6	1	0.41	0.84	0.8	0.04	2.049	423	0.409	2		0	0	0	177.2

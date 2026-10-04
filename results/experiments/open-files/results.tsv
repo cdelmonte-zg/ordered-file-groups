@@ -1,0 +1,31 @@
+open_file_limit	variant	run	completed	rss_mb	scan_groups	error
+1024	original	1	1	580	2	
+1024	original	2	1	599	2	
+1024	original	3	1	589	2	
+1024	accept-groups	1	0	654		IO error: Too many open files (os error 24)
+1024	accept-groups	2	0	510		IO error: Too many open files (os error 24)
+1024	accept-groups	3	0	533		IO error: Too many open files (os error 24)
+2048	original	1	1	609	2	
+2048	original	2	1	616	2	
+2048	original	3	1	592	2	
+2048	accept-groups	1	0	845		IO error: Too many open files (os error 24)
+2048	accept-groups	2	0	694		IO error: Too many open files (os error 24)
+2048	accept-groups	3	0	935		IO error: Too many open files (os error 24)
+4096	original	1	1	601	2	
+4096	original	2	1	611	2	
+4096	original	3	1	590	2	
+4096	accept-groups	1	0	1036		IO error: Too many open files (os error 24)
+4096	accept-groups	2	0	1422		IO error: Too many open files (os error 24)
+4096	accept-groups	3	0	1379		IO error: Too many open files (os error 24)
+8192	original	1	1	612	2	
+8192	original	2	1	611	2	
+8192	original	3	1	625	2	
+8192	accept-groups	1	1	2168	1196	
+8192	accept-groups	2	1	1725	1196	
+8192	accept-groups	3	1	1575	1196	
+16384	original	1	1	612	2	
+16384	original	2	1	599	2	
+16384	original	3	1	653	2	
+16384	accept-groups	1	1	1492	1196	
+16384	accept-groups	2	1	2097	1196	
+16384	accept-groups	3	1	2084	1196	

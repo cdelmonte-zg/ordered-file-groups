@@ -1,0 +1,60 @@
+case	axis	query	pool	variant	ok	groups	sort	preserve_order	partial_mode	final_mode	elapsed_q1	elapsed_med	elapsed_q3	create_med	rss_mb_med	sort_spills	sort_spill_mb	partial_agg_spills	partial_agg_spill_mb	final_agg_spills	final_agg_spill_mb	repartition_spills	repartition_spill_mb	scan_out_mb	partial_agg_out_mb	repartition_out_mb	final_agg_out_mb	error
+base	base	Q3	256m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.355	0.365	0.374	0.002	361.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	247.6	470.9	252.0	
+base	base	Q3	256m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.281	0.291	0.305	0.002	450.5	0.0	0.0	0.0	0.0	0.0	0.0	9.0	2.8	68.4	247.6	610.9	251.4	
+base	base	Q3	256m	original-split-off	10/10	2	1	0	Linear	Linear	0.607	0.619	0.652	0.002	514.5	7.0	72.7	0.0	0.0	10.0	73.0	0.0	0.0	68.4	1089.7	208.8	196.1	
+base	base	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.611	0.619	0.637	0.002	507.5	7.0	72.7	0.0	0.0	10.0	73.0	0.0	0.0	68.4	1089.7	212.9	196.1	
+A1-Q1	A1	Q1	256m	accept-groups	10/10	4	0	0			0.030	0.030	0.030	0.002	179.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	0.0	0.0	0.0	
+A1-Q1	A1	Q1	256m	original-target	10/10	4	0	0			0.028	0.028	0.030	0.002	175.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	0.0	0.0	0.0	
+A1-Q1	A1	Q1	256m	original	10/10	2	1	0			0.052	0.052	0.053	0.002	339.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	0.0	0.0	0.0	
+A1-Q2	A1	Q2	256m	accept-groups	10/10	4	0	1	Sorted	Sorted	0.058	0.060	0.063	0.002	290.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	19.5	60.5	150.6	21.0	
+A1-Q2	A1	Q2	256m	original-target	10/10	4	0	1	Sorted	Sorted	0.053	0.054	0.055	0.002	319.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	19.5	60.5	228.2	15.5	
+A1-Q2	A1	Q2	256m	original	10/10	2	1	0	Linear	Linear	0.058	0.062	0.064	0.002	220.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	19.5	87.1	29.1	47.2	
+A1-Q4	A1	Q4	256m	accept-groups	10/10	2	0	0	Linear	Linear	0.018	0.020	0.020	0.002	198.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	39.1	170.1	14.6	54.0	
+A1-Q4	A1	Q4	256m	original-target	10/10	4	0	0	Linear	Linear	0.015	0.015	0.016	0.002	264.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	39.1	255.4	18.0	27.0	
+A1-Q4	A1	Q4	256m	original	10/10	2	0	0	Linear	Linear	0.018	0.019	0.019	0.002	199.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	39.1	170.4	15.2	47.2	
+A2-depth-1	A2	Q3	256m	accept-groups	10/10	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.480	0.507	0.513	0.002	312.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	247.4	319.5	274.2	
+A2-depth-1	A2	Q3	256m	original	10/10	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.487	0.502	0.522	0.002	308.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	247.4	319.5	274.2	
+A2-depth-2	A2	Q3	256m	accept-groups	10/10	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.405	0.420	0.431	0.002	308.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	70.2	266.6	386.6	264.8	
+A2-depth-2	A2	Q3	256m	original	10/10	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.409	0.415	0.444	0.002	311.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	70.2	266.6	386.6	264.8	
+A2-depth-12	A2	Q3	256m	accept-groups	10/10	12	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.348	0.362	0.368	0.002	570.0	0.0	0.0	0.0	0.0	0.0	0.0	17.0	20.1	69.3	178.3	320.9	251.5	
+A2-depth-12	A2	Q3	256m	original-target	10/10	12	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.366	0.376	0.383	0.002	854.0	0.0	0.0	0.0	0.0	69.0	135.3	138.5	35.5	69.3	140.8	230.6	150.2	
+A2-depth-12	A2	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.619	0.623	0.635	0.002	516.0	8.0	72.7	0.0	0.0	10.0	73.0	0.0	0.0	69.3	1068.1	201.5	193.4	
+A3	A3	Q3	128m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.358	0.362	0.366	0.002	385.5	0.0	0.0	0.0	0.0	0.0	0.0	7.0	4.2	68.4	247.6	457.6	252.0	
+A3	A3	Q3	128m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.354	0.368	0.393	0.002	467.0	0.0	0.0	0.0	0.0	6.0	14.2	16.0	25.5	68.4	210.9	342.2	232.9	
+A3	A3	Q3	128m	original	10/10	2	1	0	Linear	Linear	0.631	0.663	0.666	0.002	462.5	15.5	72.7	0.0	0.0	22.0	139.2	0.0	0.0	68.4	585.5	171.2	194.1	
+A3	A3	Q3	512m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.355	0.360	0.365	0.002	355.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	247.6	470.9	252.0	
+A3	A3	Q3	512m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.292	0.297	0.303	0.002	424.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	247.6	635.8	251.4	
+A3	A3	Q3	512m	original	10/10	2	1	0	Linear	Linear	0.632	0.661	0.680	0.002	537.0	4.0	72.7	0.0	0.0	6.0	73.0	0.0	0.0	68.4	470.8	131.4	198.6	
+A4-S0	A4	Q3	128m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.338	0.351	0.369	0.002	277.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.9	64.3	141.3	
+A4-S0	A4	Q3	128m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.296	0.304	0.317	0.002	319.0	0.0	0.0	0.0	0.0	0.0	0.0	2.5	0.5	68.4	135.9	64.3	139.9	
+A4-S0	A4	Q3	128m	original	10/10	2	1	0	Linear	Linear	0.626	0.649	0.679	0.002	404.0	8.0	64.7	0.0	0.0	22.0	126.0	0.0	0.0	68.4	520.7	86.9	106.1	
+A4-S0	A4	Q3	256m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.337	0.344	0.358	0.002	274.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.9	64.3	141.3	
+A4-S0	A4	Q3	256m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.285	0.291	0.298	0.002	306.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.9	64.3	139.9	
+A4-S0	A4	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.607	0.629	0.642	0.002	450.5	4.0	64.7	0.0	0.0	10.0	65.0	0.0	0.0	68.4	975.1	86.0	108.1	
+A4-S0	A4	Q3	512m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.341	0.357	0.372	0.002	270.5	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.9	64.3	141.3	
+A4-S0	A4	Q3	512m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.293	0.307	0.310	0.002	323.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.9	64.3	139.9	
+A4-S0	A4	Q3	512m	original	10/10	2	1	0	Linear	Linear	0.562	0.595	0.623	0.002	470.0	0.0	0.0	0.0	0.0	6.0	65.0	0.0	0.0	68.4	423.5	86.9	110.2	
+A4-S2	A4	Q3	128m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.666	0.679	0.693	0.002	417.5	0.0	0.0	0.0	0.0	14.0	92.4	8.0	41.5	68.5	364.3	595.5	418.1	
+A4-S2	A4	Q3	128m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.472	0.479	0.496	0.002	536.5	0.0	0.0	0.0	0.0	41.5	169.9	16.0	36.0	68.5	282.0	483.8	360.9	
+A4-S2	A4	Q3	128m	original	9/10	2	1	0	Linear	Linear	0.750	0.755	0.788	0.002	508.0	33.0	123.6	0.0	0.0	27.0	239.3	1.0	0.6	68.5	518.2	325.5	359.8	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+A4-S2	A4	Q3	256m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.403	0.414	0.421	0.002	452.5	0.0	0.0	0.0	0.0	0.0	0.0	7.0	7.8	68.5	453.3	1156.5	473.1	
+A4-S2	A4	Q3	256m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.322	0.333	0.346	0.002	569.5	0.0	0.0	0.0	0.0	0.0	0.0	16.0	23.7	68.5	461.4	1160.1	462.4	
+A4-S2	A4	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.665	0.669	0.694	0.002	521.0	13.0	92.2	0.0	0.0	10.0	92.5	0.5	0.3	68.5	1020.3	402.4	361.9	
+A4-S2	A4	Q3	512m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.406	0.407	0.410	0.002	425.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.5	453.3	1270.5	473.1	
+A4-S2	A4	Q3	512m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.324	0.334	0.338	0.002	546.5	0.0	0.0	0.0	0.0	0.0	0.0	9.0	3.5	68.5	453.3	1663.6	462.4	
+A4-S2	A4	Q3	512m	original	10/10	2	1	0	Linear	Linear	0.656	0.671	0.675	0.002	547.5	6.0	92.2	0.0	0.0	6.0	92.5	0.0	0.0	68.5	585.6	235.2	364.7	
+A5-120-depth-4	A5	Q3	256m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.328	0.330	0.334	0.006	416.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	66.2	202.8	534.1	268.1	
+A5-120-depth-4	A5	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.643	0.655	0.682	0.006	569.5	7.5	72.7	0.0	0.0	10.0	73.0	0.0	0.0	66.2	953.1	209.0	201.6	
+A5-1200-depth-4	A5	Q3	256m	accept-groups	10/10	5	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.459	0.465	0.470	0.029	489.5	0.0	0.0	0.0	0.0	0.0	0.0	10.0	5.2	84.6	1050.9	2025.4	256.4	
+A5-1200-depth-4	A5	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.742	0.768	0.790	0.030	603.5	8.0	72.7	0.0	0.0	10.0	73.0	0.0	0.0	84.6	928.3	183.3	201.6	
+A5-120-depth-120	A5	Q3	256m	accept-groups	10/10	120	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.387	0.396	0.404	0.008	1051.0	0.0	0.0	0.0	0.0	0.0	0.0	135.5	42.0	70.9	99.7	975.1	250.0	
+A5-120-depth-120	A5	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.640	0.648	0.661	0.007	648.5	7.0	72.7	0.0	0.0	10.0	73.0	0.0	0.0	70.9	915.8	196.2	193.4	
+A5-1200-depth-1200	A5	Q3	128m	accept-groups	10/10	1196	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.826	0.830	0.845	0.030	1979.0	0.0	0.0	0.0	0.0	27.0	95.5	2.0	77.0	66.2	104.0	1469.8	195.0	
+A5-1200-depth-1200	A5	Q3	128m	original	10/10	2	1	0	Linear	Linear	0.714	0.738	0.748	0.030	534.5	16.0	72.7	0.0	0.0	22.0	140.4	0.0	0.0	66.2	455.8	162.4	191.3	
+A5-1200-depth-1200	A5	Q3	256m	accept-groups	10/10	1196	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.642	0.646	0.661	0.030	2076.5	0.0	0.0	0.0	0.0	0.0	0.0	2.0	79.8	66.2	106.8	1487.7	249.3	
+A5-1200-depth-1200	A5	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.711	0.719	0.746	0.030	608.5	7.0	72.7	0.0	0.0	10.0	73.0	0.0	0.0	66.2	834.5	189.8	193.4	
+A5-1200-depth-1200	A5	Q3	512m	accept-groups	10/10	1196	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.648	0.655	0.661	0.031	2095.0	0.0	0.0	0.0	0.0	0.0	0.0	2.0	79.2	66.2	109.2	1465.2	249.3	
+A5-1200-depth-1200	A5	Q3	512m	original	10/10	2	1	0	Linear	Linear	0.697	0.704	0.721	0.031	659.0	4.0	72.7	0.0	0.0	6.0	73.0	0.0	0.0	66.2	500.5	130.0	194.8	
+A6-dup-0.5	A6	Q3	256m	accept-groups	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.191	0.195	0.198	0.002	340.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.0	336.3	113.9	
+A6-dup-0.5	A6	Q3	256m	original-target	10/10	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	0.180	0.183	0.188	0.002	375.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	68.4	135.0	464.0	87.9	
+A6-dup-0.5	A6	Q3	256m	original	10/10	2	1	0	Linear	Linear	0.393	0.397	0.405	0.002	478.0	4.0	36.4	0.0	0.0	6.0	46.0	0.0	0.0	68.4	602.3	115.9	100.7	

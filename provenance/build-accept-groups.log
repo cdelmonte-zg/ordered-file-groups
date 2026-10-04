@@ -1,0 +1,5 @@
+   Compiling datafusion-catalog-listing v55.1.0 (/tmp/datafusion-ordered-groups.UnTfXc/datafusion/catalog-listing)
+   Compiling datafusion v55.1.0 (/tmp/datafusion-ordered-groups.UnTfXc/datafusion/core)
+   Compiling datafusion-spark v55.1.0 (/tmp/datafusion-ordered-groups.UnTfXc/datafusion/spark)
+   Compiling datafusion-cli v55.1.0 (/tmp/datafusion-ordered-groups.UnTfXc/datafusion-cli)
+    Finished `release` profile [optimized] target(s) in 7m 04s
