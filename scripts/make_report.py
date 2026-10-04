@@ -165,6 +165,38 @@ def manifest_meta(path):
     return meta, body
 
 
+def bounds_of(body):
+    """(min, max) of the sort key of every file, from the rows of a manifest."""
+    return [((b[4], int(b[5])), (b[6], int(b[7]))) for b in body]
+
+
+def overlap_facts(body):
+    """What the bounds of a dataset force on the ordered groups.
+
+    Returns the pairs of files that touch (the maximum of one equals the minimum
+    of another), the largest number of closed intervals that share one point,
+    which is the least number of groups under the strict rule `min > max`, and
+    the same for half-open intervals, the least under `min >= max`.
+    """
+    bounds = bounds_of(body)
+    mins = {}
+    for lo, _ in bounds:
+        mins[lo] = mins.get(lo, 0) + 1
+    touching = sum(mins.get(hi, 0) for _, hi in bounds)
+
+    def depth(closed):
+        # sweep: at equal keys a closed interval ends after the others start
+        events = sorted([(lo, 0, 1) for lo, _ in bounds]
+                        + [(hi, 1 if closed else -1, -1) for _, hi in bounds])
+        best = now = 0
+        for _, _, step in events:
+            now += step
+            best = max(best, now)
+        return best
+
+    return touching, depth(True), depth(False)
+
+
 def datasets(manifests):
     lines = ["| dataset | files | depth | assignment | shape | rows | distinct keys | duplicate rows | groups by bounds | bytes | row groups |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
@@ -310,11 +342,22 @@ def findings(m, manifests, figures):
     for path in Path(manifests).glob("*.tsv"):
         mm, _ = manifest_meta(path)
         meta[mm["dataset"]] = mm
-    g1200 = meta.get("df-16919-partial-1200-depth-4-entity-rank", {}).get("groups_by_bounds", "?")
+    name1200 = "df-16919-partial-1200-depth-4-entity-rank"
+    g1200 = meta.get(name1200, {}).get("groups_by_bounds", "?")
     text = ("A5, the number of files. With depth 4, at 12, 120 and 1200 files the original takes "
             + ", ".join(num(m.med(c, P, "original")) for c, _ in few) + " s and the ordered plan "
             + ", ".join(num(m.med(c, P, "accept-groups")) for c, _ in few) + f" s; at 1200 files the "
             f"bounds give {g1200} groups. ")
+    path1200 = Path(manifests) / f"{name1200}.tsv"
+    if path1200.is_file():
+        touching, strict, loose = overlap_facts(manifest_meta(path1200)[1])
+        text += (f"In that layout {touching} pairs of files touch, the maximum of one equal to the "
+                 f"minimum of another; at most {strict} closed key intervals share one point, so the "
+                 f"strict placement rule (`min > previous max`) needs {strict} groups, and "
+                 f"{loose} would do if touching files could follow each other. ")
+        figures += [("files_1200_depth4_touching_pairs", str(touching)),
+                    ("files_1200_depth4_closed_intervals_sharing_a_point", str(strict)),
+                    ("files_1200_depth4_groups_if_touching_allowed", str(loose))]
     many = "A5-1200-depth-1200"
     c120 = "A5-120-depth-120"
     text += (f"With total overlap, 120 groups at 256 MB: {m.pair(c120, P)}, "

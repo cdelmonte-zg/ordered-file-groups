@@ -38,6 +38,9 @@ budget_512m_ordered_rss_mb	356
 budget_512m_original_sort_spills	4
 matrix_gain_S2_128_pct	10
 matrix_gain_S0_128_pct	46
+files_1200_depth4_touching_pairs	248
+files_1200_depth4_closed_intervals_sharing_a_point	5
+files_1200_depth4_groups_if_touching_allowed	4
 many_groups_128m_original_s	0.738
 many_groups_128m_ordered_s	0.830
 many_groups_128m_ordered_final_spills	27

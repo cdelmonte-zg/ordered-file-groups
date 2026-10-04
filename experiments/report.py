@@ -350,14 +350,14 @@ def depth(out, matrix, manifests, figures):
              "ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, "
              "six runs per configuration. Wall and CPU time of the whole process; cores are CPU "
              "over wall. Means over the completed runs, standard deviation in parentheses.", "",
-             "| batch size | depth 1: completed, wall s, cores | depth 2: completed, wall s, cores | "
-             "gap in cores |", "|---|---|---|---|"]
+             "| batch size | depth 1: completed, wall s, CPU s, cores | "
+             "depth 2: completed, wall s, CPU s, cores | gap in cores |", "|---|---|---|---|"]
     gaps, fails = {}, {}
 
     def shown(sel):
         ok = completed(sel)
         return (f"{n_of(sel)}, {num(mean(ok, 'wall_s'))} ({num(stdev(ok, 'wall_s'))}), "
-                f"{num(mean(ok, 'cores'), 2)} ({num(stdev(ok, 'cores'), 2)})")
+                f"{num(mean(ok, 'cpu_s'), 2)}, {num(mean(ok, 'cores'), 2)} ({num(stdev(ok, 'cores'), 2)})")
 
     for size in sizes:
         d1 = select(rows, kind="batch", batch_size=size, depth=1)
