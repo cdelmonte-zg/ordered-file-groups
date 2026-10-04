@@ -42,8 +42,8 @@ and nothing else.
 - `scripts/`: `build_binaries.sh`, the generators (`generate_base.py`,
   `generate_partial_overlap.py`, `datasets.sh`), the matrix runner with the
   plan check (`run_matrix.py`), the comparison of the rows returned
-  (`check_results.py`), the report (`make_report.py`) and the driver
-  (`run_lab.sh`).
+  (`check_results.py`), the report (`make_report.py`), the configuration of
+  the machine (`machine_setup.sh`) and the driver (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
   `depth`, `open-files`), the two views of the process from outside
   (`process`, `page-faults`), their shared runner (`common.py`) and the code of
@@ -58,8 +58,16 @@ Python 3 with the packages in `requirements.txt`, a Rust toolchain, a
 DataFusion checkout, and a machine doing nothing else.
 
     scripts/build_binaries.sh /path/to/datafusion        # bin/ and provenance/
+    sudo scripts/machine_setup.sh apply                   # governor, swap, perf; saved for restore
     rm -rf results                                        # a run never overwrites another
     PYTHON=python scripts/run_lab.sh                      # everything, RESULTS.md included
+    sudo scripts/machine_setup.sh restore                 # the machine as it was
+
+`machine_setup.sh` sets the frequency governor and the energy preference to
+performance, switches the swap off and lets a user run perf on its own
+processes; `status` prints the settings without root, and the report records
+them. `run_lab.sh` refuses to measure on a machine that is not configured,
+unless `ALLOW_UNCONFIGURED=1` is set.
 
 `run_lab.sh` checks the binaries against `provenance/`, generates the
 datasets in `/tmp/df-16919-*`, validates the plans, measures the matrix,

@@ -434,9 +434,12 @@ def record_machine(out):
     # the binaries of the lab, nothing else that may lie in bin/
     hashes = subprocess.run(["sha256sum"] + sorted(str(binary(b)) for b in BINARIES),
                             capture_output=True, text=True).stdout
+    # the frequency governor, the swap and the other settings machine_setup.sh reports
+    setup = subprocess.run([str(HERE / "machine_setup.sh"), "status"],
+                           capture_output=True, text=True).stdout
     (out / "machine.txt").write_text(
         f"cpu\t{cpu}\nthreads\t{threads}\nmemory_gb\t{int(memory) / 2**20:.0f}\n"
-        f"kernel\tLinux {kernel}\nopen_file_limit\t{nofile}\n"
+        f"kernel\tLinux {kernel}\nopen_file_limit\t{nofile}\n{setup}"
         f"date\t{time.strftime('%Y-%m-%d %H:%M %Z')}\nbinaries\n{hashes}")
 
 

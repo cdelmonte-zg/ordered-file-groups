@@ -5,3 +5,4 @@ bin/
 .venv/
 __pycache__/
 provenance.building.*/
+.machine-state

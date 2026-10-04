@@ -93,7 +93,10 @@ total-overlap series at 1200 files at the three pools). No other crossing.
 
 ## Fixed in every run
 
-The binaries of `provenance/`, `datafusion-cli` with `--mem-pool-type
+The machine as `scripts/machine_setup.sh` configures it (frequency governor
+and energy preference at performance, swap off; the settings in force are
+recorded with the results). The binaries of `provenance/`, `datafusion-cli`
+with `--mem-pool-type
 fair`, default batch size, zstd Parquet with statistics, datasets from fixed
 seeds and a fixed time origin. One unrecorded warm-up, ten recorded runs,
 variants in rotating order. Times are the `Elapsed` of `EXPLAIN ANALYZE`; per
