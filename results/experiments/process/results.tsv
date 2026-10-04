@@ -1,0 +1,13 @@
+ok	query	run	variant	duration_s	max_descriptors	max_parquet_open	max_temp_open	parquet_open_at_peak	peak_at_s	peak_at_share_of_run	peak_rss_mb	rss_mb_when_most_parquet_open	samples	temp_open_at_peak
+1	Q3	1	original	0.739	38	28	22	0	0.7329	0.99	614.2	58.1	345	0
+1	Q3	1	accept-groups	0.634	4366	358	4356	0	0.6189	0.98	1451.8	382.3	78	0
+1	Q1	1	original	0.247	20	10	0	0	0.2427	0.98	370.0	58.4	116	0
+1	Q1	1	accept-groups	0.258	256	246	0	0	0.1233	0.48	784.6	412.2	115	0
+1	Q3	2	original	0.749	33	1	23	0	0.7426	0.99	584.5	108.3	351	0
+1	Q3	2	accept-groups	0.622	4307	333	4297	0	0.6042	0.97	1482.7	457.3	74	0
+1	Q1	2	original	0.244	13	3	0	0	0.2376	0.97	364.4	58.1	115	0
+1	Q1	2	accept-groups	0.238	256	246	0	0	0.1105	0.46	784.4	360.6	105	0
+1	Q3	3	original	0.776	32	11	22	0	0.77	0.99	642.5	57.7	363	0
+1	Q3	3	accept-groups	0.646	4509	555	4499	0	0.6286	0.97	1541.3	511.9	83	0
+1	Q1	3	original	0.241	37	27	0	0	0.2371	0.98	350.4	58.0	114	0
+1	Q1	3	accept-groups	0.243	399	389	0	7	0.1119	0.46	782.7	397.4	109	0

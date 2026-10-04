@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   811           3.6 K      32      
-  abandoned :   576           1.1 K      10      
-  reclaima  :    99      
-  reclaimf  :   735      
-  reabandon :   316      
+  pages     :   833           4.2 K      31      
+  abandoned :   552           1.1 K      10      
+  reclaima  :   140      
+  reclaimf  :   576      
+  reabandon :   518      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.0 avg
+  searches  :     1.9 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   306.3 MiB   306.3 MiB   306.3 MiB                          
+  committed :   325.9 MiB   325.9 MiB   325.9 MiB                          
   reset     :     0      
-  purged    :   301.0 MiB
+  purged    :   320.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   131      
+  purges    :   226      
   guarded   :     0      
-  theaps    :    51          51           0      
+  theaps    :    43          43           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    52          52           1      
+  threads   :    44          44           1      
   numa nodes:     1
-  elapsed   :     0.184 s
-  process   : user: 0.305 s, system: 0.083 s, faults: 0, peak rss: 314.3 MiB, peak commit: 306.3 MiB
+  elapsed   :     0.163 s
+  process   : user: 0.275 s, system: 0.081 s, faults: 0, peak rss: 334.0 MiB, peak commit: 325.9 MiB
 
-BENCH wall=0.18 user=0.30 sys=0.08 rss_kb=321904
+BENCH wall=0.16 user=0.27 sys=0.08 rss_kb=342036 minor=13023

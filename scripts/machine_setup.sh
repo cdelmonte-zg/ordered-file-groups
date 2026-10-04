@@ -42,7 +42,8 @@ all_same() {                         # the value of a per-CPU file when every CP
   echo "${values:-n/a}"
 }
 thp() { sed -n 's/.*\[\(.*\)\].*/\1/p' /sys/kernel/mm/transparent_hugepage/enabled 2>/dev/null || echo "n/a"; }
-swap_in_use() { if [ -n "$(swapon --noheadings --show=NAME 2>/dev/null)" ]; then echo on; else echo off; fi; }
+swap_devices() { awk 'NR > 1 {print $1}' /proc/swaps; }      # no tool needed, no PATH
+swap_in_use() { if [ -n "$(swap_devices)" ]; then echo on; else echo off; fi; }
 profile() { if command -v powerprofilesctl >/dev/null 2>&1; then powerprofilesctl get 2>/dev/null || echo "n/a"; else echo "n/a"; fi; }
 
 status() {
@@ -86,7 +87,7 @@ case ${1:-} in
       done
       printf 'power_profile\t%s\n' "$(profile)"
       printf 'boost\t%s\n' "$(first $boost)"
-      printf 'swap\t%s\n' "$(swapon --noheadings --show=NAME 2>/dev/null | tr '\n' ' ')"
+      printf 'swap\t%s\n' "$(swap_devices | tr '\n' ' ')"
     } > "$state"
     [ -n "${SUDO_UID:-}" ] && chown "$SUDO_UID:${SUDO_GID:-$SUDO_UID}" "$state"
     if [ "$(profile)" != "n/a" ]; then powerprofilesctl set performance || true; fi

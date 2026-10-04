@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   981          10.1 K      34      
-  abandoned :   268           4.3 K      12      
-  reclaima  :   139      
-  reclaimf  :     3.6 K  
-  reabandon :   195      
+  pages     :     1.0 K       9.0 K      33      
+  abandoned :   210           4.6 K      12      
+  reclaima  :   166      
+  reclaimf  :     3.9 K  
+  reabandon :   244      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.2 avg
+  searches  :     2.3 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     2.0 GiB     2.0 GiB     2.0 GiB                          
-  committed :     1.2 GiB     1.2 GiB     1.2 GiB                          
+  committed :     1.1 GiB     1.1 GiB     1.1 GiB                          
   reset     :     0      
-  purged    :     1.2 GiB
+  purged    :     1.1 GiB
   arenas    :     2      
   rollback  :     0      
-  mmaps     :     7      
+  mmaps     :     6      
   commits   :     0      
   resets    :     0      
-  purges    :   581      
+  purges    :   868      
   guarded   :     0      
-  theaps    :   119         119           0      
+  theaps    :   123         123           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   120         120           1      
+  threads   :   124         124           1      
   numa nodes:     1
-  elapsed   :     0.474 s
-  process   : user: 2.166 s, system: 0.753 s, faults: 0, peak rss: 1.0 GiB, peak commit: 1.2 GiB
+  elapsed   :     0.450 s
+  process   : user: 1.275 s, system: 0.339 s, faults: 0, peak rss: 927.5 MiB, peak commit: 1.1 GiB
 
-BENCH wall=0.47 user=2.16 sys=0.75 rss_kb=1085784
+BENCH wall=0.45 user=1.27 sys=0.34 rss_kb=949832 minor=3851

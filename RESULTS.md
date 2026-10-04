@@ -12,10 +12,11 @@ case, "within the quartiles" otherwise. A gain is the reduction of the median.
 ## Provenance
 
 - DataFusion commit e1aa7d956a5aa67452c9e8bd2a033599767055d8, built by
-  `scripts/build_binaries.sh` on 2026-10-04T14:47:17Z in a detached worktree with
-  rustc 1.98.1 (48a229cea 2026-09-01); `cargo build --release -p datafusion-cli`.
+  `scripts/build_binaries.sh` on 2026-10-04T15:45:11Z in a detached worktree with
+  rustc 1.98.1 (48a229cea 2026-09-01); `CARGO_PROFILE_RELEASE_STRIP=false cargo build --release -p datafusion-cli`.
   `original` is the commit as it is, `accept-groups` the commit plus
-  `patch/accept-extra-groups.patch`, the only change:
+  `patch/accept-extra-groups.patch`; a third binary, used by one experiment,
+  adds `patch/slice-accounting.patch`. The patch of `accept-groups`, as applied:
 
 ```diff
 diff --git a/datafusion/catalog-listing/src/table.rs b/datafusion/catalog-listing/src/table.rs
@@ -43,12 +44,18 @@ index 3ff86662f..c9c952c08 100644
   runner recorded when the matrix started match:
 
 ```
-63499d1e22edb114955b2b40886d180e3dcdea66fcf792d871371071ac3438de  bin/datafusion-cli-original-release
-ebf881771d951785681db96e8167b6bfab350f1b3bf8b3c3f6a5b9417dba8bbc  bin/datafusion-cli-accept-groups-release
+bf32ac0a3be5bcb8efd1e7b92b9a1ca5fda0bd20141a6177279be92f05f0bfb4  bin/datafusion-cli-original-release
+e48b5c8ab897a973888892ffe924b522bf18045562c22b99074d9e83e7f54178  bin/datafusion-cli-accept-groups-release
+c99951129f90e907748d62daede2a6a48bd9931d19213d7caaef26c63bcadba2  bin/datafusion-cli-accept-groups-accounting-release
 ```
 
-- AMD Ryzen 9 7950X3D 16-Core Processor, 32 threads, 125 GB, Linux 7.0.0-38-generic, open-file
-  limit 1048576; matrix started 2026-10-04 16:47 CEST. `datafusion-cli
+- AMD Ryzen 9 7950X3D 16-Core Processor, 16 threads, 125 GB, Linux 7.0.0-38-generic, open-file
+  limit 1048576; every process pinned to CPUs 0-7,16-23;
+  matrix started 2026-10-04 18:54 CEST. As set by
+  `scripts/machine_setup.sh` and recorded when the matrix started: frequency
+  driver amd-pstate-epp, governor performance, energy preference
+  performance, boost 1, SMT on, swap off,
+  transparent huge pages madvise. `datafusion-cli
   --mem-pool-type fair --memory-limit <pool>`; `target_partitions = 2` except
   for `original-target`, where it equals the ordered groups the overlap needs;
   `split_file_groups_by_statistics = true` except for `original-split-off`.
@@ -58,7 +65,7 @@ ebf881771d951785681db96e8167b6bfab350f1b3bf8b3c3f6a5b9417dba8bbc  bin/datafusion
   statistics reads of the scan; spills and `output_bytes` per operator from the
   plan metrics; RSS from `/usr/bin/time`. Medians with first and third quartile
   over completed runs; the count of completed runs is given when below ten.
-  590 runs, 1 failed.
+  620 runs, 3 failed.
 - Every run's SQL, output and stderr: `results/matrix/<case>/<pool>/`.
 
 ## Datasets
@@ -91,7 +98,7 @@ number of rows with half of them copies.
 `EXPLAIN FORMAT INDENT` once per case and variant
 (`results/matrix/<case>/plan-check/`), validated for the sort, the advertised
 ordering, the scan groups, the aggregate modes and `preserve_order`.
-40 of 40 plans as expected.
+43 of 43 plans as expected.
 
 | case | variant | query | groups | SortExec | preserve_order | partial mode | final mode | output_ordering | check |
 |---|---|---|---|---|---|---|---|---|---|
@@ -108,6 +115,9 @@ ordering, the scan groups, the aggregate modes and `preserve_order`.
 | A1-Q4 | original | Q4 | 2 | 0 | 0 | Linear | Linear | 0 | ok |
 | A1-Q4 | accept-groups | Q4 | 2 | 0 | 0 | Linear | Linear | 0 | ok |
 | A1-Q4 | original-target | Q4 | 4 | 0 | 0 | Linear | Linear | 0 | ok |
+| A1-Q5 | original | Q5 | 2 | 0 | 0 | Linear | Linear | 0 | ok |
+| A1-Q5 | accept-groups | Q5 | 4 | 0 | 1 | PartiallySorted([0, 1]) | PartiallySorted([0, 1]) | 1 | ok |
+| A1-Q5 | original-target | Q5 | 4 | 0 | 1 | PartiallySorted([0, 1]) | PartiallySorted([0, 1]) | 1 | ok |
 | A2-depth-1 | original | Q3 | 2 | 0 | 1 | PartiallySorted([0, 1]) | PartiallySorted([0, 1]) | 1 | ok |
 | A2-depth-1 | accept-groups | Q3 | 2 | 0 | 1 | PartiallySorted([0, 1]) | PartiallySorted([0, 1]) | 1 | ok |
 | A2-depth-2 | original | Q3 | 2 | 0 | 1 | PartiallySorted([0, 1]) | PartiallySorted([0, 1]) | 1 | ok |
@@ -143,7 +153,7 @@ variant, and compares the rows with those of `original` in the deterministic
 columns; it checks that the rows are sorted where the query orders them, that
 the deduplication returns as many rows as the dataset has distinct keys, and
 that the plan under the statement that writes the rows is the timed one.
-59 of 59 checks pass, over 59 cells of the matrix (`results/result-check/result-check.tsv`).
+62 of 62 checks pass, over 62 cells of the matrix (`results/result-check/result-check.tsv`).
 
 ## Results by axis
 
@@ -159,10 +169,10 @@ memory, and not necessarily unique bytes.
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB |
-| base | 256m | original-split-off | 2 | 1 | Linear | 0.619 [0.607..0.652] | 514.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB |
+| base | 256m | original-split-off | 2 | 1 | Linear | 0.605 [0.593..0.616] | 502.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
 
 ### A1: the consumer of the order
 
@@ -170,18 +180,21 @@ Base data and pool; the query changes.
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB |
-| A1-Q1 | 256m | original | 2 | 1 | - | 0.052 [0.052..0.053] | 339.5 | 0 | 0 | 0 | 0 |
-| A1-Q1 | 256m | accept-groups | 4 | 0 | - | 0.030 [0.030..0.030] | 179.0 | 0 | 0 | 0 | 0 |
-| A1-Q1 | 256m | original-target | 4 | 0 | - | 0.028 [0.028..0.030] | 175.5 | 0 | 0 | 0 | 0 |
-| A1-Q2 | 256m | original | 2 | 1 | Linear | 0.062 [0.058..0.064] | 220.5 | 0 | 0 | 0 | 0 |
-| A1-Q2 | 256m | accept-groups | 4 | 0 | Sorted | 0.060 [0.058..0.063] | 290.0 | 0 | 0 | 0 | 0 |
-| A1-Q2 | 256m | original-target | 4 | 0 | Sorted | 0.054 [0.053..0.055] | 319.5 | 0 | 0 | 0 | 0 |
-| A1-Q4 | 256m | original | 2 | 0 | Linear | 0.019 [0.018..0.019] | 199.0 | 0 | 0 | 0 | 0 |
-| A1-Q4 | 256m | accept-groups | 2 | 0 | Linear | 0.020 [0.018..0.020] | 198.5 | 0 | 0 | 0 | 0 |
-| A1-Q4 | 256m | original-target | 4 | 0 | Linear | 0.015 [0.015..0.016] | 264.0 | 0 | 0 | 0 | 0 |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB |
+| A1-Q1 | 256m | original | 2 | 1 | - | 0.048 [0.048..0.049] | 284.5 | 0 | 0 | 0 | 0 |
+| A1-Q1 | 256m | accept-groups | 4 | 0 | - | 0.027 [0.026..0.027] | 174.5 | 0 | 0 | 0 | 0 |
+| A1-Q1 | 256m | original-target | 4 | 0 | - | 0.026 [0.026..0.027] | 175.0 | 0 | 0 | 0 | 0 |
+| A1-Q2 | 256m | original | 2 | 1 | Linear | 0.049 [0.048..0.050] | 216.5 | 0 | 0 | 0 | 0 |
+| A1-Q2 | 256m | accept-groups | 4 | 0 | Sorted | 0.053 [0.052..0.054] | 287.0 | 0 | 0 | 0 | 0 |
+| A1-Q2 | 256m | original-target | 4 | 0 | Sorted | 0.046 [0.046..0.049] | 318.0 | 0 | 0 | 0 | 0 |
+| A1-Q4 | 256m | original | 2 | 0 | Linear | 0.014 [0.014..0.015] | 195.0 | 0 | 0 | 0 | 0 |
+| A1-Q4 | 256m | accept-groups | 2 | 0 | Linear | 0.014 [0.014..0.014] | 190.5 | 0 | 0 | 0 | 0 |
+| A1-Q4 | 256m | original-target | 4 | 0 | Linear | 0.012 [0.012..0.013] | 248.5 | 0 | 0 | 0 | 0 |
+| A1-Q5 | 256m | original | 2 | 0 | Linear | 0.554 [0.547..0.561] | 401.0 | 0 | 0 | 8 / 73.0 MB | 0 |
+| A1-Q5 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.307 [0.307..0.316] | 318.0 | 0 | 0 | 0 | 0 |
+| A1-Q5 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.240 [0.232..0.244] | 381.0 | 0 | 0 | 0 | 0 |
 
 ### A2: the overlap depth
 
@@ -189,16 +202,16 @@ Base data at depth 1, 2 and 12 (depth 4 is the base case).
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB |
-| A2-depth-1 | 256m | original | 2 | 0 | PartiallySorted([0, 1]) | 0.502 [0.487..0.522] | 308.5 | 0 | 0 | 0 | 0 |
-| A2-depth-1 | 256m | accept-groups | 2 | 0 | PartiallySorted([0, 1]) | 0.507 [0.480..0.513] | 312.5 | 0 | 0 | 0 | 0 |
-| A2-depth-12 | 256m | original | 2 | 1 | Linear | 0.623 [0.619..0.635] | 516.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| A2-depth-12 | 256m | accept-groups | 12 | 0 | PartiallySorted([0, 1]) | 0.362 [0.348..0.368] | 570.0 | 0 | 0 | 0 | 17 / 20.1 MB |
-| A2-depth-12 | 256m | original-target | 12 | 0 | PartiallySorted([0, 1]) | 0.376 [0.366..0.383] | 854.0 | 0 | 0 | 69 / 135.3 MB | 138.5 / 35.5 MB |
-| A2-depth-2 | 256m | original | 2 | 0 | PartiallySorted([0, 1]) | 0.415 [0.409..0.444] | 311.5 | 0 | 0 | 0 | 0 |
-| A2-depth-2 | 256m | accept-groups | 2 | 0 | PartiallySorted([0, 1]) | 0.420 [0.405..0.431] | 308.0 | 0 | 0 | 0 | 0 |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB |
+| A2-depth-1 | 256m | original | 2 | 0 | PartiallySorted([0, 1]) | 0.478 [0.476..0.481] | 314.0 | 0 | 0 | 0 | 0 |
+| A2-depth-1 | 256m | accept-groups | 2 | 0 | PartiallySorted([0, 1]) | 0.478 [0.474..0.482] | 308.5 | 0 | 0 | 0 | 0 |
+| A2-depth-12 | 256m | original | 2 | 1 | Linear | 0.607 [0.596..0.618] | 503.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| A2-depth-12 | 256m | accept-groups | 12 | 0 | PartiallySorted([0, 1]) | 0.342 [0.341..0.346] | 576.0 | 0 | 0 | 0 | 18 / 19.8 MB |
+| A2-depth-12 | 256m | original-target | 12 | 0 | PartiallySorted([0, 1]) | 0.315 [0.312..0.321] | 769.5 | 0 | 0 | 68 / 137.9 MB | 140 / 35.1 MB |
+| A2-depth-2 | 256m | original | 2 | 0 | PartiallySorted([0, 1]) | 0.396 [0.393..0.399] | 310.5 | 0 | 0 | 0 | 0 |
+| A2-depth-2 | 256m | accept-groups | 2 | 0 | PartiallySorted([0, 1]) | 0.400 [0.392..0.404] | 317.0 | 0 | 0 | 0 | 0 |
 
 ### A3: the memory budget
 
@@ -206,15 +219,15 @@ Base data and query at 128 and 512 MB (256 MB is the base case).
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB |
-| A3 | 128m | original | 2 | 1 | Linear | 0.663 [0.631..0.666] | 462.5 | 15.5 / 72.7 MB | 0 | 22 / 139.2 MB | 0 |
-| A3 | 128m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.362 [0.358..0.366] | 385.5 | 0 | 0 | 0 | 7 / 4.2 MB |
-| A3 | 128m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.368 [0.354..0.393] | 467.0 | 0 | 0 | 6 / 14.2 MB | 16 / 25.5 MB |
-| A3 | 512m | original | 2 | 1 | Linear | 0.661 [0.632..0.680] | 537.0 | 4 / 72.7 MB | 0 | 6 / 73.0 MB | 0 |
-| A3 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.360 [0.355..0.365] | 355.5 | 0 | 0 | 0 | 0 |
-| A3 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.297 [0.292..0.303] | 424.0 | 0 | 0 | 0 | 0 |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB |
+| A3 | 128m | original | 2 | 1 | Linear | 0.610 [0.601..0.627] | 458.0 | 15 / 72.7 MB | 0 | 22 / 139.9 MB | 0 |
+| A3 | 128m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.349 [0.345..0.353] | 372.5 | 0 | 0 | 0 | 6 / 4.2 MB |
+| A3 | 128m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.351 [0.346..0.358] | 453.0 | 0 | 0 | 6 / 15.3 MB | 16 / 26.2 MB |
+| A3 | 512m | original | 2 | 1 | Linear | 0.621 [0.614..0.634] | 526.0 | 4 / 72.7 MB | 0 | 6 / 73.0 MB | 0 |
+| A3 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.349 [0.347..0.354] | 349.0 | 0 | 0 | 0 | 0 |
+| A3 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.265 [0.263..0.274] | 417.0 | 0 | 0 | 0 | 0 |
 
 ### A4 and A4 x A3: the width of the strings
 
@@ -222,27 +235,27 @@ Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition | scan out MB | partial out MB | repartition out MB | final out MB |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 | 68.4 | 1089.7 | 212.9 | 196.1 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 | 68.4 | 247.6 | 470.9 | 252.0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB | 68.4 | 247.6 | 610.9 | 251.4 |
-| A4-S0 | 128m | original | 2 | 1 | Linear | 0.649 [0.626..0.679] | 404.0 | 8 / 64.7 MB | 0 | 22 / 126.0 MB | 0 | 68.4 | 520.7 | 86.9 | 106.1 |
-| A4-S0 | 128m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.351 [0.338..0.369] | 277.0 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 141.3 |
-| A4-S0 | 128m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.304 [0.296..0.317] | 319.0 | 0 | 0 | 0 | 2.5 / 0.5 MB | 68.4 | 135.9 | 64.3 | 139.9 |
-| A4-S0 | 256m | original | 2 | 1 | Linear | 0.629 [0.607..0.642] | 450.5 | 4 / 64.7 MB | 0 | 10 / 65.0 MB | 0 | 68.4 | 975.1 | 86.0 | 108.1 |
-| A4-S0 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.344 [0.337..0.358] | 274.5 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 141.3 |
-| A4-S0 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.285..0.298] | 306.5 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 139.9 |
-| A4-S0 | 512m | original | 2 | 1 | Linear | 0.595 [0.562..0.623] | 470.0 | 0 | 0 | 6 / 65.0 MB | 0 | 68.4 | 423.5 | 86.9 | 110.2 |
-| A4-S0 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.357 [0.341..0.372] | 270.5 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 141.3 |
-| A4-S0 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.307 [0.293..0.310] | 323.0 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 139.9 |
-| A4-S2 | 128m | original | 2 | 1 | Linear | 0.755 [0.750..0.788] (9/10) | 508.0 | 33 / 123.6 MB | 0 | 27 / 239.3 MB | 1 / 0.6 MB | 68.5 | 518.2 | 325.5 | 359.8 |
-| A4-S2 | 128m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.679 [0.666..0.693] | 417.5 | 0 | 0 | 14 / 92.4 MB | 8 / 41.5 MB | 68.5 | 364.3 | 595.5 | 418.1 |
-| A4-S2 | 128m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.479 [0.472..0.496] | 536.5 | 0 | 0 | 41.5 / 169.9 MB | 16 / 36.0 MB | 68.5 | 282.0 | 483.8 | 360.9 |
-| A4-S2 | 256m | original | 2 | 1 | Linear | 0.669 [0.665..0.694] | 521.0 | 13 / 92.2 MB | 0 | 10 / 92.5 MB | 0.5 / 0.3 MB | 68.5 | 1020.3 | 402.4 | 361.9 |
-| A4-S2 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.414 [0.403..0.421] | 452.5 | 0 | 0 | 0 | 7 / 7.8 MB | 68.5 | 453.3 | 1156.5 | 473.1 |
-| A4-S2 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.333 [0.322..0.346] | 569.5 | 0 | 0 | 0 | 16 / 23.7 MB | 68.5 | 461.4 | 1160.1 | 462.4 |
-| A4-S2 | 512m | original | 2 | 1 | Linear | 0.671 [0.656..0.675] | 547.5 | 6 / 92.2 MB | 0 | 6 / 92.5 MB | 0 | 68.5 | 585.6 | 235.2 | 364.7 |
-| A4-S2 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.407 [0.406..0.410] | 425.0 | 0 | 0 | 0 | 0 | 68.5 | 453.3 | 1270.5 | 473.1 |
-| A4-S2 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.334 [0.324..0.338] | 546.5 | 0 | 0 | 0 | 9 / 3.5 MB | 68.5 | 453.3 | 1663.6 | 462.4 |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 | 68.4 | 1089.7 | 204.1 | 196.1 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 | 68.4 | 247.6 | 470.9 | 252.0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB | 68.4 | 247.6 | 611.6 | 251.4 |
+| A4-S0 | 128m | original | 2 | 1 | Linear | 0.593 [0.577..0.601] | 412.0 | 8 / 64.7 MB | 0 | 22 / 126.2 MB | 0 | 68.4 | 520.7 | 86.9 | 105.4 |
+| A4-S0 | 128m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.338 [0.333..0.344] | 279.0 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 141.3 |
+| A4-S0 | 128m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.263 [0.257..0.266] | 316.5 | 0 | 0 | 0 | 3 / 0.7 MB | 68.4 | 135.9 | 64.3 | 139.9 |
+| A4-S0 | 256m | original | 2 | 1 | Linear | 0.589 [0.578..0.603] | 421.0 | 4 / 64.7 MB | 0 | 10 / 65.0 MB | 0 | 68.4 | 975.1 | 86.5 | 108.1 |
+| A4-S0 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.338 [0.332..0.339] | 279.0 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 141.3 |
+| A4-S0 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.270 [0.268..0.273] | 309.0 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 139.9 |
+| A4-S0 | 512m | original | 2 | 1 | Linear | 0.588 [0.575..0.632] | 466.5 | 0 | 0 | 6 / 65.0 MB | 0 | 68.4 | 423.5 | 87.3 | 110.2 |
+| A4-S0 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.333 [0.329..0.335] | 271.5 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 141.3 |
+| A4-S0 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.265 [0.260..0.275] | 309.5 | 0 | 0 | 0 | 0 | 68.4 | 135.9 | 64.3 | 139.9 |
+| A4-S2 | 128m | original | 2 | 1 | Linear | 0.701 [0.689..0.704] (7/10) | 494.0 | 34 / 123.6 MB | 0 | 26 / 214.5 MB | 1 / 0.6 MB | 68.5 | 518.2 | 319.5 | 359.8 |
+| A4-S2 | 128m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.623 [0.618..0.633] | 422.5 | 0 | 0 | 14 / 92.4 MB | 8 / 40.9 MB | 68.5 | 363.8 | 597.2 | 418.1 |
+| A4-S2 | 128m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.458 [0.438..0.466] | 507.5 | 0 | 0 | 24 / 85.2 MB | 16 / 46.3 MB | 68.5 | 286.4 | 416.9 | 377.3 |
+| A4-S2 | 256m | original | 2 | 1 | Linear | 0.617 [0.603..0.653] | 506.5 | 13.5 / 92.2 MB | 0 | 10 / 92.5 MB | 1 / 1.2 MB | 68.5 | 1020.3 | 402.9 | 361.5 |
+| A4-S2 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.386 [0.382..0.390] | 461.0 | 0 | 0 | 0 | 7 / 7.2 MB | 68.5 | 453.3 | 1159.5 | 473.1 |
+| A4-S2 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.292 [0.291..0.297] | 566.5 | 0 | 0 | 0 | 16 / 24.2 MB | 68.5 | 466.2 | 1148.2 | 462.4 |
+| A4-S2 | 512m | original | 2 | 1 | Linear | 0.649 [0.645..0.664] | 561.0 | 6 / 92.2 MB | 0 | 6 / 92.5 MB | 0 | 68.5 | 585.6 | 244.2 | 364.4 |
+| A4-S2 | 512m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.382 [0.379..0.385] | 421.5 | 0 | 0 | 0 | 0 | 68.5 | 453.3 | 1270.5 | 473.1 |
+| A4-S2 | 512m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.296 [0.284..0.299] | 554.0 | 0 | 0 | 0 | 10 / 3.8 MB | 68.5 | 453.3 | 1660.3 | 462.4 |
 
 ### A5 and A5 x A3: the number of files for the same rows
 
@@ -250,21 +263,21 @@ Shapes S0 and S2 at the three pool sizes; S1 at the three pool sizes is the base
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB |
-| A5-120-depth-120 | 256m | original | 2 | 1 | Linear | 0.648 [0.640..0.661] | 648.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| A5-120-depth-120 | 256m | accept-groups | 120 | 0 | PartiallySorted([0, 1]) | 0.396 [0.387..0.404] | 1051.0 | 0 | 0 | 0 | 135.5 / 42.0 MB |
-| A5-120-depth-4 | 256m | original | 2 | 1 | Linear | 0.655 [0.643..0.682] | 569.5 | 7.5 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| A5-120-depth-4 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.330 [0.328..0.334] | 416.0 | 0 | 0 | 0 | 0 |
-| A5-1200-depth-1200 | 128m | original | 2 | 1 | Linear | 0.738 [0.714..0.748] | 534.5 | 16 / 72.7 MB | 0 | 22 / 140.4 MB | 0 |
-| A5-1200-depth-1200 | 128m | accept-groups | 1196 | 0 | PartiallySorted([0, 1]) | 0.830 [0.826..0.845] | 1979.0 | 0 | 0 | 27 / 95.5 MB | 2 / 77.0 MB |
-| A5-1200-depth-1200 | 256m | original | 2 | 1 | Linear | 0.719 [0.711..0.746] | 608.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| A5-1200-depth-1200 | 256m | accept-groups | 1196 | 0 | PartiallySorted([0, 1]) | 0.646 [0.642..0.661] | 2076.5 | 0 | 0 | 0 | 2 / 79.8 MB |
-| A5-1200-depth-1200 | 512m | original | 2 | 1 | Linear | 0.704 [0.697..0.721] | 659.0 | 4 / 72.7 MB | 0 | 6 / 73.0 MB | 0 |
-| A5-1200-depth-1200 | 512m | accept-groups | 1196 | 0 | PartiallySorted([0, 1]) | 0.655 [0.648..0.661] | 2095.0 | 0 | 0 | 0 | 2 / 79.2 MB |
-| A5-1200-depth-4 | 256m | original | 2 | 1 | Linear | 0.768 [0.742..0.790] | 603.5 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| A5-1200-depth-4 | 256m | accept-groups | 5 | 0 | PartiallySorted([0, 1]) | 0.465 [0.459..0.470] | 489.5 | 0 | 0 | 0 | 10 / 5.2 MB |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB |
+| A5-120-depth-120 | 256m | original | 2 | 1 | Linear | 0.605 [0.595..0.628] | 665.0 | 7.5 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| A5-120-depth-120 | 256m | accept-groups | 120 | 0 | PartiallySorted([0, 1]) | 0.383 [0.376..0.385] | 814.0 | 0 | 0 | 0 | 150.5 / 45.0 MB |
+| A5-120-depth-4 | 256m | original | 2 | 1 | Linear | 0.625 [0.610..0.641] | 589.5 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| A5-120-depth-4 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.312 [0.310..0.315] | 438.0 | 0 | 0 | 0 | 0 |
+| A5-1200-depth-1200 | 128m | original | 2 | 1 | Linear | 0.719 [0.709..0.722] | 562.0 | 15 / 72.7 MB | 0 | 22 / 139.6 MB | 0 |
+| A5-1200-depth-1200 | 128m | accept-groups | 1196 | 0 | PartiallySorted([0, 1]) | 0.776 [0.772..0.791] | 1910.5 | 0 | 0 | 28 / 96.0 MB | 2 / 76.1 MB |
+| A5-1200-depth-1200 | 256m | original | 2 | 1 | Linear | 0.724 [0.713..0.727] | 642.5 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| A5-1200-depth-1200 | 256m | accept-groups | 1196 | 0 | PartiallySorted([0, 1]) | 0.585 [0.569..0.587] | 1964.5 | 0 | 0 | 0 | 2 / 77.8 MB |
+| A5-1200-depth-1200 | 512m | original | 2 | 1 | Linear | 0.687 [0.679..0.696] | 631.0 | 4 / 72.7 MB | 0 | 6 / 73.0 MB | 0 |
+| A5-1200-depth-1200 | 512m | accept-groups | 1196 | 0 | PartiallySorted([0, 1]) | 0.579 [0.570..0.582] | 1892.5 | 0 | 0 | 0 | 2 / 74.8 MB |
+| A5-1200-depth-4 | 256m | original | 2 | 1 | Linear | 0.718 [0.709..0.724] | 604.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| A5-1200-depth-4 | 256m | accept-groups | 5 | 0 | PartiallySorted([0, 1]) | 0.418 [0.416..0.423] | 502.5 | 0 | 0 | 0 | 10 / 5.1 MB |
 
 ### A6: the share of duplicates
 
@@ -272,24 +285,148 @@ Base data with half the rows copied.
 
 | case | pool | variant | groups | sort | modes | elapsed s, median [q1..q3] | RSS MB | sort spills | partial agg | final agg | repartition |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| base | 256m | original | 2 | 1 | Linear | 0.619 [0.611..0.637] | 507.5 | 7 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
-| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.365 [0.355..0.374] | 361.5 | 0 | 0 | 0 | 0 |
-| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.291 [0.281..0.305] | 450.5 | 0 | 0 | 0 | 9 / 2.8 MB |
-| A6-dup-0.5 | 256m | original | 2 | 1 | Linear | 0.397 [0.393..0.405] | 478.0 | 4 / 36.4 MB | 0 | 6 / 46.0 MB | 0 |
-| A6-dup-0.5 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.195 [0.191..0.198] | 340.0 | 0 | 0 | 0 | 0 |
-| A6-dup-0.5 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.183 [0.180..0.188] | 375.0 | 0 | 0 | 0 | 0 |
+| base | 256m | original | 2 | 1 | Linear | 0.603 [0.601..0.607] | 507.0 | 8 / 72.7 MB | 0 | 10 / 73.0 MB | 0 |
+| base | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.348 [0.346..0.355] | 355.5 | 0 | 0 | 0 | 0 |
+| base | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.258 [0.256..0.263] | 436.5 | 0 | 0 | 0 | 10 / 2.8 MB |
+| A6-dup-0.5 | 256m | original | 2 | 1 | Linear | 0.381 [0.374..0.394] | 453.5 | 4 / 36.4 MB | 0 | 6 / 46.2 MB | 0 |
+| A6-dup-0.5 | 256m | accept-groups | 4 | 0 | PartiallySorted([0, 1]) | 0.190 [0.187..0.196] | 335.5 | 0 | 0 | 0 | 0 |
+| A6-dup-0.5 | 256m | original-target | 4 | 0 | PartiallySorted([0, 1]) | 0.166 [0.162..0.171] | 377.0 | 0 | 0 | 0 | 0 |
 
 ## Findings on the matrix
 
-1. Base case, 256 MB, deduplication. The original plan takes 0.619 s, with 7 spills in the sort and 10 in the final aggregate. The ordered plan takes 0.365 s, 41 percent less, with 0 spills in the final aggregate and 0 in the repartition, and 146 MB less RSS (362 against 508). Raising `target_partitions` to the groups needed (`original-target`) takes 0.291 s, faster than the ordered plan, with 450 MB of RSS. With the grouping by statistics off the time is 0.619 s, within the quartiles of the original.
-2. A1, who uses the order. `ORDER BY` only (Q1): 0.030 against 0.052 s, the ordered plan faster, RSS 179 against 340 MB; `GROUP BY` on the whole sort key (Q2): 0.060 against 0.062 s, the ordered plan within the quartiles, RSS 290 against 220 MB; `GROUP BY` without the sort key (Q4): 0.020 against 0.019 s, the ordered plan within the quartiles, RSS 198 against 199 MB; the deduplication (Q3) is the base case, 0.365 against 0.619 s. In Q3 two things change together, a sort disappears and the aggregate can close completed prefixes early; the comparison measures their combined effect.
-3. A2, the overlap depth. At depth 1 and 2 both binaries produce the same plan; depth 1: 0.507 against 0.502 s, within the quartiles; depth 2: 0.420 against 0.415 s, within the quartiles. At depth 12, twelve ordered groups: 0.362 against 0.623 s, a 42 percent reduction against 41 at depth 4, with 17 spills in the order-preserving repartition and 570 MB of RSS against 516 for the original. `original-target` with twelve partitions takes 0.376 s, within the quartiles of the ordered plan, with 69 spills in the final aggregate and 854 MB of RSS.
-4. A3, the memory budget. Gain of the ordered plan at 128, 256 and 512 MB: 45, 41, 46 percent. The final aggregate of the original plan spills 22, 10, 6 times, that of the ordered plan 0, 0, 0. One plan spills there at every pool and the other at none, so this series does not separate the benefit of early emission from that of the spills avoided.
-5. A4 x A3, the width of the strings. Gain of the ordered plan at 128, 256 and 512 MB, percent: S0: 46, 45, 40; S1: 45, 41, 46; S2: 10, 38, 39. On the wide strings (S2) at 128 MB the final aggregate of the ordered plan spills 14 times and the plan takes 0.679 against 0.755 s (9/10 runs of the original completed). At 256 MB the order-preserving repartition reports 64, 471 and 1156 MB of output for S0, S1 and S2, the scan 68, 68 and 68. The experiment on string views below changes the representation alone.
-6. A5, the number of files. With depth 4, at 12, 120 and 1200 files the original takes 0.619, 0.655, 0.768 s and the ordered plan 0.365, 0.330, 0.465 s; at 1200 files the bounds give 5 groups. In that layout 248 pairs of files touch, the maximum of one equal to the minimum of another; at most 5 closed key intervals share one point, so the strict placement rule (`min > previous max`) needs 5 groups, and 4 would do if touching files could follow each other. With total overlap, 120 groups at 256 MB: 0.396 against 0.648 s, faster, with 135.5 spills in the repartition and 1051 MB of RSS against 648. With 1196 groups: 128 MB 0.830 against 0.738 s, slower, 27 spills in the ordered final aggregate; 256 MB 0.646 against 0.719 s, faster, 0 spills in the ordered final aggregate; 512 MB 0.655 against 0.704 s, faster, 0 spills in the ordered final aggregate; RSS 1.9 to 2.0 GB against 0.52 to 0.64. The two 1200-file layouts differ in the streams and also in how the rows are assigned to the files.
-7. A6, half the rows duplicated: 0.195 against 0.397 s, a gain of 51 percent against 41 without duplicates. The time of the original falls by 36 percent, that of the ordered plan by 47.
-8. The workaround, `original-target`, against the ordered plan on the deduplication. Faster: A3 at 512 MB (0.297 against 0.360 s); A4-S0 at 128 MB (0.304 against 0.351 s); A4-S0 at 256 MB (0.291 against 0.344 s); A4-S0 at 512 MB (0.307 against 0.357 s); A4-S2 at 128 MB (0.479 against 0.679 s); A4-S2 at 256 MB (0.333 against 0.414 s); A4-S2 at 512 MB (0.334 against 0.407 s); A6-dup-0.5 at 256 MB (0.183 against 0.195 s); base at 256 MB (0.291 against 0.365 s). Within the quartiles: A2-depth-12 at 256 MB (0.376 against 0.362 s); A3 at 128 MB (0.368 against 0.362 s). It has more RSS in 11 of 11 cases.
-9. Depth 1 against depth 2, same plan, unmodified binary: 0.502 against 0.415 s, depth 1 slower. The experiment on depth below varies the batch size.
+1. Base case, 256 MB, deduplication. The original plan takes 0.603 s, with 8 spills in the sort and 10 in the final aggregate. The ordered plan takes 0.348 s, 42 percent less, with 0 spills in the final aggregate and 0 in the repartition, and 152 MB less RSS (356 against 507). Raising `target_partitions` to the groups needed (`original-target`) takes 0.258 s, faster than the ordered plan, with 436 MB of RSS. With the grouping by statistics off the time is 0.605 s, within the quartiles of the original.
+2. A1, who uses the order. `ORDER BY` only (Q1): 0.027 against 0.048 s, the ordered plan faster, RSS 174 against 284 MB; `GROUP BY` on the whole sort key (Q2): 0.053 against 0.049 s, the ordered plan slower, RSS 287 against 216 MB; `GROUP BY` without the sort key (Q4): 0.014 against 0.014 s, the ordered plan within the quartiles, RSS 190 against 195 MB; the deduplication without its `ORDER BY` (Q5), where neither plan sorts: 0.307 against 0.554 s, the ordered plan faster, RSS 318 against 401 MB; the deduplication (Q3) is the base case, 0.348 against 0.603 s. In Q3 keeping the order changes several things together: the scan, the sort that disappears, the repartition that has to keep the order, the aggregate that can close completed prefixes early, and with them the spills. Its gain is 42 percent; that of Q5, where no sort is involved, 45 percent; that of Q1, where no aggregate is, 44 percent. The comparisons measure combined effects and do not add up to shares of one another.
+3. A2, the overlap depth. At depth 1 and 2 both binaries produce the same plan; depth 1: 0.478 against 0.478 s, within the quartiles; depth 2: 0.400 against 0.396 s, within the quartiles. At depth 12, twelve ordered groups: 0.342 against 0.607 s, a 44 percent reduction against 42 at depth 4, with 18 spills in the order-preserving repartition and 576 MB of RSS against 503 for the original. `original-target` with twelve partitions takes 0.315 s, faster than the ordered plan, with 68 spills in the final aggregate and 770 MB of RSS.
+4. A3, the memory budget. Gain of the ordered plan at 128, 256 and 512 MB: 43, 42, 44 percent. The final aggregate of the original plan spills 22, 10, 6 times, that of the ordered plan 0, 0, 0. One plan spills there at every pool and the other at none, so this series does not separate the benefit of early emission from that of the spills avoided.
+5. A4 x A3, the width of the strings. Gain of the ordered plan at 128, 256 and 512 MB, percent: S0: 43, 43, 43; S1: 43, 42, 44; S2: 11, 37, 41. On the wide strings (S2) at 128 MB the final aggregate of the ordered plan spills 14 times and the plan takes 0.623 against 0.701 s (7/10 runs of the original completed). At 256 MB the order-preserving repartition reports 64, 471 and 1160 MB of output for S0, S1 and S2, the scan 68, 68 and 68. The experiment on string views below changes the representation alone.
+6. A5, the number of files. With depth 4, at 12, 120 and 1200 files the original takes 0.603, 0.625, 0.718 s and the ordered plan 0.348, 0.312, 0.418 s; at 1200 files the bounds give 5 groups. In that layout 248 pairs of files touch, the maximum of one equal to the minimum of another; at most 5 closed key intervals share one point, so the strict placement rule (`min > previous max`) needs 5 groups, and 4 would do if touching files could follow each other. With total overlap, 120 groups at 256 MB: 0.383 against 0.605 s, faster, with 150.5 spills in the repartition and 814 MB of RSS against 665. With 1196 groups: 128 MB 0.776 against 0.719 s, slower, 28 spills in the ordered final aggregate; 256 MB 0.585 against 0.724 s, faster, 0 spills in the ordered final aggregate; 512 MB 0.579 against 0.687 s, faster, 0 spills in the ordered final aggregate; RSS 1.8 to 1.9 GB against 0.55 to 0.63. The two 1200-file layouts differ in the streams and also in how the rows are assigned to the files.
+7. A6, half the rows duplicated: 0.190 against 0.381 s, a gain of 50 percent against 42 without duplicates. The time of the original falls by 37 percent, that of the ordered plan by 45.
+8. The workaround, `original-target`, against the ordered plan on the deduplication. Faster: A2-depth-12 at 256 MB (0.315 against 0.342 s); A3 at 512 MB (0.265 against 0.349 s); A4-S0 at 128 MB (0.263 against 0.338 s); A4-S0 at 256 MB (0.270 against 0.338 s); A4-S0 at 512 MB (0.265 against 0.333 s); A4-S2 at 128 MB (0.458 against 0.623 s); A4-S2 at 256 MB (0.292 against 0.386 s); A4-S2 at 512 MB (0.296 against 0.382 s); A6-dup-0.5 at 256 MB (0.166 against 0.190 s); base at 256 MB (0.258 against 0.348 s). Within the quartiles: A3 at 128 MB (0.351 against 0.349 s). It has more RSS in 11 of 11 cases.
+9. Depth 1 against depth 2, same plan, unmodified binary: 0.478 against 0.396 s, depth 1 slower. The experiment on depth below varies the batch size.
+
+## Time by operator, as the engine reports it
+
+`scripts/collect_metrics.py` reads every metric that `EXPLAIN ANALYZE` prints
+for every operator of every recorded run into `results/metrics.tsv`; nothing
+is selected by name. The tables below list all the time metrics of a case,
+medians of the completed runs in seconds, leaving out those under a
+millisecond in every variant. These are times summed over the partitions of an
+operator, so they measure work, not elapsed time, and can exceed it. They say
+where each plan spends its computing time; they are the engine's own
+decomposition of what the comparison of the elapsed times gives only as a
+whole.
+
+**The deduplication (Q3), base case, 256 MB**
+
+| operator | metric | original | accept-groups | original-target |
+|---|---|---|---|---|
+| SortPreservingMergeExec | elapsed_compute | 0.016 | 0.015 | 0.019 |
+| SortExec | elapsed_compute | 0.030 | - | - |
+| AggregateExec.FinalPartitioned | elapsed_compute | 0.880 | 0.374 | 0.404 |
+| AggregateExec.FinalPartitioned | agg_expr_0_evaluate_time | 0.028 | 0.031 | 0.030 |
+| AggregateExec.FinalPartitioned | agg_expr_0_merge_time | 0.279 | 0.147 | 0.156 |
+| AggregateExec.FinalPartitioned | agg_expr_0_state_time | 0.054 | 0.000 | 0.000 |
+| AggregateExec.FinalPartitioned | agg_expr_1_evaluate_time | 0.017 | 0.020 | 0.019 |
+| AggregateExec.FinalPartitioned | agg_expr_1_merge_time | 0.237 | 0.123 | 0.132 |
+| AggregateExec.FinalPartitioned | agg_expr_1_state_time | 0.037 | 0.000 | 0.000 |
+| AggregateExec.FinalPartitioned | aggregation_time | 0.517 | 0.270 | 0.291 |
+| AggregateExec.FinalPartitioned | emitting_time | 0.144 | 0.058 | 0.059 |
+| AggregateExec.FinalPartitioned | time_calculating_group_ids | 0.071 | 0.046 | 0.052 |
+| RepartitionExec | elapsed_compute | 0.000 | 0.036 | 0.045 |
+| RepartitionExec | fetch_time | 0.293 | 0.339 | 0.355 |
+| RepartitionExec | repartition_time | 0.010 | 0.008 | 0.009 |
+| RepartitionExec | send_time | 0.240 | 0.809 | 0.475 |
+| AggregateExec.Partial | elapsed_compute | 0.273 | 0.313 | 0.329 |
+| AggregateExec.Partial | agg_expr_0_state_time | 0.049 | 0.046 | 0.048 |
+| AggregateExec.Partial | agg_expr_0_update_time | 0.087 | 0.096 | 0.098 |
+| AggregateExec.Partial | agg_expr_1_state_time | 0.034 | 0.031 | 0.032 |
+| AggregateExec.Partial | agg_expr_1_update_time | 0.073 | 0.081 | 0.082 |
+| AggregateExec.Partial | aggregation_time | 0.160 | 0.178 | 0.183 |
+| AggregateExec.Partial | emitting_time | 0.082 | 0.085 | 0.089 |
+| AggregateExec.Partial | time_calculating_group_ids | 0.031 | 0.051 | 0.053 |
+| DataSourceExec | elapsed_compute | 0.016 | 0.020 | 0.020 |
+| DataSourceExec | time_elapsed_opening | 0.001 | 0.002 | 0.002 |
+| DataSourceExec | time_elapsed_processing | 0.017 | 0.023 | 0.023 |
+| DataSourceExec | time_elapsed_scanning_total | 0.561 | 1.150 | 0.823 |
+| DataSourceExec | time_elapsed_scanning_until_data | 0.011 | 0.015 | 0.015 |
+
+**`ORDER BY` only (Q1)**
+
+| operator | metric | original | accept-groups |
+|---|---|---|---|
+| SortPreservingMergeExec | elapsed_compute | 0.011 | 0.017 |
+| SortExec | elapsed_compute | 0.022 | - |
+| DataSourceExec | elapsed_compute | 0.021 | 0.019 |
+| DataSourceExec | time_elapsed_opening | 0.001 | 0.001 |
+| DataSourceExec | time_elapsed_processing | 0.022 | 0.020 |
+| DataSourceExec | time_elapsed_scanning_total | 0.024 | 0.094 |
+| DataSourceExec | time_elapsed_scanning_until_data | 0.014 | 0.014 |
+
+**The deduplication without its `ORDER BY` (Q5)**
+
+| operator | metric | original | accept-groups |
+|---|---|---|---|
+| AggregateExec.FinalPartitioned | elapsed_compute | 0.876 | 0.368 |
+| AggregateExec.FinalPartitioned | agg_expr_0_evaluate_time | 0.027 | 0.031 |
+| AggregateExec.FinalPartitioned | agg_expr_0_merge_time | 0.279 | 0.145 |
+| AggregateExec.FinalPartitioned | agg_expr_0_state_time | 0.056 | 0.000 |
+| AggregateExec.FinalPartitioned | agg_expr_1_evaluate_time | 0.017 | 0.019 |
+| AggregateExec.FinalPartitioned | agg_expr_1_merge_time | 0.240 | 0.122 |
+| AggregateExec.FinalPartitioned | agg_expr_1_state_time | 0.038 | 0.000 |
+| AggregateExec.FinalPartitioned | aggregation_time | 0.519 | 0.266 |
+| AggregateExec.FinalPartitioned | emitting_time | 0.145 | 0.057 |
+| AggregateExec.FinalPartitioned | time_calculating_group_ids | 0.069 | 0.045 |
+| RepartitionExec | elapsed_compute | 0.000 | 0.034 |
+| RepartitionExec | fetch_time | 0.293 | 0.335 |
+| RepartitionExec | repartition_time | 0.010 | 0.008 |
+| RepartitionExec | send_time | 0.240 | 0.661 |
+| AggregateExec.Partial | elapsed_compute | 0.274 | 0.311 |
+| AggregateExec.Partial | agg_expr_0_state_time | 0.050 | 0.045 |
+| AggregateExec.Partial | agg_expr_0_update_time | 0.086 | 0.096 |
+| AggregateExec.Partial | agg_expr_1_state_time | 0.034 | 0.031 |
+| AggregateExec.Partial | agg_expr_1_update_time | 0.074 | 0.082 |
+| AggregateExec.Partial | aggregation_time | 0.161 | 0.179 |
+| AggregateExec.Partial | emitting_time | 0.083 | 0.084 |
+| AggregateExec.Partial | time_calculating_group_ids | 0.031 | 0.049 |
+| DataSourceExec | elapsed_compute | 0.016 | 0.020 |
+| DataSourceExec | time_elapsed_opening | 0.001 | 0.001 |
+| DataSourceExec | time_elapsed_processing | 0.017 | 0.022 |
+| DataSourceExec | time_elapsed_scanning_total | 0.522 | 1.035 |
+| DataSourceExec | time_elapsed_scanning_until_data | 0.011 | 0.015 |
+
+**The scan as the files grow: 12, 120 and 1200 files at depth 4, ordered plan**
+
+12 files:
+
+| operator | metric | accept-groups |
+|---|---|---|
+| DataSourceExec | elapsed_compute | 0.020 |
+| DataSourceExec | time_elapsed_opening | 0.002 |
+| DataSourceExec | time_elapsed_processing | 0.023 |
+| DataSourceExec | time_elapsed_scanning_total | 1.150 |
+| DataSourceExec | time_elapsed_scanning_until_data | 0.015 |
+
+120 files:
+
+| operator | metric | accept-groups |
+|---|---|---|
+| DataSourceExec | elapsed_compute | 0.033 |
+| DataSourceExec | metadata_load_time | 0.001 |
+| DataSourceExec | time_elapsed_opening | 0.005 |
+| DataSourceExec | time_elapsed_processing | 0.040 |
+| DataSourceExec | time_elapsed_scanning_total | 1.135 |
+| DataSourceExec | time_elapsed_scanning_until_data | 0.041 |
+
+1200 files:
+
+| operator | metric | accept-groups |
+|---|---|---|
+| DataSourceExec | elapsed_compute | 0.113 |
+| DataSourceExec | metadata_load_time | 0.010 |
+| DataSourceExec | time_elapsed_opening | 0.034 |
+| DataSourceExec | time_elapsed_processing | 0.161 |
+| DataSourceExec | time_elapsed_scanning_total | 1.960 |
+| DataSourceExec | time_elapsed_scanning_until_data | 0.144 |
 
 ## The predictions of DESIGN.md
 
@@ -298,17 +435,17 @@ on which the design made no prediction.
 
 | hypothesis | prediction | rule | value | outcome |
 |---|---|---|---|---|
-| H1 | the order buys the most for Q2 and Q3 | gain of Q2 and of Q3 above that of Q1 | Q1 42 %, Q2 3 %, Q3 41 %, Q4 -5 % | does not hold |
+| H1 | the order buys the most for Q2 and Q3 | gain of Q2 and of Q3 above that of Q1 | Q1 44 %, Q2 -8 %, Q3 42 %, Q4 0 % | does not hold |
 | H1 | Q4: whatever differs is described | quartiles of the two variants | within the quartiles | reported |
 | H2 | at depth 1 and 2 the variants are identical | both within the quartiles | within the quartiles; within the quartiles | holds |
-| H2 | the gain shrinks at depth 12 | gain at depth 12 below gain at depth 4 | 42 % against 41 % | does not hold |
-| H3 | the gain grows with the pool | gain at 128 < 256 < 512 MB | 45 % / 41 % / 46 % | does not hold |
+| H2 | the gain shrinks at depth 12 | gain at depth 12 below gain at depth 4 | 44 % against 42 % | does not hold |
+| H3 | the gain grows with the pool | gain at 128 < 256 < 512 MB | 43 % / 42 % / 44 % | does not hold |
 | H3 | at 128 MB the ordered plan still wins | ordered faster beyond the quartiles | faster | holds |
-| H4 | wide strings bring spills to the ordered plan at 128 MB and shrink its gain | final-aggregate spills above zero and gain below that of S1 | 14 spills; 10 % against 45 % | holds |
+| H4 | wide strings bring spills to the ordered plan at 128 MB and shrink its gain | final-aggregate spills above zero and gain below that of S1 | 14 spills; 11 % against 43 % | holds |
 | H4 | at 512 MB the ranking does not change | ordered faster beyond the quartiles on S2 | faster | holds |
-| H5 | at depth 4 the gap between the variants stays from 12 to 1200 files | gap at 1200 files within 25 % of the gap at 12 | 0.303 s against 0.254 s | holds |
+| H5 | at depth 4 the gap between the variants stays from 12 to 1200 files | gap at 1200 files within 25 % of the gap at 12 | 0.300 s against 0.255 s | holds |
 | H5 | about 1200 groups lose at 128 MB and not at 512 MB | slower at 128, not slower at 512 | 128 MB: slower; 512 MB: faster | holds |
-| H6 | no prediction on which plan profits more from duplicates | gain with and without duplicates | 51 % against 41 % | reported |
+| H6 | no prediction on which plan profits more from duplicates | gain with and without duplicates | 50 % against 42 % | reported |
 | H7 | the workaround's time is not predicted to equal the ordered plan's | quartiles at the base case | faster | reported |
 
 ## Experiments
@@ -318,28 +455,29 @@ One-variable tests on the costs the matrix shows, each in
 
 ### String views and the repartition's accounting
 
-`experiments/string-views/run.py`: the deduplication on the narrow strings (S0) and on the wide ones (S2), read as Arrow string views and as plain `Utf8`, both plans, five runs each. Median elapsed seconds, with the median spills of the final aggregate in parentheses.
+`experiments/string-views/run.py`: the deduplication on the narrow strings (S0) and on the wide ones (S2), read as Arrow string views and as plain `Utf8`, both plans, 10 runs each. A third binary runs the ordered plan with string views and with the repartition's reservation changed to the bytes a slice holds for its own rows (`patch/slice-accounting.patch`): it changes the accounting, at the price of one pass over the views of every batch sent. Median elapsed seconds, with the median spills of the final aggregate in parentheses.
 
-| shape | pool | original, views | original, Utf8 | ordered, views | ordered, Utf8 |
-|---|---|---|---|---|---|
-| S0 | 128m | 0.656 (22) | 0.699 (20) | 0.341 (0) | 0.389 (0) |
-| S0 | 512m | 0.615 (6) | 0.622 (6) | 0.347 (0) | 0.385 (0) |
-| S2 | 128m | 0.763 (28) | 0.709 (22) | 0.654 (14) | 0.424 (0) |
-| S2 | 512m | 0.656 (6) | 0.627 (6) | 0.390 (0) | 0.411 (0) |
+| shape | pool | original, views | original, Utf8 | ordered, views | ordered, Utf8 | ordered, views, slice accounting |
+|---|---|---|---|---|---|---|
+| S0 | 128m | 0.583 (22) | 0.668 (19) | 0.337 (0) | 0.375 (0) | 0.330 (0) |
+| S0 | 512m | 0.589 (6) | 0.634 (6) | 0.339 (0) | 0.375 (0) | 0.328 (0) |
+| S2 | 128m | 0.706 (27) | 0.689 (22) | 0.623 (14) | 0.406 (0) | 0.641 (14) |
+| S2 | 512m | 0.642 (6) | 0.628 (6) | 0.382 (0) | 0.406 (0) | 0.381 (0) |
 
-Gain of the ordered plan over the original:
+Gain of the ordered plan over the original with the same strings (for the slice accounting, over the original with views):
 
-| shape | pool | with string views | with plain Utf8 |
-|---|---|---|---|
-| S0 | 128m | 48 % | 44 % |
-| S0 | 512m | 44 % | 38 % |
-| S2 | 128m | 14 % | 40 % |
-| S2 | 512m | 41 % | 34 % |
+| shape | pool | with string views | with plain Utf8 | with views and slice accounting |
+|---|---|---|---|---|
+| S0 | 128m | 42 % | 44 % | 43 % |
+| S0 | 512m | 42 % | 41 % | 44 % |
+| S2 | 128m | 12 % | 41 % | 9 % |
+| S2 | 512m | 41 % | 35 % | 41 % |
 
-- On the wide strings at 128 MB the ordered plan gains 14 percent with string views and 40 percent with plain `Utf8`; on the narrow strings, with views, 48 percent.
+- On the wide strings at 128 MB the ordered plan gains 12 percent with string views and 41 percent with plain `Utf8`; on the narrow strings, with views, 42 percent.
 - The final aggregate of the ordered plan spills 14 times with views and 0 with plain strings.
-- The order-preserving repartition of the ordered plan reports 596 MB of output with views and 61 with plain strings; the original plan's repartition 332 and 79.
-- The views cost the original plan too: its sort spills 33 times with views and 8 with plain strings, its median is 0.763 against 0.709 s.
+- The order-preserving repartition of the ordered plan reports 598 MB of output with views and 61 with plain strings; the original plan's repartition 324 and 78.
+- With the views kept and only the accounting changed, the ordered plan takes 0.641 s, a gain of 9 percent; its final aggregate spills 14 times and its repartition 4, against 14 and 8 with the engine's accounting.
+- The views cost the original plan too: its sort spills 33 times with views and 8 with plain strings, its median is 0.706 against 0.689 s.
 
 ### The memory of the many-stream plan
 
@@ -349,65 +487,78 @@ Gain of the ordered plan over the original:
 
 | series | query | slope | 95 % interval | bootstrap interval | R² |
 |---|---|---|---|---|---|
-| 1 | Q1, `ORDER BY` only | 371 | 318 to 424 | 327 to 403 | 0.92 |
-| 1 | Q2, `GROUP BY` on the sort key, 3 columns read | 36 | -14 to 86 | -5 to 60 | 0.11 |
-| 1 | Q3, deduplication | 1117 | 928 to 1305 | 947 to 1245 | 0.90 |
-| 2 | Q1, `ORDER BY` only | 369 | 279 to 460 | 299 to 428 | 0.80 |
-| 2 | Q2, `GROUP BY` on the sort key, 3 columns read | 28 | -19 to 75 | -8 to 65 | 0.08 |
-| 2 | Q3, deduplication | 1158 | 1015 to 1300 | 1101 to 1248 | 0.94 |
-| 3 | Q1, `ORDER BY` only | 336 | 280 to 392 | 282 to 367 | 0.90 |
-| 3 | Q2, `GROUP BY` on the sort key, 3 columns read | 25 | -34 to 85 | -43 to 68 | 0.04 |
-| 3 | Q3, deduplication | 1005 | 847 to 1163 | 812 to 1137 | 0.91 |
+| 1 | Q0, the scan with nothing above it | 151 | 93 to 209 | 121 to 185 | 0.63 |
+| 1 | Q1, `ORDER BY`: scan and merge | 373 | 321 to 425 | 337 to 401 | 0.93 |
+| 1 | Q2, `GROUP BY` on the sort key, 3 columns read | 153 | 96 to 211 | 107 to 180 | 0.64 |
+| 1 | Q3, deduplication | 697 | 463 to 930 | 524 to 976 | 0.69 |
+| 2 | Q0, the scan with nothing above it | 164 | 111 to 218 | 128 to 187 | 0.70 |
+| 2 | Q1, `ORDER BY`: scan and merge | 347 | 298 to 396 | 298 to 410 | 0.92 |
+| 2 | Q2, `GROUP BY` on the sort key, 3 columns read | 99 | 45 to 153 | 74 to 134 | 0.45 |
+| 2 | Q3, deduplication | 1091 | 909 to 1273 | 845 to 1269 | 0.90 |
+| 3 | Q0, the scan with nothing above it | 169 | 119 to 218 | 148 to 186 | 0.74 |
+| 3 | Q1, `ORDER BY`: scan and merge | 376 | 318 to 435 | 310 to 423 | 0.91 |
+| 3 | Q2, `GROUP BY` on the sort key, 3 columns read | 125 | 84 to 167 | 103 to 158 | 0.69 |
+| 3 | Q3, deduplication | 933 | 746 to 1120 | 709 to 1143 | 0.86 |
 
 **E2, the deduplication at 1200 files by output partitions; E3, eager purging (`MIMALLOC_PURGE_DELAY=0`); P, one-variable probes.** Median peak RSS in MB, with the range of the runs.
 
 | series | 2 outputs | 4 outputs | 8 outputs | 2 outputs, purge 0 | plain Utf8 | batch 1024 | `ORDER BY`, ordered | `ORDER BY`, purge 0 | `ORDER BY`, original |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | 2158 (1774 to 2208) | 2439 (2229 to 2543) | 3548 (3361 to 3624) | 1673 (1456 to 1838) | 1953 (1545 to 2123) | 1972 (1885 to 2126) | 805 (766 to 813) | 788 (731 to 841) | 358 (343 to 359) |
-| 2 | 2128 (2106 to 2189) | 2532 (2370 to 2564) | 3435 (3330 to 3554) | 1904 (1637 to 1956) | 1844 (1781 to 2120) | 1863 (1750 to 2058) | 750 (659 to 848) | 729 (682 to 748) | 346 (343 to 354) |
-| 3 | 2122 (1698 to 2197) | 2277 (2211 to 2470) | 3514 (3462 to 3628) | 1940 (1218 to 1973) | 1954 (1491 to 2100) | 1916 (1719 to 2144) | 793 (730 to 806) | 778 (760 to 844) | 364 (354 to 395) |
+| 1 | 1500 (1394 to 2097) | 2206 (2048 to 2420) | 3436 (3382 to 3543) | 1365 (1175 to 1807) | 1811 (1691 to 1995) | 1806 (1406 to 2045) | 767 (720 to 793) | 731 (699 to 750) | 363 (357 to 367) |
+| 2 | 1923 (1476 to 2118) | 2194 (2064 to 2326) | 3469 (3352 to 3596) | 1759 (1481 to 1923) | 1897 (1873 to 2016) | 1855 (1785 to 1935) | 786 (657 to 790) | 728 (682 to 753) | 368 (336 to 370) |
+| 3 | 1736 (1477 to 2074) | 2276 (2181 to 2432) | 3473 (3371 to 3598) | 1842 (1281 to 1933) | 2028 (1352 to 2052) | 1840 (1505 to 1925) | 792 (670 to 817) | 725 (715 to 760) | 368 (360 to 396) |
 
-**Decomposition of the excess of the deduplication at 1200 files, per series** (MB). The per-stream cost is the slope of Q1; the per-pair cost is the increase from 2 to 8 outputs divided by the pairs added, so it is derived from that increase and not confirmed independently of it; applying it to the pairs at 2 outputs assumes no fixed cost per input or per output.
+**E2, streams crossed with outputs.** For every number of streams, the slope of the peak RSS of the deduplication on the outputs (2, 4, 8), in MB per output, and the same divided by the streams, in MB per pair. A cost per output would give the same slope at every number of streams; a cost per pair of input and output a slope proportional to the streams.
 
-| series | streams | excess over the original | per stream | scan share | per pair | repartition share at 2 outputs | not attributed | 4 outputs, predicted / measured | purge 0, change for Q3 | for Q1 |
+| series | 150 files: streams, MB per output, MB per pair | 300 files: streams, MB per output, MB per pair | 600 files: streams, MB per output, MB per pair | 1200 files: streams, MB per output, MB per pair |
+|---|---|---|---|---|
+| 1 | 150, 51, 0.34 | 300, 64, 0.21 | 599, 142, 0.24 | 1196, 309, 0.26 |
+| 2 | 150, 85, 0.57 | 300, 105, 0.35 | 599, 132, 0.22 | 1196, 271, 0.23 |
+| 3 | 150, 44, 0.29 | 300, 81, 0.27 | 599, 121, 0.20 | 1196, 282, 0.24 |
+
+**An exploratory model of the excess of the deduplication at 1200 files, per series** (MB). It is a model, not a measurement of operators: the RSS is the peak of the whole process, the peaks of two runs can fall in different phases, and differences of peaks are not the memory of an operator. The per-stream term is the slope of the `ORDER BY` query (Q1); the per-pair term is the increase from 2 to 8 outputs divided by the pairs added; applying it to the pairs at 2 outputs assumes no fixed cost per input or per output. What the two terms leave is the residual of the model, not memory observed separately.
+
+| series | streams | excess over the original | per stream | per-stream term | per pair | per-pair term at 2 outputs | residual | 4 outputs, predicted / measured | purge 0, change for Q3 | for Q1 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 1196 | 1566 | 0.36 | 434 | 0.19 | 463 | 669 | 2621 / 2439 | -485 | -17 |
-| 2 | 1196 | 1526 | 0.36 | 431 | 0.18 | 436 | 659 | 2564 / 2532 | -224 | -21 |
-| 3 | 1196 | 1467 | 0.33 | 392 | 0.19 | 464 | 611 | 2586 / 2277 | -182 | -15 |
+| 1 | 1196 | 845 | 0.36 | 435 | 0.27 | 645 | -236 | 2145 / 2206 | -135 | -36 |
+| 2 | 1196 | 1271 | 0.34 | 405 | 0.22 | 515 | 350 | 2438 / 2194 | -164 | -58 |
+| 3 | 1196 | 1092 | 0.37 | 439 | 0.24 | 579 | 74 | 2315 / 2276 | +106 | -67 |
 
 Over the 3 series:
 
-- the scan holds 0.33 to 0.36 MB per active read stream (slope of the `ORDER BY` query, which reads all eight columns); with three columns read (Q2) the interval of the slope includes zero in 3 of 3 series;
-- going from 2 to 8 outputs adds 1.3 to 1.4 GB, that is 0.18 to 0.19 MB per pair of input and output partition;
-- the median RSS of the deduplication is 2.1 GB, 1.4 to 1.5 GB above the original plan, and what the scan and the repartition shares leave unattributed ranges from 611 to 669 MB;
-- eager purging by the allocator lowers the median RSS of the deduplication in 3 of 3 series (changes from -485 to -182 MB).
+- with the `ORDER BY` query (Q1, a merge pulling from the streams, all eight columns read) the excess RSS grows by 0.34 to 0.37 MB per stream; with nothing above the scan (Q0, all the streams driven at once) by 0.15 to 0.16 MB per stream; the two differ in how the streams are driven, so their difference is not the cost of the merge; with three columns read (Q2) the interval of the slope includes zero in 0 of 3 series;
+- at 1200 files, going from 2 to 8 outputs adds 1.5 to 1.9 GB, which divided by the pairs added is 0.22 to 0.27 MB per pair of input and output;
+- from 150 to 1200 files the streams grow by a factor of 8.0 and the slope on the outputs by a factor of 3.2 to 6.5: a cost per output alone would give a factor of 1, a cost per pair alone the factor of the streams;
+- the median RSS of the deduplication is 1.5 to 1.9 GB, 0.8 to 1.2 GB above the original plan, and the residual of the model ranges from -236 to 350 MB;
+- eager purging by the allocator lowers the median RSS of the deduplication in 2 of 3 series (changes from -164 to +106 MB).
 
 ### Depth 1 against depth 2: backpressure
 
-`experiments/depth/run.py`: the deduplication with two ordered groups whose key ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, six runs per configuration. Wall and CPU time of the whole process; cores are CPU over wall. Means over the completed runs, standard deviation in parentheses.
+`experiments/depth/run.py`: the deduplication with two ordered groups whose key ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, 10 runs per configuration. Wall and CPU time of the whole process; cores are CPU over wall. Means over the completed runs, standard deviation in parentheses.
 
-| batch size | depth 1: completed, wall s, CPU s, cores | depth 2: completed, wall s, CPU s, cores | gap in cores |
-|---|---|---|---|
-| 2048 | 6 of 6, 0.538 (0.016), 0.79, 1.46 (0.01) | 6 of 6, 0.422 (0.010), 0.81, 1.91 (0.01) | 0.45 |
-| 8192 | 6 of 6, 0.477 (0.015), 0.74, 1.56 (0.02) | 6 of 6, 0.410 (0.021), 0.80, 1.96 (0.04) | 0.40 |
-| 32768 | 6 of 6, 0.417 (0.010), 0.83, 2.00 (0.02) | 6 of 6, 0.408 (0.019), 0.83, 2.03 (0.02) | 0.04 |
-| 131072 | 3 of 6, 0.713 (0.023), 1.50, 2.11 (0.03) | 4 of 6, 0.722 (0.033), 1.49, 2.06 (0.01) | -0.05 |
+| batch size | depth 1: completed, wall s, CPU s, cores | depth 2: completed, wall s, CPU s, cores | gap in cores | send time of the repartition's inputs, depth 1 / depth 2, s |
+|---|---|---|---|---|
+| 2048 | 10 of 10, 0.536 (0.005), 0.78, 1.45 (0.01) | 10 of 10, 0.422 (0.006), 0.80, 1.89 (0.02) | 0.45 | 0.62 / 0.41 |
+| 8192 | 10 of 10, 0.482 (0.006), 0.74, 1.54 (0.03) | 10 of 10, 0.402 (0.008), 0.76, 1.90 (0.04) | 0.36 | 0.50 / 0.36 |
+| 32768 | 10 of 10, 0.393 (0.008), 0.76, 1.94 (0.04) | 10 of 10, 0.400 (0.008), 0.77, 1.92 (0.06) | -0.03 | 0.28 / 0.37 |
+| 131072 | 8 of 10, 0.702 (0.010), 1.48, 2.10 (0.01) | 6 of 10, 0.720 (0.006), 1.48, 2.06 (0.02) | -0.05 | 0.20 / 0.11 |
 
-- At the default batch size (8192 rows) depth 1 takes 0.477 s against 0.410 s at depth 2 and uses 0.40 cores less.
+- At the default batch size (8192 rows) depth 1 takes 0.482 s against 0.402 s at depth 2 and uses 0.36 cores less.
+- The time the repartition's inputs spend sending their batches to the outputs (the `send_time` metric, summed over the inputs) is 0.50 s at depth 1 against 0.36 s at depth 2 at the default batch size, and 0.62 against 0.41 s at 2048 rows.
 - The gap in cores is below 0.1 at 32768 rows per batch and at every larger size tried.
-- Runs that did not complete: 5 of 12 at 131072 rows (Resources exhausted).
+- Runs that did not complete: 6 of 20 at 131072 rows (Resources exhausted).
 
 Layout probes at the default batch size:
 
 | configuration | completed | scan groups | wall s | CPU s | cores |
 |---|---|---|---|---|---|
-| depth 1, 120 files | 6 of 6 | 2 | 0.368 | 0.870 | 2.36 |
-| depth 2, 120 files | 6 of 6 | 3 | 0.340 | 0.913 | 2.69 |
-| depth 1, 12 files, split between the partitions by name | 6 of 6 | 2 | 0.503 | 0.745 | 1.48 |
+| depth 1, 120 files | 10 of 10 | 2 | 0.358 | 0.813 | 2.27 |
+| depth 2, 120 files | 10 of 10 | 3 | 0.326 | 0.845 | 2.59 |
+| depth 1, 12 files, split between the partitions by name | 10 of 10 | 2 | 0.507 | 0.737 | 1.45 |
 
 Two other explanations, checked on the recorded data:
 
-- unequal groups: the larger of the two groups holds 60 percent of the rows at depth 1 and 52 percent at depth 2 (manifests); the imbalance is the same at every batch size, while the gap in cores goes from 0.45 at 2048 rows to 0.04 at 32768;
+- unequal groups: the larger of the two groups holds 60 percent of the rows at depth 1 and 52 percent at depth 2 (manifests); the imbalance is the same at every batch size, while the gap in cores goes from 0.45 at 2048 rows to -0.03 at 32768;
 - more and smaller batches: in the matrix the partial aggregate emits 106 batches at depth 1 and 106 at depth 2, the repartition 74 and 74.
 
 ### The open-file limit
@@ -424,11 +575,58 @@ Two other explanations, checked on the recorded data:
 
 With 1196 ordered groups and two outputs, the ordered plan completes at a limit of 8192 and at every larger one tried; the original plan completes at a limit of 1024 and at every larger one tried.
 
+### How much of the resident memory is transparent huge pages
+
+`experiments/huge-pages/run.py`: the many-stream cases as the machine is set and with transparent huge pages switched off for the measured process alone (`prctl(PR_SET_THP_DISABLE)`). The peak RSS counts whole pages: a 2 MB page is resident as soon as one byte of it is touched. Medians of the completed runs.
+
+| case | plan | completed | peak RSS as set, MB | peak RSS without huge pages, MB | elapsed as set, s | elapsed without, s | minor faults as set | without |
+|---|---|---|---|---|---|---|---|---|
+| deduplication, 150 files | original | 10 of 10 | 648 | 468 | 0.620 | 0.669 | 7698 | 118198 |
+| deduplication, 150 files | ordered | 10 of 10 | 843 | 466 | 0.401 | 0.402 | 4382 | 113988 |
+| deduplication, 300 files | original | 10 of 10 | 648 | 466 | 0.651 | 0.688 | 13122 | 119208 |
+| deduplication, 300 files | ordered | 10 of 10 | 960 | 499 | 0.423 | 0.449 | 3874 | 120867 |
+| deduplication, 600 files | original | 10 of 10 | 654 | 501 | 0.677 | 0.733 | 20279 | 136350 |
+| deduplication, 600 files | ordered | 10 of 10 | 1496 | 519 | 0.478 | 0.499 | 5103 | 124477 |
+| deduplication, 1200 files | original | 10 of 10 | 632 | 510 | 0.721 | 0.780 | 42303 | 165022 |
+| deduplication, 1200 files | ordered | 10 of 10 | 1631 | 598 | 0.577 | 0.589 | 6043 | 144368 |
+| deduplication, 1200 files, 4 outputs | ordered | 10 of 10 | 2288 | 678 | 0.508 | 0.515 | 6050 | 165201 |
+| deduplication, 1200 files, 8 outputs | ordered | 10 of 10 | 3428 | 914 | 0.660 | 0.617 | 7103 | 227115 |
+| ORDER BY, 1200 files | original | 10 of 10 | 360 | 226 | 0.202 | 0.227 | 52514 | 97249 |
+| deduplication, base case (12 files) | original | 10 of 10 | 503 | 428 | 0.596 | 0.661 | 2585 | 101671 |
+| ORDER BY, 1200 files | ordered | 10 of 10 | 777 | 453 | 0.192 | 0.185 | 51311 | 107180 |
+| deduplication, base case (12 files) | ordered | 10 of 10 | 351 | 257 | 0.356 | 0.375 | 2464 | 57104 |
+
+- As the machine is set the ordered plan at 1200 files takes 6043 minor page faults, without huge pages 144368: huge pages are in use in the first arm.
+- With about 1200 ordered streams the ordered plan peaks at 1631 MB as the machine is set and at 598 MB without huge pages; the original plan at 632 and 510 MB. The excess of the ordered plan over the original is 999 MB with huge pages and 88 MB without.
+- The same excess at 150, 300, 600 and 1200 files: 195, 312, 842, 999 MB with huge pages, -2, 33, 18, 88 MB without.
+- Going from 2 to 8 outputs at 1200 files adds 1797 MB with huge pages and 316 MB without.
+- Elapsed time of the ordered plan at 1200 files: 0.577 s as set, 0.589 s without huge pages; of the original, 0.721 and 0.780 s.
+
+### The process from outside: RSS and open files over time
+
+`experiments/process/run.py`: 1200 files with total overlap, 256 MB. While a query runs, `/proc/<pid>` is sampled for the resident memory and for the open descriptors by kind. Nothing in the engine is changed. Medians of the completed runs; the sampling takes CPU, so the times of these runs are not comparable with the matrix.
+
+| query | plan | completed | peak RSS, MB | the peak falls at this share of the run | Parquet files open at the peak | most Parquet files open at once | RSS then, MB | most temporary files open | most descriptors |
+|---|---|---|---|---|---|---|---|---|---|
+| deduplication | original | 3 of 3 | 614 | 0.99 | 0 | 11 | 58 | 22 | 33 |
+| deduplication | ordered | 3 of 3 | 1483 | 0.97 | 0 | 358 | 457 | 4356 | 4366 |
+| `ORDER BY` only | original | 3 of 3 | 364 | 0.98 | 0 | 10 | 58 | 0 | 20 |
+| `ORDER BY` only | ordered | 3 of 3 | 784 | 0.46 | 0 | 246 | 397 | 0 | 256 |
+
+In the deduplication the ordered plan holds up to 358 Parquet files and 4356 temporary files open at once, 4366 descriptors in all. Its resident memory is 457 MB when the most data files are open and peaks at 1483 MB, at 97 percent of the run, with 0 data files open then.
+
 ## Not measured
 
-- What the order-preserving repartition holds for each pair of input and
-  output partition: the per-pair cost is a coefficient derived from the growth
-  of the RSS with the outputs, not traced in the code.
+- The memory of single operators. The peak RSS of the whole process is what
+  is measured; the terms of the model of the many-stream memory are estimates
+  from how that peak grows, and its residual is a property of the model. An
+  attribution of the page faults to call stacks with perf was tried and
+  dropped: the binaries have no frame pointers and no debug information, and
+  perf could not reconstruct the callers.
+- Which allocations stand behind the growth with the outputs: the crossing of
+  streams and outputs says how the growth scales, not what the repartition
+  holds for each pair of input and output partition, which was not traced in
+  the code.
 - The work of the merge itself, the comparisons among the heads of the
   streams, apart from the memory and the waiting it brings.
 - The partial aggregates' share of the many-stream memory: the query with a
@@ -436,9 +634,11 @@ With 1196 ordered groups and two outputs, the ordered plan completes at a limit 
 - What `output_bytes` measures beyond its definition (the cumulative bytes of
   the batches an operator emitted, as Arrow accounts for their buffers): it is
   not peak resident memory and not necessarily unique bytes.
-- How much of the final-aggregate spills on the wide strings comes from the
-  repartition's reservations and how much from other consumers of the fair
-  pool. No run changed the accounting itself or instrumented the reservations.
+- The original plan under the slice accounting, and the reservations
+  themselves: the pool was not instrumented.
+- The occupancy of the repartition's channels; `send_time` is the time the
+  inputs spend sending, summed over the inputs, not a trace of who waits for
+  whom.
 - A pool at which the original plan does not spill, the greedy pool, and
   larger data: every query here runs under a second on a few MB of Parquet.
 - The per-file overhead of small files is inside the elapsed time and the
@@ -446,3 +646,5 @@ With 1196 ordered groups and two outputs, the ordered plan completes at a limit 
 - The `GROUP BY` on the whole sort key at a size where the hash aggregate
   would spill.
 - Which descriptors the ordered plan holds when it meets the open-file limit.
+- Statistical significance: the comparisons by quartiles are descriptive, and
+  the series repeat the experiment in one environment.

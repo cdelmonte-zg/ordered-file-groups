@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   622           4.8 K      34      
-  abandoned :   193         835          12      
-  reclaima  :    80      
-  reclaimf  :   428      
-  reabandon :   308      
+  pages     :     1.2 K       4.7 K      35      
+  abandoned :   307           1.1 K      14      
+  reclaima  :    81      
+  reclaimf  :   733      
+  reabandon :   378      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.6 avg
+  searches  :     1.7 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   818.9 MiB   818.9 MiB   818.9 MiB                          
+  committed :   706.9 MiB   706.9 MiB   706.9 MiB                          
   reset     :     0      
-  purged    :   811.9 MiB
+  purged    :   698.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   301      
+  purges    :   580      
   guarded   :     0      
-  theaps    :   164         164           0      
+  theaps    :   243         243           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   165         165           1      
+  threads   :   244         244           1      
   numa nodes:     1
-  elapsed   :     0.169 s
-  process   : user: 1.142 s, system: 0.608 s, faults: 0, peak rss: 731.8 MiB, peak commit: 818.9 MiB
+  elapsed   :     0.151 s
+  process   : user: 0.589 s, system: 0.204 s, faults: 0, peak rss: 684.3 MiB, peak commit: 706.9 MiB
 
-BENCH wall=0.17 user=1.14 sys=0.60 rss_kb=749392
+BENCH wall=0.15 user=0.58 sys=0.20 rss_kb=700768 minor=9676

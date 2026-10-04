@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   433           8.3 K      38      
-  abandoned :   283           2.1 K      16      
-  reclaima  :   306      
-  reclaimf  :   511      
-  reabandon :     1.5 K  
+  pages     :   449           7.4 K      37      
+  abandoned :   290           2.7 K      15      
+  reclaima  :   599      
+  reclaimf  :   765      
+  reabandon :     1.9 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.9 avg
+  searches  :     2.0 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   637.3 MiB   637.3 MiB   637.3 MiB                          
+  committed :   548.5 MiB   548.5 MiB   548.5 MiB                          
   reset     :     0      
-  purged    :   848.8 MiB
+  purged    :   760.4 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :     8.2 K  
+  purges    :     7.4 K  
   guarded   :     0      
-  theaps    :   544         544           0      
+  theaps    :   527         527           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   545         545           1      
+  threads   :   528         528           1      
   numa nodes:     1
-  elapsed   :     0.298 s
-  process   : user: 0.600 s, system: 1.496 s, faults: 0, peak rss: 844.4 MiB, peak commit: 637.3 MiB
+  elapsed   :     0.246 s
+  process   : user: 0.480 s, system: 0.490 s, faults: 0, peak rss: 724.5 MiB, peak commit: 548.5 MiB
 
-BENCH wall=0.30 user=0.60 sys=1.49 rss_kb=864696
+BENCH wall=0.25 user=0.48 sys=0.49 rss_kb=741904 minor=63783

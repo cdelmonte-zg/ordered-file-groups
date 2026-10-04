@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   296           5.6 K      38      
-  abandoned :   117         854          16      
-  reclaima  :    79      
-  reclaimf  :   411      
-  reabandon :   316      
+  pages     :     1.1 K       4.9 K      35      
+  abandoned :   294           1.2 K      14      
+  reclaima  :   102      
+  reclaimf  :   751      
+  reabandon :   430      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.5 avg
+  searches  :     1.7 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   925.8 MiB   925.8 MiB   925.8 MiB                          
+  committed :   733.3 MiB   733.3 MiB   733.3 MiB                          
   reset     :     0      
-  purged    :   912.6 MiB
+  purged    :   724.5 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   833      
+  purges    :   492      
   guarded   :     0      
-  theaps    :   350         350           0      
+  theaps    :   335         335           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   351         351           1      
+  threads   :   336         336           1      
   numa nodes:     1
-  elapsed   :     0.190 s
-  process   : user: 1.209 s, system: 0.760 s, faults: 0, peak rss: 849.2 MiB, peak commit: 925.8 MiB
+  elapsed   :     0.156 s
+  process   : user: 0.581 s, system: 0.246 s, faults: 0, peak rss: 702.6 MiB, peak commit: 733.3 MiB
 
-BENCH wall=0.19 user=1.20 sys=0.76 rss_kb=869640
+BENCH wall=0.15 user=0.58 sys=0.24 rss_kb=719476 minor=10306

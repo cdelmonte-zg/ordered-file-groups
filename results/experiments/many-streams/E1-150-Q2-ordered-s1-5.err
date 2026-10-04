@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   130           3.8 K      30      
-  abandoned :    23         870           8      
-  reclaima  :    17      
-  reclaimf  :   692      
-  reabandon :    54      
+  pages     :   395           2.7 K      31      
+  abandoned :    28         999          10      
+  reclaima  :     9      
+  reclaimf  :   811      
+  reabandon :    62      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.7 avg
+  searches  :     1.6 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   989.7 MiB   989.7 MiB   989.7 MiB                          
+  committed :   760.3 MiB   760.3 MiB   760.3 MiB                          
   reset     :     0      
-  purged    :   984.4 MiB
+  purged    :   754.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   273      
+  purges    :   332      
   guarded   :     0      
-  theaps    :    62          62           0      
+  theaps    :    76          76           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    63          63           1      
+  threads   :    77          77           1      
   numa nodes:     1
-  elapsed   :     0.144 s
-  process   : user: 1.350 s, system: 0.779 s, faults: 0, peak rss: 757.8 MiB, peak commit: 989.7 MiB
+  elapsed   :     0.112 s
+  process   : user: 0.501 s, system: 0.212 s, faults: 0, peak rss: 597.9 MiB, peak commit: 760.3 MiB
 
-BENCH wall=0.14 user=1.35 sys=0.78 rss_kb=776036
+BENCH wall=0.11 user=0.50 sys=0.21 rss_kb=612256 minor=4898

@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     2.9 K      23.6 K      36      
-  abandoned :     1.0 K       4.8 K      14      
-  reclaima  :   238      
-  reclaimf  :     3.6 K  
-  reabandon :   820      
+  pages     :     2.3 K      20.6 K      37      
+  abandoned :     1.0 K       6.3 K      16      
+  reclaima  :   260      
+  reclaimf  :     5.0 K  
+  reabandon :   964      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.9 avg
+  searches  :     2.0 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     3.0 GiB     3.0 GiB     3.0 GiB                          
-  committed :     2.9 GiB     2.9 GiB     2.9 GiB                          
+  committed :     2.6 GiB     2.6 GiB     2.6 GiB                          
   reset     :     0      
-  purged    :     2.9 GiB
+  purged    :     2.6 GiB
   arenas    :     3      
   rollback  :     0      
-  mmaps     :    11      
+  mmaps     :    10      
   commits   :     0      
   resets    :     0      
-  purges    :   921      
+  purges    :     1.0 K  
   guarded   :     0      
-  theaps    :   509         509           0      
+  theaps    :   458         458           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   510         510           1      
+  threads   :   459         459           1      
   numa nodes:     1
-  elapsed   :     0.667 s
-  process   : user: 2.220 s, system: 1.284 s, faults: 0, peak rss: 2.0 GiB, peak commit: 2.9 GiB
+  elapsed   :     0.626 s
+  process   : user: 1.715 s, system: 0.794 s, faults: 0, peak rss: 1.8 GiB, peak commit: 2.6 GiB
 
-BENCH wall=0.67 user=2.22 sys=1.28 rss_kb=2156712
+BENCH wall=0.62 user=1.71 sys=0.79 rss_kb=1954632 minor=5924

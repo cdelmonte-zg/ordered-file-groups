@@ -12,6 +12,9 @@ A1-Q2	original-target	Q2	4	0	1	Sorted	Sorted	1	ok
 A1-Q4	original	Q4	2	0	0	Linear	Linear	0	ok
 A1-Q4	accept-groups	Q4	2	0	0	Linear	Linear	0	ok
 A1-Q4	original-target	Q4	4	0	0	Linear	Linear	0	ok
+A1-Q5	original	Q5	2	0	0	Linear	Linear	0	ok
+A1-Q5	accept-groups	Q5	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1	ok
+A1-Q5	original-target	Q5	4	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1	ok
 A2-depth-1	original	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1	ok
 A2-depth-1	accept-groups	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1	ok
 A2-depth-2	original	Q3	2	0	1	PartiallySorted([0, 1])	PartiallySorted([0, 1])	1	ok

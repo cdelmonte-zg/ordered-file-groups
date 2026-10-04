@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.3 K       8.9 K      36      
-  abandoned :   600           1.4 K      14      
-  reclaima  :   116      
-  reclaimf  :   594      
-  reabandon :   778      
+  pages     :     1.9 K       8.6 K      37      
+  abandoned :   729           2.2 K      16      
+  reclaima  :   156      
+  reclaimf  :     1.2 K  
+  reabandon :     1.0 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.8 avg
+  searches  :     2.0 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   810.4 MiB   810.4 MiB   810.4 MiB                          
+  committed :   624.4 MiB   624.4 MiB   624.4 MiB                          
   reset     :     0      
-  purged    :   795.6 MiB
+  purged    :   609.7 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :     1.1 K  
+  purges    :   897      
   guarded   :     0      
-  theaps    :   544         544           0      
+  theaps    :   528         528           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   545         545           1      
+  threads   :   529         529           1      
   numa nodes:     1
-  elapsed   :     0.263 s
-  process   : user: 1.634 s, system: 0.711 s, faults: 0, peak rss: 791.3 MiB, peak commit: 810.4 MiB
+  elapsed   :     0.208 s
+  process   : user: 0.690 s, system: 0.292 s, faults: 0, peak rss: 631.0 MiB, peak commit: 624.4 MiB
 
-BENCH wall=0.26 user=1.63 sys=0.71 rss_kb=810336
+BENCH wall=0.21 user=0.69 sys=0.29 rss_kb=646220 minor=13817

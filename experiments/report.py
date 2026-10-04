@@ -641,7 +641,19 @@ def huge_pages(out, figures):
 
     o, a = med["dedup-1200-original"], med["dedup-1200-accept-groups"]
     t8 = med["dedup-1200-accept-groups-t8"]
-    lines += ["", f"- With about 1200 ordered streams the ordered plan peaks at {num(a['on'], 0)} MB as "
+    # whether huge pages were in use as the machine is set: with them a fault
+    # brings in 2 MB, so the same memory takes far fewer faults
+    big = completed(select(rows, name="dedup-1200-accept-groups"))
+    faults_on = median(select(big, huge_pages="as set"), "minor_faults")
+    faults_off = median(select(big, huge_pages="off"), "minor_faults")
+    in_use = faults_off > 2 * faults_on
+    lines += ["", (f"- As the machine is set the ordered plan at 1200 files takes {num(faults_on, 0)} minor "
+                   f"page faults, without huge pages {num(faults_off, 0)}: huge pages are in use in the "
+                   f"first arm." if in_use else
+                   f"- The minor page faults are about the same in the two arms ({num(faults_on, 0)} and "
+                   f"{num(faults_off, 0)}): huge pages were NOT in use as the machine is set, and the "
+                   f"two arms measure the same thing.")]
+    lines += [f"- With about 1200 ordered streams the ordered plan peaks at {num(a['on'], 0)} MB as "
               f"the machine is set and at {num(a['off'], 0)} MB without huge pages; the original plan "
               f"at {num(o['on'], 0)} and {num(o['off'], 0)} MB. The excess of the ordered plan over the "
               f"original is {num(excess(1200, 'on'), 0)} MB with huge pages and "

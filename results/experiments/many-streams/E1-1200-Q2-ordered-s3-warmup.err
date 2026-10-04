@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.2 K       8.1 K      38      
-  abandoned :   623           1.5 K      16      
-  reclaima  :   117      
-  reclaimf  :   620      
-  reabandon :   785      
+  pages     :     2.1 K       8.2 K      37      
+  abandoned :   801           2.2 K      16      
+  reclaima  :   214      
+  reclaimf  :     1.2 K  
+  reabandon :     1.0 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.8 avg
+  searches  :     2.0 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   770.9 MiB   770.9 MiB   770.9 MiB                          
+  committed :   640.6 MiB   640.6 MiB   640.6 MiB                          
   reset     :     0      
-  purged    :   757.7 MiB
+  purged    :   626.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :     1.2 K  
+  purges    :   914      
   guarded   :     0      
-  theaps    :   346         346           0      
+  theaps    :   528         528           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   347         347           1      
+  threads   :   529         529           1      
   numa nodes:     1
-  elapsed   :     0.251 s
-  process   : user: 1.591 s, system: 0.631 s, faults: 0, peak rss: 735.4 MiB, peak commit: 770.9 MiB
+  elapsed   :     0.221 s
+  process   : user: 0.714 s, system: 0.315 s, faults: 0, peak rss: 644.7 MiB, peak commit: 640.6 MiB
 
-BENCH wall=0.25 user=1.59 sys=0.63 rss_kb=753140
+BENCH wall=0.22 user=0.71 sys=0.31 rss_kb=660252 minor=13787

@@ -13,7 +13,9 @@ adds or renames appears in the table by itself.
 Columns: the output file (relative to the results directory), the operator
 (with the aggregate's mode, and a number when an operator occurs more than
 once in a plan), the metric, its value as printed, the value as a number and
-its kind: seconds, bytes, or count.
+its kind: seconds, bytes, count or percent. A metric that is not one number,
+such as the pruning metrics ("12 total -> 12 matched"), is kept as printed
+with the kind "text".
 """
 import argparse
 import csv
@@ -37,12 +39,17 @@ def number(metric, text):
     value, unit = float(m.group(1)), m.group(2)
     if unit in SECONDS and (unit != "s" or "time" in metric or "elapsed" in metric):
         return value * SECONDS[unit], "seconds"
-    if unit in BYTES and ("bytes" in metric or unit != "B"):
+    # The engine prints sizes with a space and binary units ("8.3 MB", "0.0 B") and
+    # counts with a space and K, M or B for billions ("24.5 M"). "B" alone is the
+    # one ambiguous unit: it is taken as bytes for the size metrics, which the
+    # engine names *_bytes or spilled/output bytes, and as billions otherwise.
+    if unit in BYTES and unit != "B":
         return value * BYTES[unit], "bytes"
+    if unit == "B":
+        size = metric.endswith("_bytes") or metric in ("output_bytes", "spilled_bytes")
+        return (value, "bytes") if size else (value * 1e9, "count")
     if unit in COUNTS:
         return value * COUNTS[unit], "count"
-    if unit == "B":                    # a count in billions
-        return value * 1e9, "count"
     if unit == "%":
         return value, "percent"
     return "", "text"

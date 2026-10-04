@@ -44,13 +44,16 @@ def output_dir(name):
 
 
 def repartition_time(out_text, metric):
-    """A time metric summed over the RepartitionExec operators of a plan, in seconds.
+    """A time metric of the first RepartitionExec of a plan, in seconds.
 
-    Read with the parser of scripts/collect_metrics.py; '' when the plan has none.
+    The first in the printed plan is the one nearest the root; the plans of the
+    experiments have one. Read with the parser of scripts/collect_metrics.py;
+    '' when the plan has none.
     """
-    values = [value for operator, name, _, value, kind in metrics_of(out_text)
-              if operator.startswith("RepartitionExec") and name == metric and kind == "seconds"]
-    return round(sum(values), 4) if values else ""
+    for operator, name, _, value, kind in metrics_of(out_text):
+        if operator == "RepartitionExec" and name == metric and kind == "seconds":
+            return round(value, 4)
+    return ""
 
 
 def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300,
@@ -123,6 +126,9 @@ def interleaved(configs, runs, one, label=""):
 
 
 def write_tsv(path, rows):
+    if not rows:                        # nothing recorded: an empty table, not a crash
+        Path(path).write_text("")
+        return
     with open(path, "w") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter="\t")
         w.writeheader()

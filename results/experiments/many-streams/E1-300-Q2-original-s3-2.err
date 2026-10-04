@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   492           5.8 K      32      
-  abandoned :   260         720          10      
-  reclaima  :   164      
-  reclaimf  :   337      
-  reabandon :   299      
+  pages     :   496           5.0 K      31      
+  abandoned :   296         697          10      
+  reclaima  :    94      
+  reclaimf  :   457      
+  reabandon :   167      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.0 avg
+  searches  :     2.1 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   294.3 MiB   294.3 MiB   294.3 MiB                          
+  committed :   319.5 MiB   319.5 MiB   319.5 MiB                          
   reset     :     0      
-  purged    :   289.0 MiB
+  purged    :   314.4 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   156      
+  purges    :    95      
   guarded   :     0      
-  theaps    :    52          52           0      
+  theaps    :    44          44           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    53          53           1      
+  threads   :    45          45           1      
   numa nodes:     1
-  elapsed   :     0.117 s
-  process   : user: 0.203 s, system: 0.059 s, faults: 0, peak rss: 304.1 MiB, peak commit: 294.3 MiB
+  elapsed   :     0.103 s
+  process   : user: 0.191 s, system: 0.062 s, faults: 0, peak rss: 329.4 MiB, peak commit: 319.5 MiB
 
-BENCH wall=0.11 user=0.20 sys=0.06 rss_kb=311476
+BENCH wall=0.10 user=0.19 sys=0.06 rss_kb=337316 minor=5524

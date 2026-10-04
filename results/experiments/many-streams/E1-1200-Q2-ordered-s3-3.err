@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.2 K       8.4 K      37      
-  abandoned :   506           1.4 K      14      
-  reclaima  :    96      
-  reclaimf  :   632      
-  reabandon :   747      
+  pages     :     2.1 K       9.1 K      37      
+  abandoned :   804           2.1 K      16      
+  reclaima  :   152      
+  reclaimf  :     1.1 K  
+  reabandon :   997      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.8 avg
+  searches  :     1.9 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   759.2 MiB   759.2 MiB   759.2 MiB                          
+  committed :   679.1 MiB   679.1 MiB   679.1 MiB                          
   reset     :     0      
-  purged    :   744.3 MiB
+  purged    :   664.5 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   548      
+  purges    :   965      
   guarded   :     0      
-  theaps    :   544         544           0      
+  theaps    :   528         528           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   545         545           1      
+  threads   :   529         529           1      
   numa nodes:     1
-  elapsed   :     0.261 s
-  process   : user: 1.603 s, system: 0.675 s, faults: 0, peak rss: 752.0 MiB, peak commit: 759.2 MiB
+  elapsed   :     0.208 s
+  process   : user: 0.681 s, system: 0.312 s, faults: 0, peak rss: 676.3 MiB, peak commit: 679.1 MiB
 
-BENCH wall=0.26 user=1.60 sys=0.67 rss_kb=770064
+BENCH wall=0.21 user=0.68 sys=0.31 rss_kb=692540 minor=13487

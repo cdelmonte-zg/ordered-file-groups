@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   866           8.3 K      32      
-  abandoned :   564           9.8 K      10      
-  reclaima  :     2.5 K  
-  reclaimf  :     5.1 K  
-  reabandon :     3.3 K  
-  waits     :     0      
+  pages     :     1.0 K       8.0 K      29      
+  abandoned :   759           9.6 K       8      
+  reclaima  :     1.7 K  
+  reclaimf  :     5.5 K  
+  reabandon :     2.7 K  
+  waits     :     1      
   extended  :     0      
   retire    :     0      
-  searches  :     2.5 avg
+  searches  :     2.6 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   623.0 MiB   623.0 MiB   623.0 MiB                          
+  committed :   572.8 MiB   572.8 MiB   572.8 MiB                          
   reset     :     0      
-  purged    :   617.7 MiB
+  purged    :   568.3 MiB
   arenas    :     1      
   rollback  :     0      
   mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   237      
+  purges    :   218      
   guarded   :     0      
-  theaps    :    55          55           0      
+  theaps    :    34          34           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    56          56           1      
+  threads   :    35          35           1      
   numa nodes:     1
-  elapsed   :     0.753 s
-  process   : user: 1.455 s, system: 0.215 s, faults: 0, peak rss: 642.9 MiB, peak commit: 623.0 MiB
+  elapsed   :     0.697 s
+  process   : user: 1.426 s, system: 0.182 s, faults: 0, peak rss: 600.3 MiB, peak commit: 572.8 MiB
 
-BENCH wall=0.75 user=1.45 sys=0.21 rss_kb=658340
+BENCH wall=0.69 user=1.42 sys=0.18 rss_kb=614736 minor=20991

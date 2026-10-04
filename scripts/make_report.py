@@ -10,6 +10,7 @@ DESIGN.md are checked by rules stated next to each one. Also writes
 results/figures.tsv, the figures the companion article quotes.
 """
 import argparse
+import statistics
 import sys
 from math import isnan
 from pathlib import Path
@@ -253,9 +254,7 @@ def engine_times(results, runs):
 
 
 def median_of(values):
-    v = sorted(values)
-    n = len(v)
-    return float("nan") if not n else (v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2)
+    return statistics.median(values) if values else float("nan")
 
 
 def time_table(times, case, pool, variants, operators=None, floor=0.001):

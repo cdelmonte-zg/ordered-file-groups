@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   228           2.8 K      36      
-  abandoned :   127         379          14      
-  reclaima  :    10      
-  reclaimf  :   164      
-  reabandon :   110      
+  pages     :   193           2.0 K      31      
+  abandoned :    60         477          10      
+  reclaima  :    31      
+  reclaimf  :   230      
+  reabandon :   222      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.1 avg
+  searches  :     1.4 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   540.8 MiB   540.8 MiB   540.8 MiB                          
+  committed :   413.0 MiB   413.0 MiB   413.0 MiB                          
   reset     :     0      
-  purged    :   533.3 MiB
+  purged    :   407.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   175      
+  purges    :   123      
   guarded   :     0      
-  theaps    :   182         182           0      
+  theaps    :    56          56           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   183         183           1      
+  threads   :    57          57           1      
   numa nodes:     1
-  elapsed   :     0.145 s
-  process   : user: 0.363 s, system: 0.621 s, faults: 0, peak rss: 576.6 MiB, peak commit: 540.8 MiB
+  elapsed   :     0.114 s
+  process   : user: 0.230 s, system: 0.212 s, faults: 0, peak rss: 454.8 MiB, peak commit: 413.0 MiB
 
-BENCH wall=0.14 user=0.36 sys=0.62 rss_kb=590456
+BENCH wall=0.11 user=0.23 sys=0.21 rss_kb=465780 minor=16513

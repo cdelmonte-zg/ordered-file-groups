@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   480           1.8 K      30      
-  abandoned :   239         698           8      
-  reclaima  :   143      
-  reclaimf  :   337      
-  reabandon :   271      
+  pages     :   505           1.8 K      31      
+  abandoned :   273         703          10      
+  reclaima  :   125      
+  reclaimf  :   428      
+  reabandon :   190      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.0 avg
+  searches  :     2.1 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   315.6 MiB   315.6 MiB   315.6 MiB                          
+  committed :   339.3 MiB   339.3 MiB   339.3 MiB                          
   reset     :     0      
-  purged    :   310.5 MiB
+  purged    :   334.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :    97      
+  purges    :   102      
   guarded   :     0      
-  theaps    :    56          56           0      
+  theaps    :    47          47           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    57          57           1      
+  threads   :    48          48           1      
   numa nodes:     1
-  elapsed   :     0.112 s
-  process   : user: 0.206 s, system: 0.056 s, faults: 0, peak rss: 326.9 MiB, peak commit: 315.6 MiB
+  elapsed   :     0.100 s
+  process   : user: 0.149 s, system: 0.085 s, faults: 0, peak rss: 348.6 MiB, peak commit: 339.3 MiB
 
-BENCH wall=0.11 user=0.20 sys=0.05 rss_kb=334804
+BENCH wall=0.10 user=0.15 sys=0.08 rss_kb=357024 minor=5545

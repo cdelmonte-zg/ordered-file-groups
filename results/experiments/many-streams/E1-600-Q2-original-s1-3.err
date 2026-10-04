@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   606           5.6 K      32      
-  abandoned :   345         821          10      
-  reclaima  :   136      
-  reclaimf  :   472      
-  reabandon :   277      
+  pages     :   548           4.1 K      31      
+  abandoned :   299         830          10      
+  reclaima  :   144      
+  reclaimf  :   496      
+  reabandon :   241      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.9 avg
+  searches  :     2.0 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   375.5 MiB   375.5 MiB   375.5 MiB                          
+  committed :   314.0 MiB   314.0 MiB   314.0 MiB                          
   reset     :     0      
-  purged    :   370.1 MiB
+  purged    :   308.9 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   224      
+  purges    :   155      
   guarded   :     0      
-  theaps    :    65          65           0      
+  theaps    :    42          42           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    66          66           1      
+  threads   :    43          43           1      
   numa nodes:     1
-  elapsed   :     0.146 s
-  process   : user: 0.244 s, system: 0.132 s, faults: 0, peak rss: 381.6 MiB, peak commit: 375.5 MiB
+  elapsed   :     0.122 s
+  process   : user: 0.217 s, system: 0.053 s, faults: 0, peak rss: 340.8 MiB, peak commit: 314.0 MiB
 
-BENCH wall=0.14 user=0.24 sys=0.13 rss_kb=390800
+BENCH wall=0.12 user=0.21 sys=0.05 rss_kb=349072 minor=8064

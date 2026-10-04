@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   352           5.0 K      34      
-  abandoned :   111         604          12      
-  reclaima  :    16      
-  reclaimf  :   358      
-  reabandon :   126      
+  pages     :   790           2.5 K      33      
+  abandoned :    72         699          12      
+  reclaima  :    19      
+  reclaimf  :   492      
+  reabandon :   116      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.4 avg
+  searches  :     1.5 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   842.2 MiB   842.2 MiB   842.2 MiB                          
+  committed :   566.0 MiB   566.0 MiB   566.0 MiB                          
   reset     :     0      
-  purged    :   834.8 MiB
+  purged    :   559.6 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   602      
+  purges    :   451      
   guarded   :     0      
-  theaps    :   174         174           0      
+  theaps    :   113         113           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   175         175           1      
+  threads   :   114         114           1      
   numa nodes:     1
-  elapsed   :     0.148 s
-  process   : user: 1.061 s, system: 0.562 s, faults: 0, peak rss: 731.2 MiB, peak commit: 842.2 MiB
+  elapsed   :     0.114 s
+  process   : user: 0.455 s, system: 0.188 s, faults: 0, peak rss: 514.5 MiB, peak commit: 566.0 MiB
 
-BENCH wall=0.15 user=1.06 sys=0.56 rss_kb=748836
+BENCH wall=0.11 user=0.45 sys=0.18 rss_kb=526864 minor=6369

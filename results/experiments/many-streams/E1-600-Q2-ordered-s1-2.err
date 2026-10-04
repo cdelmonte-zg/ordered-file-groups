@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   476           5.7 K      38      
-  abandoned :   241         869          16      
-  reclaima  :    96      
-  reclaimf  :   414      
-  reabandon :   356      
+  pages     :     1.2 K       5.2 K      37      
+  abandoned :   266           1.1 K      16      
+  reclaima  :    74      
+  reclaimf  :   734      
+  reabandon :   333      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.5 avg
+  searches  :     1.7 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   939.5 MiB   939.5 MiB   939.5 MiB                          
+  committed :   738.0 MiB   738.0 MiB   738.0 MiB                          
   reset     :     0      
-  purged    :   926.3 MiB
+  purged    :   724.6 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :     1.0 K  
+  purges    :     1.3 K  
   guarded   :     0      
-  theaps    :   353         353           0      
+  theaps    :   389         389           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   354         354           1      
+  threads   :   390         390           1      
   numa nodes:     1
-  elapsed   :     0.186 s
-  process   : user: 1.138 s, system: 0.762 s, faults: 0, peak rss: 857.3 MiB, peak commit: 939.5 MiB
+  elapsed   :     0.173 s
+  process   : user: 0.563 s, system: 0.290 s, faults: 0, peak rss: 725.2 MiB, peak commit: 738.0 MiB
 
-BENCH wall=0.19 user=1.13 sys=0.76 rss_kb=877900
+BENCH wall=0.17 user=0.56 sys=0.29 rss_kb=742660 minor=10531

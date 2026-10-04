@@ -60,7 +60,7 @@ Python 3 with the packages in `requirements.txt`, a Rust toolchain, a
 DataFusion checkout, and a machine doing nothing else.
 
     scripts/build_binaries.sh /path/to/datafusion        # bin/ and provenance/
-    sudo scripts/machine_setup.sh apply                   # governor, swap, perf; saved for restore
+    sudo scripts/machine_setup.sh apply                   # governor, swap; saved for restore
     rm -rf results                                        # a run never overwrites another
     PYTHON=python scripts/run_lab.sh                      # everything, RESULTS.md included
     sudo scripts/machine_setup.sh restore                 # the machine as it was

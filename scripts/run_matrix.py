@@ -150,7 +150,7 @@ def to_bytes(text):
 
 
 def operator(line):
-    m = re.search(r"\|\s+([A-Za-z]+Exec): ?(mode=\w+)?", line)
+    m = re.search(r"\|\s+([A-Za-z]+Exec)\b:? ?(mode=\w+)?", line)   # with or without arguments
     if not m:
         return None
     name = m.group(1)

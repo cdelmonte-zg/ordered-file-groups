@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     2.7 K      20.2 K      36      
-  abandoned :   985           4.9 K      14      
-  reclaima  :   217      
-  reclaimf  :     3.7 K  
-  reabandon :   796      
+  pages     :     2.3 K      20.0 K      37      
+  abandoned :     1.0 K       5.7 K      16      
+  reclaima  :   237      
+  reclaimf  :     4.4 K  
+  reabandon :   924      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.9 avg
+  searches  :     2.0 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     3.0 GiB     3.0 GiB     3.0 GiB                          
-  committed :     2.1 GiB     2.1 GiB     2.1 GiB                          
+  committed :     2.8 GiB     2.8 GiB     2.8 GiB                          
   reset     :     0      
-  purged    :     5.1 GiB
+  purged    :     5.7 GiB
   arenas    :     3      
   rollback  :     0      
-  mmaps     :     9      
+  mmaps     :    10      
   commits   :     0      
   resets    :     0      
-  purges    :    20.2 K  
+  purges    :    20.0 K  
   guarded   :     0      
-  theaps    :   333         333           0      
+  theaps    :   493         493           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   334         334           1      
+  threads   :   494         494           1      
   numa nodes:     1
-  elapsed   :     0.801 s
-  process   : user: 2.172 s, system: 1.600 s, faults: 0, peak rss: 1.4 GiB, peak commit: 2.1 GiB
+  elapsed   :     0.776 s
+  process   : user: 1.776 s, system: 1.244 s, faults: 0, peak rss: 1.7 GiB, peak commit: 2.8 GiB
 
-BENCH wall=0.80 user=2.17 sys=1.60 rss_kb=1533592
+BENCH wall=0.77 user=1.77 sys=1.24 rss_kb=1850008 minor=205156
