@@ -579,16 +579,18 @@ def process(out, figures):
              "runs, `/proc/<pid>` is sampled for the resident memory and for the open descriptors "
              "by kind. Nothing in the engine is changed. Medians of the completed runs; the "
              "sampling takes CPU, so the times of these runs are not comparable with the matrix.", "",
-             "| query | plan | completed | peak RSS, MB | the peak falls at this share of the run | "
+             "| query | plan | completed | file groups | peak RSS, MB | the peak falls at this share of the run | "
              "Parquet files open at the peak | most Parquet files open at once | RSS then, MB | "
-             "most temporary files open | most descriptors |", "|" + "---|" * 10]
+             "most temporary files open | most descriptors |", "|" + "---|" * 11]
     seen = {}
     for query, qlabel in queries.items():
         for variant, plabel in plans.items():
             sel = select(rows, query=query, variant=variant)
             ok = completed(sel)
             v = seen[query, variant] = {k: median(ok, k) for k in keys}
-            lines.append(f"| {qlabel} | {plabel} | {n_of(sel)} | {num(v['peak_rss_mb'], 0)} | "
+            groups = sorted({r.get("scan_groups", "") for r in ok})
+            lines.append(f"| {qlabel} | {plabel} | {n_of(sel)} | {', '.join(groups)} | "
+                         f"{num(v['peak_rss_mb'], 0)} | "
                          f"{num(v['peak_at_share_of_run'], 2)} | {num(v['parquet_open_at_peak'], 0)} | "
                          f"{num(v['max_parquet_open'], 0)} | {num(v['rss_mb_when_most_parquet_open'], 0)} | "
                          f"{num(v['max_temp_open'], 0)} | {num(v['max_descriptors'], 0)} |")

@@ -311,9 +311,22 @@ def run_process(cmd, out_path, err_path, timeout, env=None, preexec_fn=None):
             return 124
 
 
+def cli_command(binary, memory, sql_path):
+    """The datafusion-cli command of a timed run. Used by every runner."""
+    return [str(binary), "--memory-limit", memory, "--mem-pool-type", "fair", "-f", str(sql_path)]
+
+
+def error_of(status, err_text, failed, timeout):
+    """What a failed run said: its first line on stderr, or the timeout. '' when it completed."""
+    if status == 124:
+        return f"timeout after {timeout} s, process group killed"
+    messages = [l for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH")]
+    return messages[0][:160] if failed and messages else ""
+
+
 def run(binary, sql_path, out_path, err_path, memory, timeout):
     cmd = ["/usr/bin/time", "-f", "BENCH_WALL_SECONDS=%e BENCH_MAX_RSS_KB=%M",
-           str(binary), "--memory-limit", memory, "--mem-pool-type", "fair", "-f", str(sql_path)]
+           *cli_command(binary, memory, sql_path)]
     status = run_process(cmd, out_path, err_path, timeout)
     out_text, err_text = Path(out_path).read_text(), Path(err_path).read_text()
     row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
@@ -323,10 +336,7 @@ def run(binary, sql_path, out_path, err_path, memory, timeout):
     row["max_rss_mb"] = round(int(rss.group(1)) / 1024) if rss else ""
     failed = run_failed(status, out_text, err_text)
     row["result"] = "failed" if failed else "ok"
-    messages = [l for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH_")]
-    row["error"] = messages[0][:160] if failed and messages else ""
-    if status == 124:
-        row["error"] = f"timeout after {timeout} s, process group killed"
+    row["error"] = error_of(status, err_text, failed, timeout)
     if failed:
         row["elapsed_seconds"] = ""   # a failed statement prints no Elapsed of its own
     return row

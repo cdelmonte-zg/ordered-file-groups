@@ -69,10 +69,12 @@ def rss_mb(pid):
 
 def one(query, variant, run):
     stem = OUT / f"{query}-{variant}-{run}"
+    sql_path = OUT / f"{query}.sql"
+    killed = False
     with open(f"{stem}.out", "w") as out, open(f"{stem}.err", "w") as err:
         start = time.monotonic()
-        proc = subprocess.Popen([str(rm.binary(variant)), "--memory-limit", "256m",
-                                 "--mem-pool-type", "fair", "-f", str(OUT / f"{query}.sql")],
+        # not rm.run_process: this loop samples the process while it runs
+        proc = subprocess.Popen(rm.cli_command(rm.binary(variant), "256m", sql_path),
                                 stdout=out, stderr=err, start_new_session=True)
         samples, fds, next_fds = [], {"parquet": 0, "temp": 0, "other": 0}, 0.0
         while proc.poll() is None:
@@ -88,15 +90,20 @@ def one(query, variant, run):
                             "fd_temp": fds["temp"], "fd_other": fds["other"]})
             if now > TIMEOUT:                 # as the other runners: kill the whole group
                 os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                killed = True
                 break
             time.sleep(EVERY)
         status = proc.wait()
+        if killed:
+            status = 124                      # as rm.run_process reports a timeout
         duration = time.monotonic() - start
     out_text, err_text = Path(f"{stem}.out").read_text(), Path(f"{stem}.err").read_text()
     failed = rm.run_failed(status, out_text, err_text)
+    feats = rm.parse(out_text, statements=sql_path.read_text().count(";"))
     row = {"query": query, "variant": variant, "run": run, "ok": int(not failed and bool(samples)),
            "duration_s": round(duration, 3),
-           "samples": len(samples)}
+           "samples": len(samples), "scan_groups": feats["scan_groups"],
+           "error": rm.error_of(status, err_text, failed, TIMEOUT)}
     if samples:
         peak = max(samples, key=lambda s: s["rss_mb"])
         most_files = max(samples, key=lambda s: s["fd_parquet"])

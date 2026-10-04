@@ -70,8 +70,7 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
     switched off for it alone.
     """
     cmd = ["/usr/bin/time", "-f", "BENCH wall=%e user=%U sys=%S rss_kb=%M minor=%R",
-           str(rm.binary(binary)), "--memory-limit", pool, "--mem-pool-type", "fair",
-           "-f", str(sql_path)]
+           *rm.cli_command(rm.binary(binary), pool, sql_path)]
     def before_exec():
         if nofile:
             resource.setrlimit(resource.RLIMIT_NOFILE, (nofile, nofile))
@@ -84,9 +83,6 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
     out, err = Path(f"{stem}.out").read_text(), Path(f"{stem}.err").read_text()
     tm = TIME.search(err)
     failed = rm.run_failed(status, out, err)
-    messages = [l for l in err.splitlines() if l.strip() and not l.startswith("BENCH ")]
-    if status == 124:
-        messages = [f"timeout after {timeout} s, process group killed"]
     # no BENCH line (a killed process): the times are unknown, not zero
     wall, user, system = (float(tm.group(i)) for i in (1, 2, 3)) if tm else ("", "", "")
     feats = rm.parse(out, statements=Path(sql_path).read_text().count(";"))
@@ -98,7 +94,7 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
            "minor_faults": int(tm.group(5)) if tm else "",
            "elapsed_s": "" if failed else feats["elapsed_seconds"],
            "scan_groups": feats["scan_groups"],
-           "error": messages[0][:160] if failed and messages else ""}
+           "error": rm.error_of(status, err, failed, timeout)}
     for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb"):
         row[key] = "" if failed else feats.get(key, "")
     # how long the repartition's inputs waited to hand their batches to the outputs
