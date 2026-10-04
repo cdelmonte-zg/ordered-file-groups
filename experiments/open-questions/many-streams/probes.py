@@ -9,14 +9,14 @@ is, with plain Utf8 strings, with batches of 1024 rows; and the ORDER BY
 query with the ordered and with the original plan. Writes the outputs to
 probes/, probes.tsv and probes-summary.txt.
 """
-import csv
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
-from common import interleaved, timed_run  # noqa: E402
+from common import fresh, interleaved, timed_run, write_tsv  # noqa: E402
 
+RESULTS = fresh(HERE / "probes.tsv")
 RUNS = 3
 OUT = HERE / "probes"
 OUT.mkdir(exist_ok=True)
@@ -37,10 +37,7 @@ def one(probe, tag):
 
 
 rows = interleaved(PROBES, RUNS, one)
-with (HERE / "probes.tsv").open("w") as f:
-    w = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter="\t")
-    w.writeheader()
-    w.writerows(rows)
+write_tsv(RESULTS, rows)
 lines = ["probe\tcompleted\tscan groups\tprocess RSS (MB)\telapsed (s)"]
 for label, variant, _ in PROBES:
     sel = [r for r in rows if r["probe"] == label]

@@ -8,15 +8,15 @@ interleaved. Writes every output here, results.tsv with one row per run and
 summary.txt. A run that fails is recorded with ok = 0 and left out of the
 means, which are given with the number of completed runs.
 """
-import csv
 import statistics as st
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1]))
-from common import interleaved, mean_sd, rm, timed_run  # noqa: E402
+from common import fresh, interleaved, mean_sd, rm, timed_run, write_tsv  # noqa: E402
 
+RESULTS = fresh(HERE / "results.tsv")
 RUNS = 6
 SIZES = (2048, 8192, 32768, 131072)
 SPLIT = "SET datafusion.execution.split_file_groups_by_statistics = true;\n"
@@ -41,10 +41,7 @@ def one(cell, tag):
 
 
 rows = interleaved(cells, RUNS, one)
-with (HERE / "results.tsv").open("w") as f:
-    w = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter="\t")
-    w.writeheader()
-    w.writerows(rows)
+write_tsv(RESULTS, rows)
 
 lines = ["batch_size\tdepth\tcompleted\twall_s mean (sd)\tcpu_s mean (sd)\tcores mean (sd)"]
 gaps = []

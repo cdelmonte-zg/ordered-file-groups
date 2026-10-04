@@ -13,14 +13,14 @@ generate_round5.sh, the 120-file datasets of depth 1 and 2:
   python scripts/generate_partial_overlap.py --files 120 --depth 1 --assign entity-rank
   python scripts/generate_partial_overlap.py --files 120 --depth 2 --assign entity-rank
 """
-import csv
 import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
-from common import interleaved, mean_sd, timed_run  # noqa: E402
+from common import fresh, interleaved, mean_sd, timed_run, write_tsv  # noqa: E402
 
+RESULTS = fresh(HERE / "probes.tsv")
 RUNS = 6
 OUT = HERE / "probes"
 OUT.mkdir(exist_ok=True)
@@ -41,10 +41,7 @@ def one(probe, tag):
 
 
 rows = interleaved(PROBES, RUNS, one)
-with (HERE / "probes.tsv").open("w") as f:
-    w = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter="\t")
-    w.writeheader()
-    w.writerows(rows)
+write_tsv(RESULTS, rows)
 lines = ["probe\tcompleted\tscan groups\twall_s mean (sd)\tcpu_s mean (sd)\tcores mean (sd)"]
 for label, _ in PROBES:
     sel = [r for r in rows if r["probe"] == label]

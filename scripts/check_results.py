@@ -26,7 +26,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
@@ -70,21 +69,37 @@ def rows_of(case, variant, pool, timeout, scratch):
 
 def is_sorted(table):
     """True when the rows are in non-decreasing order of (col_1, col_2)."""
-    c1 = table["col_1"].to_numpy(zero_copy_only=False).astype(str)
-    c2 = table["col_2"].to_numpy(zero_copy_only=False).astype(np.int64)
-    return bool(np.all((c1[:-1] < c1[1:]) | ((c1[:-1] == c1[1:]) & (c2[:-1] <= c2[1:]))))
+    if table.num_rows < 2:
+        return True
+    c1 = pc.cast(table["col_1"], pa.large_string()).combine_chunks()
+    c2 = pc.cast(table["col_2"], pa.int64()).combine_chunks()
+    a1, b1 = c1.slice(0, len(c1) - 1), c1.slice(1)
+    a2, b2 = c2.slice(0, len(c2) - 1), c2.slice(1)
+    in_order = pc.or_(pc.less(a1, b1), pc.and_(pc.equal(a1, b1), pc.less_equal(a2, b2)))
+    return bool(pc.all(in_order).as_py())
+
+
+NULL, SEPARATOR = "\x00", "\x1f"
 
 
 def digest(table, columns):
     """SHA-256 of the compared columns as a multiset of rows.
 
     Every row becomes one string (columns cast to text, nulls marked, joined by
-    a separator that the data does not contain); the strings are sorted, so the
-    order of the rows and the physical layout of the columns do not matter.
+    a separator); the strings are sorted, so the order of the rows and the
+    physical layout of the columns do not matter. The marker and the separator
+    must not occur in the data, which is checked, so that different rows cannot
+    produce the same string.
     """
     text = pa.large_string()
-    parts = [pc.fill_null(pc.cast(table[c], text), pa.scalar("\x00", text)) for c in columns]
-    lines = pc.binary_join_element_wise(*parts, pa.scalar("\x1f", text)).combine_chunks()
+    parts = []
+    for c in columns:
+        column = pc.cast(table[c], text)
+        for mark in (NULL, SEPARATOR):
+            if pc.any(pc.match_substring(column, mark)).as_py():
+                raise SystemExit(f"column {c} contains the byte {mark!r} used by the comparison")
+        parts.append(pc.fill_null(column, pa.scalar(NULL, text)))
+    lines = pc.binary_join_element_wise(*parts, pa.scalar(SEPARATOR, text)).combine_chunks()
     lines = lines.take(pc.sort_indices(lines))
     h = hashlib.sha256()
     for buf in lines.buffers()[1:]:
@@ -93,10 +108,21 @@ def digest(table, columns):
 
 
 def distinct_keys(dataset):
-    for line in (rm.ROOT / "results" / "manifests" / f"{dataset}.tsv").read_text().splitlines():
+    """Distinct grouping keys of a dataset, from its manifest; None when not recorded."""
+    path = rm.ROOT / "results" / "manifests" / f"{dataset}.tsv"
+    if not path.is_file():
+        return None
+    for line in path.read_text().splitlines():
         if line.startswith("# distinct_grouping_keys"):
             return int(line.split("\t")[1])
     return None
+
+
+def write(rows, out):
+    with (out / "result-check.tsv").open("w") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter="\t")
+        w.writeheader()
+        w.writerows(rows)
 
 
 def main():
@@ -131,8 +157,11 @@ def main():
                             row["sorted"] = int(is_sorted(table))
                             if not row["sorted"]:
                                 problems.append("not sorted by (col_1, col_2)")
-                        if case.query == "Q3" and table.num_rows != distinct_keys(case.dataset):
-                            problems.append(f"expected {distinct_keys(case.dataset)} rows")
+                        expected = distinct_keys(case.dataset) if case.query == "Q3" else None
+                        if case.query == "Q3" and expected is None:
+                            problems.append("no distinct_grouping_keys in the manifest")
+                        elif expected is not None and table.num_rows != expected:
+                            problems.append(f"expected {expected} rows")
                         if variant == "original":
                             reference = row["sha256_compared_columns"]
                         elif reference is None:
@@ -143,10 +172,7 @@ def main():
                     rows.append(row)
                     print("\t".join(str(row[k]) for k in ("case", "pool", "variant", "rows", "check")),
                           flush=True)
-    with (args.out / "result-check.tsv").open("w") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]), delimiter="\t")
-        w.writeheader()
-        w.writerows(rows)
+                    write(rows, args.out)      # after every run, so a crash keeps what was done
     bad = [r for r in rows if r["check"] != "ok"]
     if bad:
         print(f"{len(bad)} result(s) not as expected", file=sys.stderr)

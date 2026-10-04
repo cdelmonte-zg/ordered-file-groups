@@ -19,6 +19,10 @@ HERE = Path(__file__).resolve().parent
 NOVIEW = ("SET datafusion.execution.parquet.schema_force_view_types = false;\n"
           "SET datafusion.sql_parser.map_string_types_to_utf8view = false;\n")
 RUNS = 5
+RESULTS = HERE / "results.tsv"
+if RESULTS.exists():
+    raise SystemExit(f"{RESULTS} exists: move the earlier outputs to a dated subdirectory first "
+                     f"(experiments/open-questions/archive.py)")
 CASES = {c.name: c for c in rm.MATRIX}
 
 configs = []
@@ -37,19 +41,19 @@ for shape in ("S0", "S2"):
                 configs.append((name, shape, pool, variant, views, path))
 
 for name, shape, pool, variant, views, path in configs:
-    rm.run(rm.BIN / f"datafusion-cli-{variant}-release", path, HERE / "runs" / f"{name}-warmup.out",
+    rm.run(rm.binary_of(variant), path, HERE / "runs" / f"{name}-warmup.out",
            HERE / "runs" / f"{name}-warmup.err", pool, 120)
 rows = []
 for i in range(1, RUNS + 1):
     for name, shape, pool, variant, views, path in configs:
-        r = rm.run(rm.BIN / f"datafusion-cli-{variant}-release", path, HERE / "runs" / f"{name}-{i}.out",
+        r = rm.run(rm.binary_of(variant), path, HERE / "runs" / f"{name}-{i}.out",
                    HERE / "runs" / f"{name}-{i}.err", pool, 120)
         rows.append({"shape": shape, "pool": pool, "variant": variant, "strings": views, "run": i, **r})
 
 cols = ["shape", "pool", "variant", "strings", "run", "result", "elapsed_seconds", "max_rss_mb",
         "sort_spills", "final_agg_spills", "final_agg_spill_mb", "repartition_spills",
         "partial_agg_out_mb", "repartition_out_mb", "error"]
-with (HERE / "results.tsv").open("w") as f:
+with RESULTS.open("w") as f:
     w = csv.DictWriter(f, fieldnames=cols, delimiter="\t", extrasaction="ignore")
     w.writeheader()
     w.writerows(rows)

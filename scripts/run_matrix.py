@@ -207,27 +207,42 @@ def sql_for(case, variant, explain="EXPLAIN ANALYZE"):
                       explain=explain, query=QUERIES[case.query])
 
 
-def run(binary, sql_path, out_path, err_path, memory, timeout):
-    cmd = ["/usr/bin/time", "-f", "BENCH_WALL_SECONDS=%e BENCH_MAX_RSS_KB=%M",
-           str(binary), "--memory-limit", memory, "--mem-pool-type", "fair", "-f", str(sql_path)]
-    # A session of its own, so that a timeout kills datafusion-cli and not only
-    # /usr/bin/time, which is the process that subprocess would stop.
+FAILURE = re.compile(r"Resources exhausted|\*\*Error\*\*|^Error:|^IO error", re.M)
+
+
+def run_failed(status, out_text, err_text):
+    """True when a timed EXPLAIN ANALYZE run did not complete. Used by every runner."""
+    return bool(status != 0 or "Plan with Metrics" not in out_text or FAILURE.search(err_text))
+
+
+def run_process(cmd, out_path, err_path, timeout, env=None, preexec_fn=None):
+    """Run a command with its output in files; returns the exit status, 124 on timeout.
+
+    A session of its own, so that a timeout kills datafusion-cli and not only
+    /usr/bin/time, which is the process that subprocess would stop.
+    """
     with open(out_path, "w") as out, open(err_path, "w") as err:
-        proc = subprocess.Popen(cmd, stdout=out, stderr=err, start_new_session=True)
+        proc = subprocess.Popen(cmd, stdout=out, stderr=err, start_new_session=True,
+                                env=env, preexec_fn=preexec_fn)
         try:
-            status = proc.wait(timeout=timeout)
+            return proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
             proc.wait()
-            status = 124
+            return 124
+
+
+def run(binary, sql_path, out_path, err_path, memory, timeout):
+    cmd = ["/usr/bin/time", "-f", "BENCH_WALL_SECONDS=%e BENCH_MAX_RSS_KB=%M",
+           str(binary), "--memory-limit", memory, "--mem-pool-type", "fair", "-f", str(sql_path)]
+    status = run_process(cmd, out_path, err_path, timeout)
     out_text, err_text = Path(out_path).read_text(), Path(err_path).read_text()
     row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
     wall = re.search(r"BENCH_WALL_SECONDS=([\d.]+)", err_text)
     rss = re.search(r"BENCH_MAX_RSS_KB=(\d+)", err_text)
     row["wall_seconds"] = wall.group(1) if wall else ""
     row["max_rss_mb"] = round(int(rss.group(1)) / 1024) if rss else ""
-    failed = status != 0 or "Plan with Metrics" not in out_text \
-        or re.search(r"Resources exhausted|\*\*Error\*\*|^Error:|^IO error", err_text, re.M)
+    failed = run_failed(status, out_text, err_text)
     row["result"] = "failed" if failed else "ok"
     messages = [l for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH_")]
     row["error"] = messages[0][:160] if failed and messages else ""

@@ -4,10 +4,11 @@ Failed runs are listed and then left out of every statistic below.
 """
 import csv
 import random
+from pathlib import Path
 import statistics as st
 from math import sqrt
 
-every = [r for r in csv.DictReader(open("results.tsv"), delimiter="\t")]
+every = [r for r in csv.DictReader(open(Path(__file__).resolve().parent / "results.tsv"), delimiter="\t")]
 bad = [r["name"] + "/" + r["run"] for r in every if r["ok"] != "1"]
 print("failed runs:", bad or "none")
 rows = [r for r in every if r["ok"] == "1"]
