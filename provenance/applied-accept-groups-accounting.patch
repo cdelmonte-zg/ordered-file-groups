@@ -1,0 +1,96 @@
+diff --git a/datafusion/catalog-listing/src/table.rs b/datafusion/catalog-listing/src/table.rs
+index 3ff86662f..c9c952c08 100644
+--- a/datafusion/catalog-listing/src/table.rs
++++ b/datafusion/catalog-listing/src/table.rs
+@@ -693,13 +693,7 @@ impl ListingTable {
+         {
+             Some(Err(e)) => log::debug!("failed to split file groups by statistics: {e}"),
+             Some(Ok(new_groups)) => {
+-                if new_groups.len() <= file_group_count {
+-                    partitioned_file_lists = new_groups;
+-                } else {
+-                    log::debug!(
+-                        "attempted to split file groups by statistics, but there were more file groups than target_partitions; falling back to unordered"
+-                    )
+-                }
++                partitioned_file_lists = new_groups;
+             }
+             None => {} // no ordering required
+         }
+diff --git a/datafusion/physical-plan/src/repartition/mod.rs b/datafusion/physical-plan/src/repartition/mod.rs
+index d2d8ec38d..bfe60c3a7 100644
+--- a/datafusion/physical-plan/src/repartition/mod.rs
++++ b/datafusion/physical-plan/src/repartition/mod.rs
+@@ -156,8 +156,8 @@ use distributor_channels::{
+ /// the state machine that handles reading these batches.
+ #[derive(Debug)]
+ enum RepartitionBatch {
+-    /// Batch held in memory (counts against memory reservation)
+-    Memory(RecordBatch),
++    /// Batch held in memory, with the bytes reserved for it
++    Memory(RecordBatch, usize),
+     /// Marker indicating a batch was spilled to the partition's SpillPool.
+     /// The actual batch can be retrieved by reading from the SpillPoolStream.
+     /// This variant contains no data itself - it's just a signal to the reader
+@@ -212,6 +212,33 @@ impl PartitionSpillWriters {
+     }
+ }
+ 
++/// Measuring instrument, not a proposal: the bytes a batch holds for its own
++/// rows. A slice is charged for the rows it carries, and a view column for its
++/// views and the bytes its rows reference, instead of the full capacity of
++/// every buffer it shares with the other slices of the same batch. Computed
++/// once per batch, when it is sent; the receiver releases the same amount.
++fn own_bytes(batch: &RecordBatch) -> usize {
++    use arrow::array::{Array, AsArray};
++    batch
++        .columns()
++        .iter()
++        .map(|column| match column.data_type() {
++            DataType::Utf8View => {
++                let views = column.as_string_view();
++                views.len() * 16 + views.total_buffer_bytes_used()
++            }
++            DataType::BinaryView => {
++                let views = column.as_binary_view();
++                views.len() * 16 + views.total_buffer_bytes_used()
++            }
++            _ => column
++                .to_data()
++                .get_slice_memory_size()
++                .unwrap_or_else(|_| column.get_array_memory_size()),
++        })
++        .sum()
++}
++
+ impl OutputChannel {
+     fn coalesce(&mut self, batch: RecordBatch) -> Result<Vec<RecordBatch>> {
+         match &self.shared_coalescer {
+@@ -226,13 +253,13 @@ impl OutputChannel {
+     ///
+     /// Used after [`OutputChannel::coalesce`] for performance purposes.
+     async fn send(&mut self, batch: RecordBatch) -> Result<(), SendError<MaybeBatch>> {
+-        let size = batch.get_array_memory_size();
++        let size = own_bytes(&batch);
+ 
+         // Decide the payload outside of any await: never hold a MutexGuard
+         // across an await point.
+         let (payload, is_memory_batch) = {
+             match self.reservation.try_grow(size) {
+-                Ok(_) => (Ok(RepartitionBatch::Memory(batch)), true),
++                Ok(_) => (Ok(RepartitionBatch::Memory(batch, size)), true),
+                 Err(_) => match self.spill_writer.push_batch(&batch) {
+                     Ok(()) => (Ok(RepartitionBatch::Spilled), false),
+                     Err(err) => (Err(err), false),
+@@ -2547,9 +2574,9 @@ impl PerPartitionStream {
+ 
+                     match value {
+                         Some(Some(v)) => match v {
+-                            Ok(RepartitionBatch::Memory(batch)) => {
++                            Ok(RepartitionBatch::Memory(batch, size)) => {
+                                 // Release memory and return batch
+-                                self.reservation.shrink(batch.get_array_memory_size());
++                                self.reservation.shrink(size);
+                                 return Poll::Ready(Some(Ok(batch)));
+                             }
+                             Ok(RepartitionBatch::Spilled) => {

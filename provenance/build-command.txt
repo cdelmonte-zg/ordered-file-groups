@@ -1,1 +1,1 @@
-cargo build --release -p datafusion-cli
+CARGO_PROFILE_RELEASE_STRIP=false cargo build --release -p datafusion-cli
