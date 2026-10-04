@@ -67,7 +67,10 @@ DataFusion checkout, and a machine doing nothing else.
 performance, switches the swap off and lets a user run perf on its own
 processes; `status` prints the settings without root, and the report records
 them. `run_lab.sh` refuses to measure on a machine that is not configured,
-unless `ALLOW_UNCONFIGURED=1` is set.
+unless `ALLOW_UNCONFIGURED=1` is set. The runners pin themselves and the
+processes they start to the CPUs that share the largest last-level cache, so
+that on a processor with unlike cores the work does not move between them
+from run to run; `LAB_CPUS=<list>` chooses other CPUs, `LAB_CPUS=all` none.
 
 `run_lab.sh` checks the binaries against `provenance/`, generates the
 datasets in `/tmp/df-16919-*`, validates the plans, measures the matrix,

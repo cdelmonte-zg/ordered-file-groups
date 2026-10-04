@@ -222,6 +222,67 @@ def sql_for(case, variant, explain="EXPLAIN ANALYZE"):
                       explain=explain, query=QUERIES[case.query])
 
 
+def parse_cpu_list(text):
+    """'0-7,16-23' -> the set of CPU numbers."""
+    cpus = set()
+    for part in text.strip().split(","):
+        lo, _, hi = part.partition("-")
+        cpus.update(range(int(lo), int(hi or lo) + 1))
+    return cpus
+
+
+def format_cpu_list(cpus):
+    """The set of CPU numbers -> '0-7,16-23'."""
+    out, run = [], []
+    for c in sorted(cpus) + [None]:
+        if run and c is not None and c == run[-1] + 1:
+            run.append(c)
+            continue
+        if run:
+            out.append(str(run[0]) if len(run) == 1 else f"{run[0]}-{run[-1]}")
+        run = [c]
+    return ",".join(out)
+
+
+def lab_cpus():
+    """The CPUs the lab runs on.
+
+    LAB_CPUS names them ('0-7,16-23'), or 'all' for no pinning. By default they
+    are the CPUs that share the largest last-level cache: on a processor whose
+    cores are not alike (two cache sizes, or performance and efficiency cores)
+    the scheduler would otherwise move the work between unlike cores from one
+    run to the next. On a processor with one such cache it is every CPU.
+    """
+    allowed = os.sched_getaffinity(0)
+    wanted = os.environ.get("LAB_CPUS", "")
+    if wanted == "all":
+        return allowed
+    if wanted:
+        cpus = parse_cpu_list(wanted) & allowed
+        if not cpus:
+            raise SystemExit(f"LAB_CPUS={wanted} names no CPU this process may use")
+        return cpus
+    domains = {}
+    for cpu in sorted(allowed):
+        cache = Path(f"/sys/devices/system/cpu/cpu{cpu}/cache/index3")
+        try:
+            size = int((cache / "size").read_text().strip().rstrip("K"))
+            shared = (cache / "shared_cpu_list").read_text().strip()
+        except (OSError, ValueError):
+            return allowed                # no last-level cache described: no pinning
+        domains.setdefault((size, shared), set()).add(cpu)
+    # the largest cache; among equals the domain of the lowest CPU number
+    (_, shared), _ = max(domains.items(), key=lambda kv: (kv[0][0], -min(kv[1])))
+    return parse_cpu_list(shared) & allowed
+
+
+def pin():
+    """Pin this process, and so every process it starts, to the CPUs of the lab."""
+    cpus = lab_cpus()
+    os.sched_setaffinity(0, cpus)
+    return format_cpu_list(cpus)
+
+
 FAILURE = re.compile(r"Resources exhausted|\*\*Error\*\*|^Error:|^IO error", re.M)
 
 
@@ -439,7 +500,8 @@ def record_machine(out):
                            capture_output=True, text=True).stdout
     (out / "machine.txt").write_text(
         f"cpu\t{cpu}\nthreads\t{threads}\nmemory_gb\t{int(memory) / 2**20:.0f}\n"
-        f"kernel\tLinux {kernel}\nopen_file_limit\t{nofile}\n{setup}"
+        f"kernel\tLinux {kernel}\nopen_file_limit\t{nofile}\n"
+        f"cpus_used\t{format_cpu_list(os.sched_getaffinity(0))}\n{setup}"
         f"date\t{time.strftime('%Y-%m-%d %H:%M %Z')}\nbinaries\n{hashes}")
 
 
@@ -509,6 +571,7 @@ def main():
                    help="validate the plans already recorded under --out; runs nothing")
     args = p.parse_args()
 
+    print("pinned to CPUs", pin(), flush=True)
     cases = [c for c in MATRIX if not args.only or c.name in args.only]
     unknown = set(args.only or ()) - {c.name for c in MATRIX}
     if unknown or not cases:

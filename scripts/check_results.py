@@ -141,6 +141,7 @@ def main():
     p.add_argument("--only", nargs="*", help="case names")
     p.add_argument("--timeout", type=float, default=300)
     args = p.parse_args()
+    rm.pin()
     cases = [c for c in rm.MATRIX if not args.only or c.name in args.only]
     unknown = set(args.only or ()) - {c.name for c in rm.MATRIX}
     if unknown or not cases:

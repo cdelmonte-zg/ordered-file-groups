@@ -558,7 +558,8 @@ case, "within the quartiles" otherwise. A gain is the reduction of the median.
 ```
 
 - {machine["cpu"]}, {machine["threads"]} threads, {machine.get("memory_gb", "?")} GB, {machine["kernel"]}, open-file
-  limit {machine.get("open_file_limit", "?")}; matrix started {machine["date"]}. As set by
+  limit {machine.get("open_file_limit", "?")}; every process pinned to CPUs {machine.get("cpus_used", "?")};
+  matrix started {machine["date"]}. As set by
   `scripts/machine_setup.sh` and recorded when the matrix started: frequency
   driver {machine.get("scaling_driver", "?")}, governor {machine.get("governor", "?")}, energy preference
   {machine.get("energy_performance_preference", "?")}, boost {machine.get("boost", "?")}, SMT {machine.get("smt", "?")}, swap {machine.get("swap", "?")},

@@ -25,6 +25,7 @@ def output_dir(name):
     if out.exists() and any(out.iterdir()):
         raise SystemExit(f"{out} is not empty: remove it or choose another --out")
     out.mkdir(parents=True, exist_ok=True)
+    rm.pin()                  # the experiments run on the CPUs of the matrix
     return out
 
 

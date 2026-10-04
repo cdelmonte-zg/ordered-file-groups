@@ -19,6 +19,10 @@
 #   swap off: the peak RSS is a measured quantity and must not be pages that
 #     the kernel moved out.
 #
+# Pinning needs no root and is not done here: the runners pin themselves, and
+#   every process they start, to the CPUs that share the largest last-level
+#   cache (LAB_CPUS=<list> to choose them, LAB_CPUS=all for no pinning).
+#
 # What it does not touch, on purpose, and only reports: frequency boost (turbo),
 #   SMT, transparent huge pages, address-space randomization, idle states.
 #   Changing them changes what is measured rather than how steadily; set
