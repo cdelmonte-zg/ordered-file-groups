@@ -5,9 +5,10 @@ Run from the repository root:
 
 Depth 1 and depth 2 with 12 and with 120 files, and depth 1 with the files
 split between the two partitions by name instead of by statistics. 256 MB,
-six recorded runs each after a warm-up, interleaved. The original binary is
-used: at these depths it keeps the order by itself, except in the split by
-name, where the grouping by statistics is off. Writes the outputs to
+six recorded runs each after a warm-up, interleaved. The binary that accepts
+extra groups is used, so that every probe keeps the order: with 12 files the
+two binaries have the same plan, with 120 files at depth 2 the bounds give
+three groups, which the original binary would refuse. Writes the outputs to
 probes/, probes.tsv and probes-summary.txt. Needs, beside the datasets of
 generate_round5.sh, the 120-file datasets of depth 1 and 2:
   python scripts/generate_partial_overlap.py --files 120 --depth 1 --assign entity-rank
@@ -36,7 +37,7 @@ PROBES = [
 
 def one(probe, tag):
     label, sql = probe
-    row = timed_run("original", HERE / sql, OUT / f"{Path(sql).stem}-{tag}")
+    row = timed_run("accept-groups", HERE / sql, OUT / f"{Path(sql).stem}-{tag}")
     return {"probe": label, "run": tag, **row}
 
 

@@ -1,42 +1,42 @@
 failed runs: none
 
 E1: medians per file count (MB). ordered rss / commit | original rss / commit | groups
-  Q1   150:    564 /   629  [rss range 538-586] |   515 /  566 | groups 150 | user 0.26 sys 0.59
-  Q1   300:    540 /   489  [rss range 527-576] |   428 /  402 | groups 300 | user 0.34 sys 0.59
-  Q1   600:    717 /   597  [rss range 646-732] |   410 /  365 | groups 599 | user 0.48 sys 0.90
-  Q1  1200:    830 /   593  [rss range 814-855] |   356 /  306 | groups 1196 | user 0.69 sys 1.37
-  Q2   150:    794 /  1018  [rss range 768-814] |   366 /  397 | groups 150 | user 1.33 sys 0.69
-  Q2   300:    709 /   795  [rss range 642-711] |   324 /  294 | groups 300 | user 1.13 sys 0.51
-  Q2   600:    819 /   865  [rss range 754-852] |   354 /  316 | groups 599 | user 1.14 sys 0.64
-  Q2  1200:    755 /   758  [rss range 713-771] |   324 /  289 | groups 1196 | user 1.59 sys 0.72
-  Q3   150:   1055 /  1331  [rss range 997-1079] |   677 /  679 | groups 150 | user 2.21 sys 0.92
-  Q3   300:   1098 /  1331  [rss range 1069-1219] |   624 /  587 | groups 300 | user 2.31 sys 0.83
-  Q3   600:   1424 /  1741  [rss range 1157-1548] |   630 /  602 | groups 599 | user 2.21 sys 0.94
-  Q3  1200:   1834 /  2458  [rss range 1698-2181] |   628 /  589 | groups 1196 | user 2.35 sys 1.06
+  Q1   150:    568 /   650  [rss range 560-592] |   510 /  569 | groups 150 | user 0.27 sys 0.60
+  Q1   300:    558 /   510  [rss range 509-589] |   439 /  419 | groups 300 | user 0.33 sys 0.66
+  Q1   600:    722 /   598  [rss range 699-729] |   408 /  366 | groups 599 | user 0.48 sys 0.83
+  Q1  1200:    790 /   571  [rss range 707-847] |   397 /  351 | groups 1196 | user 0.69 sys 1.19
+  Q2   150:    797 /  1024  [rss range 790-820] |   357 /  394 | groups 150 | user 1.35 sys 0.66
+  Q2   300:    711 /   797  [rss range 681-747] |   354 /  342 | groups 300 | user 1.10 sys 0.52
+  Q2   600:    811 /   816  [rss range 711-869] |   376 /  337 | groups 599 | user 1.15 sys 0.73
+  Q2  1200:    766 /   761  [rss range 754-776] |   328 /  284 | groups 1196 | user 1.52 sys 0.74
+  Q3   150:   1070 /  1331  [rss range 1030-1175] |   676 /  677 | groups 150 | user 2.13 sys 0.96
+  Q3   300:   1101 /  1331  [rss range 1058-1215] |   623 /  578 | groups 300 | user 2.18 sys 0.77
+  Q3   600:   1778 /  2355  [rss range 1432-1827] |   645 /  623 | groups 599 | user 2.37 sys 1.26
+  Q3  1200:   2127 /  3072  [rss range 1895-2243] |   666 /  624 | groups 1196 | user 2.27 sys 1.29
 
 E1: excess over the original (ordered run minus median original), regressed on ordered groups
-  rss_mb             Q1: slope    418 KB/stream  [95%    378 ..    458]  intercept      4 MB  R2 0.96  n=20
-  rss_mb             Q2: slope     24 KB/stream  [95%    -24 ..     72]  intercept    407 MB  R2 0.06  n=20
-  rss_mb             Q3: slope    900 KB/stream  [95%    740 ..   1060]  intercept    238 MB  R2 0.89  n=20
-  mi_peak_commit_mb  Q1: slope    223 KB/stream  [95%    179 ..    267]  intercept     45 MB  R2 0.86  n=20
-  mi_peak_commit_mb  Q2: slope   -108 KB/stream  [95%   -171 ..    -46]  intercept    589 MB  R2 0.42  n=20
-  mi_peak_commit_mb  Q3: slope   1363 KB/stream  [95%   1035 ..   1692]  intercept    369 MB  R2 0.81  n=20
+  rss_mb             Q1: slope    325 KB/stream  [95%    255 ..    394]  intercept     41 MB  R2 0.84  n=20
+  rss_mb             Q2: slope     29 KB/stream  [95%    -27 ..     86]  intercept    400 MB  R2 0.06  n=20
+  rss_mb             Q3: slope   1027 KB/stream  [95%    849 ..   1205]  intercept    288 MB  R2 0.89  n=20
+  mi_peak_commit_mb  Q1: slope    137 KB/stream  [95%     66 ..    209]  intercept     72 MB  R2 0.47  n=20
+  mi_peak_commit_mb  Q2: slope    -87 KB/stream  [95%   -165 ..     -9]  intercept    564 MB  R2 0.23  n=20
+  mi_peak_commit_mb  Q3: slope   1684 KB/stream  [95%   1403 ..   1966]  intercept    412 MB  R2 0.90  n=20
 
 E1: the same slopes, bootstrap over ordered and original runs (10,000 resamples, seed 16919, 2.5 to 97.5 percentiles)
-  rss_mb             Q1: slope [95%    392 ..    438] KB/stream
-  rss_mb             Q2: slope [95%     -7 ..     49] KB/stream
-  rss_mb             Q3: slope [95%    725 ..   1077] KB/stream
-  mi_peak_commit_mb  Q1: slope [95%    194 ..    248] KB/stream
-  mi_peak_commit_mb  Q2: slope [95%   -138 ..    -69] KB/stream
-  mi_peak_commit_mb  Q3: slope [95%   1003 ..   1714] KB/stream
+  rss_mb             Q1: slope [95%    269 ..    372] KB/stream
+  rss_mb             Q2: slope [95%      8 ..     43] KB/stream
+  rss_mb             Q3: slope [95%    924 ..   1147] KB/stream
+  mi_peak_commit_mb  Q1: slope [95%     75 ..    182] KB/stream
+  mi_peak_commit_mb  Q2: slope [95%   -111 ..    -70] KB/stream
+  mi_peak_commit_mb  Q3: slope [95%   1488 ..   1874] KB/stream
 
 E2: Q3, 1200 files, outputs = target_partitions
-  outputs 2: rss median 1834 [1698, 1786, 1834, 2129, 2181]  commit median 2458 [2150, 2253, 2458, 3072, 3072]  elapsed 0.645
-  outputs 4: rss median 2481 [2287, 2313, 2481, 2500, 2550]  commit median 3277 [2867, 2970, 3277, 3379, 3379]  elapsed 0.581
-  outputs 8: rss median 3598 [3544, 3579, 3598, 3611, 3629]  commit median 3994 [3789, 3994, 3994, 3994, 4096]  elapsed 0.771
+  outputs 2: rss median 2127 [1895, 2076, 2127, 2131, 2243]  commit median 3072 [2560, 2867, 3072, 3072, 3072]  elapsed 0.659
+  outputs 4: rss median 2293 [2141, 2247, 2293, 2506, 2539]  commit median 2867 [2253, 2662, 2867, 3379, 3379]  elapsed 0.575
+  outputs 8: rss median 3590 [3483, 3572, 3590, 3608, 3611]  commit median 3994 [3482, 3994, 3994, 3994, 3994]  elapsed 0.765
 
 E3: 1200 files, default purge delay against MIMALLOC_PURGE_DELAY=0
-  Q1 default : rss [814, 827, 830, 840, 855] median 830 | commit [582, 590, 593, 601, 626] median 593 | elapsed 0.220
-  Q1 purge 0 : rss [686, 691, 761, 828, 845] median 761 | commit [467, 508, 564, 598, 611] median 564 | elapsed 0.225
-  Q3 default : rss [1698, 1786, 1834, 2129, 2181] median 1834 | commit [2150, 2253, 2458, 3072, 3072] median 2458 | elapsed 0.645
-  Q3 purge 0 : rss [1525, 1657, 1684, 1791, 1859] median 1684 | commit [2253, 2458, 2458, 2765, 2970] median 2458 | elapsed 0.768
+  Q1 default : rss [707, 775, 790, 809, 847] median 790 | commit [452, 559, 571, 593, 596] median 571 | elapsed 0.214
+  Q1 purge 0 : rss [749, 768, 768, 770, 772] median 768 | commit [558, 561, 561, 564, 576] median 561 | elapsed 0.224
+  Q3 default : rss [1895, 2076, 2127, 2131, 2243] median 2127 | commit [2560, 2867, 3072, 3072, 3072] median 3072 | elapsed 0.659
+  Q3 purge 0 : rss [1545, 1662, 1725, 1758, 1924] median 1725 | commit [2253, 2560, 2662, 2662, 3072] median 2662 | elapsed 0.776

@@ -1,49 +1,49 @@
-cell	depth	batch_size	run	ok	wall_s	cpu_s	cores	rss_mb	error
-d1-b2048	1	2048	1	1	0.59	0.85	1.441	302	
-d2-b2048	2	2048	1	1	0.41	0.8	1.951	306	
-d1-b8192	1	8192	1	1	0.5	0.79	1.58	340	
-d2-b8192	2	8192	1	1	0.42	0.8	1.905	330	
-d1-b32768	1	32768	1	1	0.42	0.78	1.857	403	
-d2-b32768	2	32768	1	1	0.45	0.86	1.911	407	
-d1-b131072	1	131072	1	0	0.67	1.43	2.134	624	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
-d2-b131072	2	131072	1	1	0.78	1.59	2.038	583	
-d1-b2048	1	2048	2	1	0.52	0.76	1.462	276	
-d2-b2048	2	2048	2	1	0.44	0.85	1.932	307	
-d1-b8192	1	8192	2	1	0.53	0.82	1.547	321	
-d2-b8192	2	8192	2	1	0.42	0.81	1.929	322	
-d1-b32768	1	32768	2	1	0.43	0.89	2.07	424	
-d2-b32768	2	32768	2	1	0.43	0.83	1.93	437	
-d1-b131072	1	131072	2	1	0.71	1.52	2.141	594	
-d2-b131072	2	131072	2	0	0.78	1.59	2.038	607	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
-d1-b2048	1	2048	3	1	0.59	0.84	1.424	277	
-d2-b2048	2	2048	3	1	0.45	0.88	1.956	297	
-d1-b8192	1	8192	3	1	0.53	0.84	1.585	329	
-d2-b8192	2	8192	3	1	0.42	0.79	1.881	297	
-d1-b32768	1	32768	3	1	0.43	0.89	2.07	404	
-d2-b32768	2	32768	3	1	0.42	0.84	2.0	383	
-d1-b131072	1	131072	3	0	0.72	1.5	2.083	601	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
-d2-b131072	2	131072	3	0	0.77	1.58	2.052	550	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
-d1-b2048	1	2048	4	1	0.54	0.78	1.444	271	
-d2-b2048	2	2048	4	1	0.43	0.82	1.907	288	
-d1-b8192	1	8192	4	1	0.51	0.78	1.529	321	
-d2-b8192	2	8192	4	1	0.4	0.8	2.0	306	
-d1-b32768	1	32768	4	1	0.41	0.87	2.122	441	
-d2-b32768	2	32768	4	1	0.4	0.82	2.05	414	
-d1-b131072	1	131072	4	1	0.75	1.56	2.08	615	
-d2-b131072	2	131072	4	0	0.69	1.44	2.087	620	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
-d1-b2048	1	2048	5	1	0.56	0.82	1.464	269	
-d2-b2048	2	2048	5	1	0.42	0.81	1.929	289	
-d1-b8192	1	8192	5	1	0.52	0.81	1.558	322	
-d2-b8192	2	8192	5	1	0.46	0.89	1.935	322	
-d1-b32768	1	32768	5	1	0.45	0.89	1.978	396	
-d2-b32768	2	32768	5	1	0.43	0.88	2.047	411	
-d1-b131072	1	131072	5	1	0.72	1.52	2.111	611	
-d2-b131072	2	131072	5	1	0.77	1.57	2.039	619	
-d1-b2048	1	2048	6	1	0.56	0.81	1.446	293	
-d2-b2048	2	2048	6	1	0.43	0.82	1.907	298	
-d1-b8192	1	8192	6	1	0.54	0.79	1.463	327	
-d2-b8192	2	8192	6	1	0.43	0.85	1.977	329	
-d1-b32768	1	32768	6	1	0.39	0.82	2.103	399	
-d2-b32768	2	32768	6	1	0.41	0.84	2.049	381	
-d1-b131072	1	131072	6	1	0.73	1.53	2.096	588	
-d2-b131072	2	131072	6	0	0.72	1.5	2.083	599	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+cell	depth	batch_size	run	ok	wall_s	cpu_s	user_s	sys_s	cores	rss_mb	elapsed_s	scan_groups	error
+d2-b2048	2	2048	1	1	0.43	0.83	0.8	0.03	1.93	305	0.422	2	
+d1-b8192	1	8192	1	1	0.48	0.75	0.72	0.03	1.562	344	0.476	2	
+d2-b8192	2	8192	1	1	0.42	0.83	0.8	0.03	1.976	362	0.415	2	
+d1-b32768	1	32768	1	1	0.42	0.83	0.8	0.03	1.976	390	0.415	2	
+d2-b32768	2	32768	1	1	0.43	0.85	0.81	0.04	1.977	406	0.418	2	
+d1-b131072	1	131072	1	0	0.68	1.44	1.34	0.1	2.118	599			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d2-b131072	2	131072	1	1	0.74	1.53	1.42	0.11	2.068	609	0.731	2	
+d1-b2048	1	2048	1	1	0.56	0.79	0.77	0.02	1.411	296	0.555	2	
+d1-b8192	1	8192	2	1	0.51	0.79	0.77	0.02	1.549	309	0.502	2	
+d2-b8192	2	8192	2	1	0.42	0.81	0.78	0.03	1.929	309	0.413	2	
+d1-b32768	1	32768	2	1	0.41	0.86	0.81	0.05	2.098	415	0.401	2	
+d2-b32768	2	32768	2	1	0.41	0.82	0.79	0.03	2.0	394	0.404	2	
+d1-b131072	1	131072	2	0	0.64	1.38	1.27	0.11	2.156	610			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d2-b131072	2	131072	2	0	0.71	1.45	1.34	0.11	2.042	612			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d1-b2048	1	2048	2	1	0.55	0.82	0.78	0.04	1.491	279	0.549	2	
+d2-b2048	2	2048	2	1	0.44	0.84	0.81	0.03	1.909	303	0.439	2	
+d2-b8192	2	8192	3	1	0.4	0.78	0.75	0.03	1.95	315	0.395	2	
+d1-b32768	1	32768	3	1	0.44	0.91	0.88	0.03	2.068	399	0.435	2	
+d2-b32768	2	32768	3	1	0.39	0.81	0.77	0.04	2.077	430	0.388	2	
+d1-b131072	1	131072	3	0	0.7	1.48	1.37	0.11	2.114	605			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d2-b131072	2	131072	3	0	0.67	1.4	1.29	0.11	2.09	575			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d1-b2048	1	2048	3	1	0.51	0.74	0.71	0.03	1.451	261	0.503	2	
+d2-b2048	2	2048	3	1	0.41	0.79	0.76	0.03	1.927	305	0.400	2	
+d1-b8192	1	8192	3	1	0.5	0.77	0.73	0.04	1.54	327	0.490	2	
+d1-b32768	1	32768	4	1	0.43	0.84	0.81	0.03	1.953	403	0.423	2	
+d2-b32768	2	32768	4	1	0.43	0.87	0.83	0.04	2.023	412	0.428	2	
+d1-b131072	1	131072	4	1	0.7	1.49	1.39	0.1	2.129	597	0.698	2	
+d2-b131072	2	131072	4	0	0.71	1.48	1.36	0.12	2.085	579			Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d1-b2048	1	2048	4	1	0.55	0.78	0.76	0.02	1.418	292	0.545	2	
+d2-b2048	2	2048	4	1	0.4	0.78	0.74	0.04	1.95	297	0.399	2	
+d1-b8192	1	8192	4	1	0.46	0.74	0.7	0.04	1.609	339	0.458	2	
+d2-b8192	2	8192	4	1	0.44	0.85	0.82	0.03	1.932	347	0.439	2	
+d2-b32768	2	32768	5	1	0.41	0.83	0.79	0.04	2.024	393	0.407	2	
+d1-b131072	1	131072	5	1	0.71	1.52	1.39	0.13	2.141	606	0.706	2	
+d2-b131072	2	131072	5	1	0.75	1.53	1.43	0.1	2.04	594	0.741	2	
+d1-b2048	1	2048	5	1	0.52	0.76	0.72	0.04	1.462	269	0.520	2	
+d2-b2048	2	2048	5	1	0.4	0.76	0.74	0.02	1.9	311	0.399	2	
+d1-b8192	1	8192	5	1	0.5	0.76	0.73	0.03	1.52	331	0.496	2	
+d2-b8192	2	8192	5	1	0.42	0.78	0.75	0.03	1.857	339	0.411	2	
+d1-b32768	1	32768	5	1	0.41	0.79	0.76	0.03	1.927	411	0.400	2	
+d1-b131072	1	131072	6	1	0.74	1.55	1.44	0.11	2.095	636	0.730	2	
+d2-b131072	2	131072	6	1	0.79	1.61	1.5	0.11	2.038	628	0.780	2	
+d1-b2048	1	2048	6	1	0.57	0.83	0.8	0.03	1.456	297	0.569	2	
+d2-b2048	2	2048	6	1	0.41	0.79	0.76	0.03	1.927	285	0.409	2	
+d1-b8192	1	8192	6	1	0.49	0.78	0.74	0.04	1.592	347	0.483	2	
+d2-b8192	2	8192	6	1	0.41	0.81	0.78	0.03	1.976	321	0.402	2	
+d1-b32768	1	32768	6	1	0.43	0.83	0.79	0.04	1.93	430	0.428	2	
+d2-b32768	2	32768	6	1	0.43	0.87	0.83	0.04	2.023	405	0.429	2	

@@ -1,0 +1,49 @@
+cell	depth	batch_size	run	ok	wall_s	cpu_s	cores	rss_mb	error
+d1-b2048	1	2048	1	1	0.59	0.85	1.441	302	
+d2-b2048	2	2048	1	1	0.41	0.8	1.951	306	
+d1-b8192	1	8192	1	1	0.5	0.79	1.58	340	
+d2-b8192	2	8192	1	1	0.42	0.8	1.905	330	
+d1-b32768	1	32768	1	1	0.42	0.78	1.857	403	
+d2-b32768	2	32768	1	1	0.45	0.86	1.911	407	
+d1-b131072	1	131072	1	0	0.67	1.43	2.134	624	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d2-b131072	2	131072	1	1	0.78	1.59	2.038	583	
+d1-b2048	1	2048	2	1	0.52	0.76	1.462	276	
+d2-b2048	2	2048	2	1	0.44	0.85	1.932	307	
+d1-b8192	1	8192	2	1	0.53	0.82	1.547	321	
+d2-b8192	2	8192	2	1	0.42	0.81	1.929	322	
+d1-b32768	1	32768	2	1	0.43	0.89	2.07	424	
+d2-b32768	2	32768	2	1	0.43	0.83	1.93	437	
+d1-b131072	1	131072	2	1	0.71	1.52	2.141	594	
+d2-b131072	2	131072	2	0	0.78	1.59	2.038	607	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d1-b2048	1	2048	3	1	0.59	0.84	1.424	277	
+d2-b2048	2	2048	3	1	0.45	0.88	1.956	297	
+d1-b8192	1	8192	3	1	0.53	0.84	1.585	329	
+d2-b8192	2	8192	3	1	0.42	0.79	1.881	297	
+d1-b32768	1	32768	3	1	0.43	0.89	2.07	404	
+d2-b32768	2	32768	3	1	0.42	0.84	2.0	383	
+d1-b131072	1	131072	3	0	0.72	1.5	2.083	601	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d2-b131072	2	131072	3	0	0.77	1.58	2.052	550	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d1-b2048	1	2048	4	1	0.54	0.78	1.444	271	
+d2-b2048	2	2048	4	1	0.43	0.82	1.907	288	
+d1-b8192	1	8192	4	1	0.51	0.78	1.529	321	
+d2-b8192	2	8192	4	1	0.4	0.8	2.0	306	
+d1-b32768	1	32768	4	1	0.41	0.87	2.122	441	
+d2-b32768	2	32768	4	1	0.4	0.82	2.05	414	
+d1-b131072	1	131072	4	1	0.75	1.56	2.08	615	
+d2-b131072	2	131072	4	0	0.69	1.44	2.087	620	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:
+d1-b2048	1	2048	5	1	0.56	0.82	1.464	269	
+d2-b2048	2	2048	5	1	0.42	0.81	1.929	289	
+d1-b8192	1	8192	5	1	0.52	0.81	1.558	322	
+d2-b8192	2	8192	5	1	0.46	0.89	1.935	322	
+d1-b32768	1	32768	5	1	0.45	0.89	1.978	396	
+d2-b32768	2	32768	5	1	0.43	0.88	2.047	411	
+d1-b131072	1	131072	5	1	0.72	1.52	2.111	611	
+d2-b131072	2	131072	5	1	0.77	1.57	2.039	619	
+d1-b2048	1	2048	6	1	0.56	0.81	1.446	293	
+d2-b2048	2	2048	6	1	0.43	0.82	1.907	298	
+d1-b8192	1	8192	6	1	0.54	0.79	1.463	327	
+d2-b8192	2	8192	6	1	0.43	0.85	1.977	329	
+d1-b32768	1	32768	6	1	0.39	0.82	2.103	399	
+d2-b32768	2	32768	6	1	0.41	0.84	2.049	381	
+d1-b131072	1	131072	6	1	0.73	1.53	2.096	588	
+d2-b131072	2	131072	6	0	0.72	1.5	2.083	599	Resources exhausted: Additional allocation failed for SortPreservingMergeExec[0] with top memory consumers (across reservations) as:

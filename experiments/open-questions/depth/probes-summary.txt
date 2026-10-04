@@ -1,0 +1,6 @@
+probe	completed	scan groups	wall_s mean (sd)	cpu_s mean (sd)	cores mean (sd)
+depth 1, 12 files	6 of 6	2	0.480 (sd 0.006)	0.752 (sd 0.019)	1.566 (sd 0.045)
+depth 2, 12 files	6 of 6	2	0.417 (sd 0.008)	0.812 (sd 0.018)	1.948 (sd 0.044)
+depth 1, 120 files	6 of 6	2	0.368 (sd 0.023)	0.867 (sd 0.034)	2.356 (sd 0.082)
+depth 2, 120 files	6 of 6	3	0.343 (sd 0.010)	0.928 (sd 0.026)	2.704 (sd 0.046)
+depth 1, 12 files, files split by name	6 of 6	2	0.513 (sd 0.023)	0.745 (sd 0.021)	1.452 (sd 0.036)
