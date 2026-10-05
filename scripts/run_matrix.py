@@ -158,6 +158,7 @@ VALUE = re.compile(r"^(-?[\d.]+)\s*([A-Za-zµ%]*)$")
 SECONDS = {"ns": 1e-9, "µs": 1e-6, "us": 1e-6, "ms": 1e-3, "s": 1.0}
 BYTES = {"B": 1, "KB": 2**10, "MB": 2**20, "GB": 2**30, "TB": 2**40}
 COUNTS = {"": 1, "K": 1e3, "M": 1e6}
+BARE = re.compile(r"^-?[\d.]+$")
 
 
 def number(metric, text):
@@ -210,7 +211,7 @@ def metrics_of(out_text):
     return rows
 
 
-def parse(out_text, statements=None):
+def parse(out_text, statements=None, strict=True):
     """Plan features and per-operator metrics of an EXPLAIN ANALYZE output.
 
     `statements` is the number of statements in the SQL file. The CREATE is the
@@ -236,13 +237,21 @@ def parse(out_text, statements=None):
             if op == name:
                 m = re.search(r"ordering_mode=(\w+(?:\(\[[\d, ]*\]\))?)", line)
                 row[key] = m.group(1) if m else "Linear"
-        # read as collect_metrics.py reads them: "2.12 K" is 2120, not 2
+        # with the unit the engine prints: "2.12 K" is about 2120 (the engine rounds
+        # a count of a thousand or more), not 2
         found = line_metrics(line)
         sums = metrics.setdefault(op, [0, 0, 0, 0])
         for i, (metric, kind) in enumerate((("spill_count", "count"), ("spilled_bytes", "bytes"),
                                             ("output_bytes", "bytes"), ("output_batches", "count"))):
-            if metric in found and found[metric][2] == kind:
-                sums[i] += found[metric][1]
+            if metric not in found:
+                continue
+            printed, value, read_as = found[metric]
+            if kind == "bytes" and read_as == "count" and BARE.match(printed):
+                read_as = "bytes"                 # a size printed as a bare number of bytes
+            if read_as == kind:
+                sums[i] += value
+            elif strict:                          # a format this parser does not know: no silent zero
+                raise ValueError(f"{op}: {metric}={printed} is not read as {kind}")
     for key, name in OPERATORS.items():
         c, b, o, n = metrics.get(name, (0, 0, 0, 0))
         if key not in ("scan", "spm"):
@@ -336,6 +345,7 @@ def pin():
 
 
 FAILURE = re.compile(r"Resources exhausted|\*\*Error\*\*|^Error:|^IO error", re.M)
+PLAN_ERROR = re.compile(r"Error|error:")          # on the stderr of a plan check, which times nothing
 
 
 def run_failed(status, out_text, err_text):
@@ -355,8 +365,16 @@ def run_process(cmd, out_path, err_path, timeout, env=None, preexec_fn=None):
         try:
             return proc.wait(timeout=timeout), False
         except subprocess.TimeoutExpired:
-            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            return proc.wait(), True
+            return kill_group(proc), True         # past the timeout, however it then ended
+
+
+def kill_group(proc):
+    """Kill the session of a process started with start_new_session; returns its exit status."""
+    try:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    except ProcessLookupError:
+        pass                                      # it ended by itself in the meantime
+    return proc.wait()
 
 
 def cli_command(binary, memory, sql_path=None):
@@ -373,15 +391,15 @@ def exit_message(status):
     return f"killed by signal {-status}" if status < 0 else f"exit status {status}"
 
 
-def first_error(err_text):
-    """What a failed run printed on stderr, cut to 160 characters; '' when nothing.
+def first_error(err_text, pattern=FAILURE, width=160):
+    """What a failed run printed on stderr, cut to `width` characters; '' when nothing.
 
-    The first line that matches FAILURE (for a memory failure the "Resources
+    The first line that matches the pattern (for a memory failure the "Resources
     exhausted" header, which is the same text for every such run); without one,
     the first line that is not the BENCH line of /usr/bin/time.
     """
     lines = [l.strip() for l in err_text.splitlines() if l.strip() and not l.startswith("BENCH")]
-    return next((l for l in lines if FAILURE.search(l)), lines[0] if lines else "")[:160]
+    return next((l for l in lines if pattern.search(l)), lines[0] if lines else "")[:width]
 
 
 def features(out_text, sql_path, failed):
@@ -389,24 +407,26 @@ def features(out_text, sql_path, failed):
 
     A failed run may print part of a plan: none of it enters a table.
     """
-    row = parse(out_text, statements=Path(sql_path).read_text().count(";"))
+    row = parse(out_text, statements=Path(sql_path).read_text().count(";"), strict=not failed)
     return {k: "" for k in row} if failed else row
 
 
 def outcome(status, timed_out, out_text, err_text, timeout):
     """(failed, error) of a timed EXPLAIN ANALYZE run. Used by every runner.
 
-    The error of a failed run is never empty: the timeout, the first line on
-    stderr, or how the process ended when it said nothing.
+    The error of a failed run is never empty: the timeout, the line on stderr
+    that says why, or the first line it printed there followed by how the
+    process ended when no line is recognised as an error, or how it ended alone.
     """
     if timed_out:
         return True, timeout_message(timeout)
     if not run_failed(status, out_text, err_text):
         return False, ""
     message = first_error(err_text)
-    if message:
+    if FAILURE.search(message):
         return True, message
-    return True, exit_message(status) + ("" if status else ", no plan with metrics in the output")
+    how = exit_message(status) + ("" if status else ", no plan with metrics in the output")
+    return True, f"{message} [{how}]" if message else how
 
 
 def run(binary, sql_path, out_path, err_path, memory, timeout):
@@ -516,9 +536,9 @@ def plan_check(cases, out):
             err = (d / f"{variant}.err").read_text()
             feats, problems = check_plan(case, variant, (d / f"{variant}.out").read_text())
             if status != 0:
-                problems.insert(0, f"exit {status}")
-            if re.search(r"Error|error:", err):
-                problems.append("stderr: " + err.strip().splitlines()[0][:80])
+                problems.insert(0, exit_message(status))
+            if PLAN_ERROR.search(err):
+                problems.append("stderr: " + first_error(err, PLAN_ERROR, 80))
             rows.append(plan_row(case, variant, feats, problems))
             print("\t".join(str(rows[-1][k]) for k in rows[-1]), flush=True)
     write_plan_check(rows, out)
@@ -532,8 +552,8 @@ def recorded_plan_problems(case, variant, out, recorded):
         return ["no recorded plan"]
     _, problems = check_plan(case, variant, path.read_text())
     err = d / f"{variant}.err"
-    if err.is_file() and re.search(r"Error|error:", err.read_text()):
-        problems.append("stderr: " + err.read_text().strip().splitlines()[0][:80])
+    if err.is_file() and PLAN_ERROR.search(err.read_text()):
+        problems.append("stderr: " + first_error(err.read_text(), PLAN_ERROR, 80))
     was = recorded.get((case.name, variant))
     if was is None:
         problems.append("not in plan-check.tsv")

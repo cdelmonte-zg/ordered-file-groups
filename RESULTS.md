@@ -157,7 +157,9 @@ that the plan under the statement that writes the rows is the timed one.
 
 ## Results by axis
 
-Spill cells: count / spilled MB (medians over completed runs). Modes: of the
+Spill cells: count / spilled MB (medians over completed runs). A count of a
+thousand or more is as precise as the engine prints it ("2.12 K") and is
+not exact to the unit. Modes: of the
 final aggregate, or partial / final when they differ. "Out MB" columns: the
 cumulative `output_bytes` an operator reports in its metrics, the bytes of
 the batches it emitted as Arrow accounts for their buffers; not peak resident
@@ -579,22 +581,22 @@ With 1196 ordered groups and two outputs, the ordered plan completes at a limit 
 
 `experiments/huge-pages/run.py`: the many-stream cases as the machine is set and with transparent huge pages switched off for the measured process alone (`prctl(PR_SET_THP_DISABLE)`). The peak RSS counts whole pages: a 2 MB page is resident as soon as one byte of it is touched. Medians of the completed runs.
 
-| case | plan | completed | peak RSS as set, MB | peak RSS without huge pages, MB | elapsed as set, s | elapsed without, s | minor faults as set | without |
-|---|---|---|---|---|---|---|---|---|
-| deduplication, 150 files | original | 10 of 10 | 660 | 474 | 0.611 | 0.663 | 7736 | 120835 |
-| deduplication, 150 files | ordered | 10 of 10 | 809 | 462 | 0.385 | 0.400 | 4309 | 112983 |
-| deduplication, 300 files | original | 10 of 10 | 631 | 472 | 0.652 | 0.694 | 13319 | 122511 |
-| deduplication, 300 files | ordered | 10 of 10 | 964 | 484 | 0.429 | 0.446 | 3925 | 116645 |
-| deduplication, 600 files | original | 10 of 10 | 651 | 485 | 0.674 | 0.718 | 20136 | 135639 |
-| deduplication, 600 files | ordered | 10 of 10 | 1397 | 526 | 0.488 | 0.492 | 4712 | 127160 |
-| deduplication, 1200 files | original | 10 of 10 | 642 | 496 | 0.719 | 0.780 | 41172 | 163421 |
-| deduplication, 1200 files | ordered | 10 of 10 | 1836 | 602 | 0.582 | 0.604 | 5630 | 146329 |
-| deduplication, 1200 files, 4 outputs | ordered | 10 of 10 | 2246 | 681 | 0.505 | 0.507 | 6385 | 166009 |
-| deduplication, 1200 files, 8 outputs | ordered | 10 of 10 | 3454 | 915 | 0.687 | 0.623 | 7232 | 229416 |
-| ORDER BY, 1200 files | original | 10 of 10 | 335 | 226 | 0.203 | 0.224 | 52433 | 97208 |
-| deduplication, base case (12 files) | original | 10 of 10 | 489 | 432 | 0.591 | 0.654 | 2536 | 102828 |
-| ORDER BY, 1200 files | ordered | 10 of 10 | 777 | 443 | 0.188 | 0.182 | 53026 | 106728 |
-| deduplication, base case (12 files) | ordered | 10 of 10 | 348 | 260 | 0.349 | 0.368 | 2495 | 57900 |
+| case | plan | completed as set | completed without | peak RSS as set, MB | peak RSS without huge pages, MB | elapsed as set, s | elapsed without, s | minor faults as set | without |
+|---|---|---|---|---|---|---|---|---|---|
+| deduplication, 150 files | original | 5 of 5 | 5 of 5 | 660 | 474 | 0.611 | 0.663 | 7736 | 120835 |
+| deduplication, 150 files | ordered | 5 of 5 | 5 of 5 | 809 | 462 | 0.385 | 0.400 | 4309 | 112983 |
+| deduplication, 300 files | original | 5 of 5 | 5 of 5 | 631 | 472 | 0.652 | 0.694 | 13319 | 122511 |
+| deduplication, 300 files | ordered | 5 of 5 | 5 of 5 | 964 | 484 | 0.429 | 0.446 | 3925 | 116645 |
+| deduplication, 600 files | original | 5 of 5 | 5 of 5 | 651 | 485 | 0.674 | 0.718 | 20136 | 135639 |
+| deduplication, 600 files | ordered | 5 of 5 | 5 of 5 | 1397 | 526 | 0.488 | 0.492 | 4712 | 127160 |
+| deduplication, 1200 files | original | 5 of 5 | 5 of 5 | 642 | 496 | 0.719 | 0.780 | 41172 | 163421 |
+| deduplication, 1200 files | ordered | 5 of 5 | 5 of 5 | 1836 | 602 | 0.582 | 0.604 | 5630 | 146329 |
+| deduplication, 1200 files, 4 outputs | ordered | 5 of 5 | 5 of 5 | 2246 | 681 | 0.505 | 0.507 | 6385 | 166009 |
+| deduplication, 1200 files, 8 outputs | ordered | 5 of 5 | 5 of 5 | 3454 | 915 | 0.687 | 0.623 | 7232 | 229416 |
+| ORDER BY, 1200 files | original | 5 of 5 | 5 of 5 | 335 | 226 | 0.203 | 0.224 | 52433 | 97208 |
+| deduplication, base case (12 files) | original | 5 of 5 | 5 of 5 | 489 | 432 | 0.591 | 0.654 | 2536 | 102828 |
+| ORDER BY, 1200 files | ordered | 5 of 5 | 5 of 5 | 777 | 443 | 0.188 | 0.182 | 53026 | 106728 |
+| deduplication, base case (12 files) | ordered | 5 of 5 | 5 of 5 | 348 | 260 | 0.349 | 0.368 | 2495 | 57900 |
 
 - As the machine is set the ordered plan at 1200 files takes 5630 minor page faults, without huge pages 146329: huge pages are in use in the first arm.
 - With about 1200 ordered streams the ordered plan peaks at 1836 MB as the machine is set and at 602 MB without huge pages; the original plan at 642 and 496 MB. The excess of the ordered plan over the original is 1194 MB with huge pages and 106 MB without.

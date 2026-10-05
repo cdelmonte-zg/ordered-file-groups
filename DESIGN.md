@@ -258,9 +258,11 @@ memory in use, it stays; if it is page rounding, it goes.
 ## Limits
 
 One machine, one DataFusion commit, synthetic data, sub-second queries on a
-few MB of Parquet, the fair pool only. Ten runs per cell of the matrix and
-of the experiments, five per cell and series for the memory of the many
-streams: the separation of the quartiles used in the report is a descriptive
+few MB of Parquet, the fair pool only. Ten runs per cell of the matrix and of the experiments on
+string views and on depth; five per cell and series for the ordered plan in
+the memory of the many streams, three for its baselines and probes; five per
+arm for the huge pages; three for the open-file limit and for the process
+seen from outside: the separation of the quartiles used in the report is a descriptive
 criterion, not a test of significance, and the three series show the
 variability of one environment, not how far a result carries to other
 machines or loads. Where runs fail there are two results, how many complete

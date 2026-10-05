@@ -7,7 +7,7 @@ Nothing in the report is written by hand. The tables come from the recorded
 runs; the findings are sentences whose numbers and whose qualitative words
 ("faster", "within the quartiles") are computed from them; the predictions of
 DESIGN.md are checked by rules stated next to each one. Also writes
-results/figures.tsv, the figures the companion article quotes.
+results/figures.tsv, the headline figures of the report, by name.
 """
 import argparse
 import statistics
@@ -671,7 +671,9 @@ that the plan under the statement that writes the rows is the timed one.
 
 ## Results by axis
 
-Spill cells: count / spilled MB (medians over completed runs). Modes: of the
+Spill cells: count / spilled MB (medians over completed runs). A count of a
+thousand or more is as precise as the engine prints it ("2.12 K") and is
+not exact to the unit. Modes: of the
 final aggregate, or partial / final when they differ. "Out MB" columns: the
 cumulative `output_bytes` an operator reports in its metrics, the bytes of
 the batches it emitted as Arrow accounts for their buffers; not peak resident

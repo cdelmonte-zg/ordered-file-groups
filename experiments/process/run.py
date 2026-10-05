@@ -14,7 +14,6 @@ Writes every output, samples.tsv (one row per sample) and results.tsv (one row
 per run: the peak, when it falls, what is open then).
 """
 import os
-import signal
 import subprocess
 import sys
 import time
@@ -89,12 +88,11 @@ def one(query, variant, run):
                             "rss_mb": round(rss, 1), "fd_parquet": fds["parquet"],
                             "fd_temp": fds["temp"], "fd_other": fds["other"]})
             if now > TIMEOUT:                 # as the other runners: kill the whole group
-                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-                killed = True
+                killed = True                 # past the timeout, as rm.run_process
                 break
             time.sleep(EVERY)
-        status = proc.wait()
-        timed_out = killed and status == -signal.SIGKILL    # not if it ended by itself first
+        status = rm.kill_group(proc) if killed else proc.wait()
+        timed_out = killed
         duration = time.monotonic() - start
     out_text, err_text = Path(f"{stem}.out").read_text(), Path(f"{stem}.err").read_text()
     failed, error = rm.outcome(status, timed_out, out_text, err_text, TIMEOUT)

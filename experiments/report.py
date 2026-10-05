@@ -588,7 +588,7 @@ def process(out, figures):
             sel = select(rows, query=query, variant=variant)
             ok = completed(sel)
             v = seen[query, variant] = {k: median(ok, k) for k in keys}
-            groups = sorted({int(r["scan_groups"]) for r in ok if r["scan_groups"]})
+            groups = sorted({int(g) for g in ((r.get("scan_groups") or "") for r in ok) if g.isdigit()})
             lines.append(f"| {qlabel} | {plabel} | {n_of(sel)} | "
                          f"{', '.join(map(str, groups)) or 'n/a'} | "
                          f"{num(v['peak_rss_mb'], 0)} | "
@@ -625,16 +625,17 @@ def huge_pages(out, figures):
              "transparent huge pages switched off for the measured process alone "
              "(`prctl(PR_SET_THP_DISABLE)`). The peak RSS counts whole pages: a 2 MB page is "
              "resident as soon as one byte of it is touched. Medians of the completed runs.", "",
-             "| case | plan | completed | peak RSS as set, MB | peak RSS without huge pages, MB | "
+             "| case | plan | completed as set | completed without | peak RSS as set, MB | peak RSS without huge pages, MB | "
              "elapsed as set, s | elapsed without, s | minor faults as set | without |",
-             "|" + "---|" * 9]
+             "|" + "---|" * 10]
     med = {}
     for name in names:
         sel = select(rows, name=name)
-        on, off = completed(select(sel, huge_pages="as set")), completed(select(sel, huge_pages="off"))
+        arm_on, arm_off = select(sel, huge_pages="as set"), select(sel, huge_pages="off")
+        on, off = completed(arm_on), completed(arm_off)
         med[name] = {"on": median(on, "rss_mb"), "off": median(off, "rss_mb"),
                      "t_on": median(on, "elapsed_s"), "t_off": median(off, "elapsed_s")}
-        lines.append(f"| {sel[0]['case']} | {plan[sel[0]['variant']]} | {n_of(sel)} | "
+        lines.append(f"| {sel[0]['case']} | {plan[sel[0]['variant']]} | {n_of(arm_on)} | {n_of(arm_off)} | "
                      f"{num(med[name]['on'], 0)} | {num(med[name]['off'], 0)} | "
                      f"{num(med[name]['t_on'])} | {num(med[name]['t_off'])} | "
                      f"{num(median(on, 'minor_faults'), 0)} | {num(median(off, 'minor_faults'), 0)} |")
@@ -649,7 +650,7 @@ def huge_pages(out, figures):
     big = completed(select(rows, name="dedup-1200-accept-groups"))
     faults_on = median(select(big, huge_pages="as set"), "minor_faults")
     faults_off = median(select(big, huge_pages="off"), "minor_faults")
-    known = faults_on == faults_on and faults_off == faults_off     # not NaN: both arms completed
+    known = not isnan(faults_on) and not isnan(faults_off)          # both arms completed
     in_use = known and faults_off > 2 * faults_on
     lines += ["", ("- One arm of the ordered plan at 1200 files has no completed run: whether huge "
                    "pages were in use as the machine is set cannot be told." if not known else

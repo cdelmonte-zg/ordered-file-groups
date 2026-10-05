@@ -116,10 +116,16 @@ case ${1:-} in
     if [ "$(saved boost)" != "n/a" ] && [ -w "$boost" ]; then echo "$(saved boost)" > "$boost"; fi
     # a state saved by an earlier version of this script may hold it
     [ -z "$(saved perf_event_paranoid)" ] || echo "$(saved perf_event_paranoid)" > "$paranoid"
+    swap_failed=0
     for device in $(saved swap); do
-      # /proc/swaps escapes special characters in a name; if that name fails, fall back to fstab
-      swapon "$device" || { swapon -a; echo "swapon $device failed, swapon -a tried: check the swap by hand (swapon --show)" >&2; }
+      device=$(printf '%b' "$device")    # /proc/swaps writes a space in a name as \040
+      swapon "$device" || { echo "swapon $device failed" >&2; swap_failed=1; }
     done
+    if [ "$swap_failed" = 1 ]; then
+      echo "a swap is still off: the saved state is kept in $state; turn the swap on by hand, or run restore again" >&2
+      status
+      exit 1
+    fi
     rm -f "$state"
     status
     ;;

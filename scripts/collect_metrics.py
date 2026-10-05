@@ -15,15 +15,15 @@ Columns: the output file (relative to the results directory), the operator
 once in a plan), the metric, its value as printed, the value as a number and
 its kind: seconds, bytes, count or percent. A metric that is not one number,
 such as the pruning metrics ("12 total -> 12 matched"), is kept as printed
-with the kind "text".
+with the kind "text". A count of a thousand or more is as precise as the engine
+prints it ("2.12 K"), not exact to the unit.
 """
 import argparse
 import csv
-import re
 from pathlib import Path
 
 import run_matrix as rm
-from run_matrix import metrics_of, number  # noqa: F401  (the parser lives with operator())
+
 
 def main():
     p = argparse.ArgumentParser()
@@ -36,10 +36,15 @@ def main():
         for path in sorted(args.results.rglob("*.out")):
             files += 1
             text = path.read_text(errors="replace")
-            if "Plan with Metrics" not in text:
-                continue                # a plan check, or a run that failed
+            err = path.with_suffix(".err")
+            # No plan (a plan check, a run that failed before printing one) or an error
+            # on stderr: left out. The exit status and a timeout are not on disk, and
+            # the warm-ups are here too: which runs count is in the results.tsv of each
+            # runner, and whoever reads this table selects its rows from there.
+            if rm.run_failed(0, text, err.read_text(errors="replace") if err.is_file() else ""):
+                continue
             runs += 1
-            for row in metrics_of(text):
+            for row in rm.metrics_of(text):
                 w.writerow([path.relative_to(args.results), *row])
     print(f"{runs} runs with metrics out of {files} outputs -> {args.results / 'metrics.tsv'}")
 

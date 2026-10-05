@@ -94,7 +94,8 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
            "error": error}
     for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb"):
         row[key] = feats.get(key, "")
-    # how long the repartition's inputs waited to hand their batches to the outputs
+    # how long the inputs of the plan's repartitions (all of them, summed) waited to
+    # hand their batches to the outputs
     row["repartition_send_s"] = "" if failed else repartition_time(out, "send_time")
     return row
 
