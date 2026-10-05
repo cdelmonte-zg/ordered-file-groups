@@ -82,13 +82,16 @@ ID_SORT_KEY = [("entity", "ascending"), ("col_2", "ascending")]
 LETTERS = np.array(list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
 
-def make_pools(rng):
-    """Value pools shared by every file of a dataset."""
+def make_pools(rng, cluster_ms=CLUSTER_MS):
+    """Value pools shared by every file of a dataset.
+
+    The cluster bases leave room for a cluster of `cluster_ms` before the time origin.
+    """
     categories = np.array([f"CAT_{i + 1}" for i in range(N_CATEGORIES)])
     metrics = [f"M{c + 1}_{i + 1:02d}" for c in range(N_CATEGORIES)
                for i in range(METRICS_PER_CATEGORY)]
     shared = [f"METRIC_{i + 1:02d}" for i in range(N_SHARED_METRICS)]
-    cluster_base = rng.integers(ORIGIN_MS - SPAN_MS, ORIGIN_MS - CLUSTER_MS, N_CLUSTERS)
+    cluster_base = rng.integers(ORIGIN_MS - SPAN_MS, ORIGIN_MS - cluster_ms, N_CLUSTERS)
     # Each entity samples its timestamps from 5 to 10 of the clusters.
     entity_clusters = [rng.choice(cluster_base, rng.integers(5, 11), replace=False)
                        for _ in range(N_ENTITIES)]
@@ -170,7 +173,7 @@ def generate_table(rows, seed, cluster_ms=CLUSTER_MS, duplicate_share=0.0):
     `rid` and `origin` columns.
     """
     rng = np.random.default_rng(seed)
-    pools = make_pools(rng)
+    pools = make_pools(rng, cluster_ms)
     if duplicate_share <= 0:
         return generate_rows(rows, rng, pools, cluster_ms)
     base = generate_rows(int(round(rows * (1 - duplicate_share))), rng, pools, cluster_ms)

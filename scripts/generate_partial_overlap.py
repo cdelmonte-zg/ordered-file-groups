@@ -46,21 +46,22 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-from generate_base import (DEFAULT_SHAPE, ID_SORT_KEY, SHAPES, distinct_keys,
+from generate_base import (CLUSTER_MS, DEFAULT_SHAPE, ID_SORT_KEY, SHAPES, distinct_keys,
                            generate_table, render, write_sorted)
 
 HERE = Path(__file__).resolve().parent
 MANIFESTS = HERE.parent / "results" / "manifests"
 
 
-def cache_record(rows, seed, duplicate_share):
+def cache_record(rows, seed, duplicate_share, cluster_ms):
     """What a cached base table depends on: its parameters and the generator source."""
     source = (Path(__file__).resolve().parent / "generate_base.py").read_bytes()
     return {"rows": rows, "seed": seed, "duplicate_share": float(duplicate_share),
+            "cluster_ms": cluster_ms,
             "generator_sha256": hashlib.sha256(source).hexdigest()}
 
 
-def base_table(rows, seed, duplicate_share, cache):
+def base_table(rows, seed, duplicate_share, cache, cluster_ms=CLUSTER_MS):
     """The one table every variant redistributes: integer ids, sorted, cached.
 
     What the cache depends on is recorded beside it, in `<cache>.params.json`, so
@@ -69,7 +70,7 @@ def base_table(rows, seed, duplicate_share, cache):
     removed before the table is rewritten and written last, and both files are
     renamed into place, so an interrupted run leaves no cache that looks valid.
     """
-    params = cache_record(rows, seed, duplicate_share)
+    params = cache_record(rows, seed, duplicate_share, cluster_ms)
     record = cache.with_name(cache.name + ".params.json")
     if cache.exists():
         try:
@@ -85,7 +86,7 @@ def base_table(rows, seed, duplicate_share, cache):
     record.unlink(missing_ok=True)
     cache.unlink(missing_ok=True)
     cache.parent.mkdir(parents=True, exist_ok=True)
-    table = generate_table(rows, seed, duplicate_share=duplicate_share)
+    table = generate_table(rows, seed, cluster_ms=cluster_ms, duplicate_share=duplicate_share)
     partial = cache.with_name(cache.name + ".partial")
     pq.write_table(table.sort_by(ID_SORT_KEY), partial, compression="zstd")
     partial.replace(cache)
@@ -159,6 +160,9 @@ def main():
     p.add_argument("--target", type=int, default=2)
     p.add_argument("--shape", choices=sorted(SHAPES), default=DEFAULT_SHAPE)
     p.add_argument("--duplicate-share", type=float, default=0.0)
+    p.add_argument("--cluster-ms", type=int, default=CLUSTER_MS,
+                   help="width of a timestamp cluster: the distinct (col_1, col_2) prefixes "
+                        "grow with it, the rows and the files do not")
     p.add_argument("--assign", choices=("entity", "entity-rank", "rank"), default="entity")
     p.add_argument("--name", help="dataset name (default: derived from the options)")
     p.add_argument("--output-dir", type=Path)
@@ -171,12 +175,16 @@ def main():
         args.files, args.depth,
         "" if args.shape == DEFAULT_SHAPE else f"-{args.shape}",
         "" if args.duplicate_share == 0 else f"-dup{args.duplicate_share:g}",
-        "" if args.assign == "entity" else f"-{args.assign}")
+        "" if args.assign == "entity" else f"-{args.assign}") + (
+        # a dataset of another size or cluster width never takes the name of the default one
+        ("" if args.rows == 600_000 else f"-rows{args.rows}")
+        + ("" if args.cluster_ms == CLUSTER_MS else f"-cluster{args.cluster_ms}"))
     out = args.output_dir or Path(f"/tmp/{name}")
     dup = f"-dup{args.duplicate_share:g}" if args.duplicate_share else ""
+    cms = "" if args.cluster_ms == CLUSTER_MS else f"-cluster{args.cluster_ms}"
     cache = args.cache or Path(
-        f"/tmp/df-16919-base/base-{args.rows}-seed-{args.seed}{dup}-origin-2026-09-29.parquet")
-    table = base_table(args.rows, args.seed, args.duplicate_share, cache)
+        f"/tmp/df-16919-base/base-{args.rows}-seed-{args.seed}{dup}{cms}-origin-2026-09-29.parquet")
+    table = base_table(args.rows, args.seed, args.duplicate_share, cache, args.cluster_ms)
 
     rng = np.random.default_rng(args.seed)
     file_of_row = assign(table, args.files, args.depth, args.assign, rng)
@@ -219,6 +227,18 @@ def main():
         copies = origin >= 0
         same = (file_of_row[copies] == file_of_rid[origin[copies]]).mean()
         header.append(f"# copies\t{int(copies.sum())}\t# same_file_share\t{same:.4f}")
+    # the sort prefix of the lab is (col_1, col_2): how many distinct ones, and so how
+    # many distinct grouping keys an ordered aggregation holds open under one of them
+    # (counted on the source table, before any distribution among partitions)
+    grouping = [c for c in ("entity", "col_2", "reference", "instance", "col_5", "col_6")
+                if c in table.column_names]
+    distinct = table.select(grouping).group_by(grouping).aggregate([])
+    per_prefix = distinct.group_by(["entity", "col_2"]).aggregate([([], "count_all")])
+    per_prefix = per_prefix["count_all"].to_numpy()
+    header += [f"# cluster_ms\t{args.cluster_ms}", f"# distinct_prefixes\t{len(per_prefix)}",
+               f"# grouping_keys_per_prefix\t{per_prefix.mean():.2f}",
+               f"# grouping_keys_per_prefix_median\t{np.median(per_prefix):.0f}",
+               f"# grouping_keys_per_prefix_max\t{per_prefix.max()}"]
     MANIFESTS.mkdir(parents=True, exist_ok=True)
     (MANIFESTS / f"{name}.tsv").write_text(
         "\n".join(header) + "\nfile\trows\tbytes\trow_groups\tmin_col_1\tmin_col_2\tmax_col_1\tmax_col_2\n"

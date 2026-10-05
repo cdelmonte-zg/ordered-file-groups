@@ -55,7 +55,9 @@ NOT_MEASURED = """\
 - The occupancy of the repartition's channels; `send_time` is the time the
   inputs spend sending, summed over the inputs, not a trace of who waits for
   whom.
-- The greedy pool and larger data: every query here runs under a second on a few MB of Parquet.
+- The greedy pool outside the experiment on causes, and data beyond the sizes of
+  the experiment on rows: every other query here runs under a second on a few MB
+  of Parquet.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
 - The `GROUP BY` on the whole sort key at a size where the hash aggregate
@@ -710,6 +712,9 @@ One-variable tests on the costs the matrix shows, each in
 {experiments.process(exp / "process", figures)}
 {experiments.large_pools(exp / "large-pools", figures)}
 {experiments.target_partitions(exp / "target-partitions", figures)}
+{experiments.rows(exp / "rows", figures)}
+{experiments.causes(exp / "causes", figures)}
+{experiments.trace(exp / "trace", figures)}
 ## Not measured
 
 {NOT_MEASURED}

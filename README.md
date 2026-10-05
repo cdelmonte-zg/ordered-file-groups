@@ -23,6 +23,11 @@ A third build, `accept-groups-accounting`, adds `patch/slice-accounting.patch`
 and is used by one experiment, to change the repartition's memory accounting
 and nothing else.
 
+Two more builds, `original-trace` and `accept-groups-trace`, add
+`patch/trace-pool.patch`: a wrapper around the memory pool that records what
+its consumers reserve and are refused. They are used by one experiment, to
+attribute memory; no time of a traced run is used.
+
 ## Where things are
 
 - `DESIGN.md`: what is measured, how, and what was predicted. No results.
@@ -48,7 +53,8 @@ and nothing else.
   (`collect_metrics.py`), the report (`make_report.py`), the configuration of
   the machine (`machine_setup.sh`) and the driver (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
-  `depth`, `open-files`, `huge-pages`, `large-pools`, `target-partitions`),
+  `depth`, `open-files`, `huge-pages`, `large-pools`, `target-partitions`,
+  `rows`, `causes`, `trace`),
   the view of the process from outside (`process`), their shared runner (`common.py`) and the code of
   their report sections (`report.py`).
 

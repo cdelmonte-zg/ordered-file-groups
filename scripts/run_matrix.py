@@ -377,9 +377,12 @@ def kill_group(proc):
     return proc.wait()
 
 
-def cli_command(binary, memory, sql_path=None):
-    """datafusion-cli under a memory limit, as every runner starts it; with -f for a SQL file."""
-    cmd = [str(binary), "--memory-limit", memory, "--mem-pool-type", "fair"]
+def cli_command(binary, memory, sql_path=None, pool_type="fair"):
+    """datafusion-cli under a memory limit, as every runner starts it; with -f for a SQL file.
+
+    The pool is the fair one everywhere but in the experiment that changes it.
+    """
+    cmd = [str(binary), "--memory-limit", memory, "--mem-pool-type", pool_type]
     return cmd + ["-f", str(sql_path)] if sql_path else cmd
 
 
@@ -445,8 +448,10 @@ def run(binary, sql_path, out_path, err_path, memory, timeout):
     return row
 
 
-# the binaries scripts/build_binaries.sh builds; the third is used by experiments/string-views
-BINARIES = ("original", "accept-groups", "accept-groups-accounting")
+# the binaries scripts/build_binaries.sh builds; the third is used by experiments/string-views,
+# the traced ones by experiments/trace
+BINARIES = ("original", "accept-groups", "accept-groups-accounting",
+            "original-trace", "accept-groups-trace")
 
 
 def binary(name):

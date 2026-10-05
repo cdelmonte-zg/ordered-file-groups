@@ -4,11 +4,16 @@
 # Usage: scripts/build_binaries.sh /path/to/datafusion-checkout
 #
 # The recorded commit is checked out in a separate, detached worktree and
-# built three times:
+# built five times:
 #
 #   original                  the commit as it is
+#   original-trace            plus patch/trace-pool.patch
 #   accept-groups             plus patch/accept-extra-groups.patch
-#   accept-groups-accounting  plus patch/slice-accounting.patch on top of it
+#   accept-groups-trace       plus both
+#   accept-groups-accounting  accept-groups plus patch/slice-accounting.patch
+#
+# The two traced binaries record what the memory pool grants and refuses; they
+# are used to attribute memory, never to time a query.
 #
 # The patches are measuring instruments, not proposals. Each binary is copied
 # to bin/ before the next build. What identifies the build is written to
@@ -41,19 +46,29 @@ build() {
   # copy beside the target and rename: replacing a binary that is running fails otherwise
   cp "$worktree/target/release/datafusion-cli" "$out/datafusion-cli-$variant-release.new"
   mv -f "$out/datafusion-cli-$variant-release.new" "$out/datafusion-cli-$variant-release"
-  git -C "$worktree" diff > "$prov/applied-$variant.patch"
+  # staged for the diff and unstaged again, so that a file a patch adds is in it
+  git -C "$worktree" add -A
+  git -C "$worktree" diff --cached > "$prov/applied-$variant.patch"
+  git -C "$worktree" reset -q
 }
 
 build original
+git -C "$worktree" apply "$root/patch/trace-pool.patch"
+build original-trace
+git -C "$worktree" apply -R "$root/patch/trace-pool.patch"
 git -C "$worktree" apply "$root/patch/accept-extra-groups.patch"
 build accept-groups
+git -C "$worktree" apply "$root/patch/trace-pool.patch"
+build accept-groups-trace
+git -C "$worktree" apply -R "$root/patch/trace-pool.patch"
 git -C "$worktree" apply "$root/patch/slice-accounting.patch"
 build accept-groups-accounting
 
 echo "$commit" > "$prov/datafusion-commit.txt"
 (cd "$worktree" && { rustc --version --verbose; cargo --version; }) > "$prov/toolchain.txt"
 echo "$build_env cargo build --release -p datafusion-cli" > "$prov/build-command.txt"
-(cd "$root" && sha256sum bin/datafusion-cli-original-release bin/datafusion-cli-accept-groups-release \
+(cd "$root" && sha256sum bin/datafusion-cli-original-release bin/datafusion-cli-original-trace-release \
+  bin/datafusion-cli-accept-groups-release bin/datafusion-cli-accept-groups-trace-release \
   bin/datafusion-cli-accept-groups-accounting-release > "$prov/binaries.sha256")
 date -u +%Y-%m-%dT%H:%M:%SZ > "$prov/built-at.txt"
 # a build that fails leaves the previous provenance/ as it was

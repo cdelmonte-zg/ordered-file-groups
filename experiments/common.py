@@ -27,13 +27,30 @@ def without_huge_pages():
         raise OSError(ctypes.get_errno(), "prctl(PR_SET_THP_DISABLE) failed")
 
 
-def groups_by_bounds(dataset):
-    """The ordered groups the bounds of a dataset give, from its manifest."""
+def manifest_value(dataset, key):
+    """One `# key<TAB>value` line of the manifest of a dataset."""
     path = ROOT / "results" / "manifests" / f"{dataset}.tsv"
     for line in path.read_text().splitlines():
-        if line.startswith("# groups_by_bounds\t"):
-            return int(line.split("\t")[1])
-    raise SystemExit(f"{path}: no groups_by_bounds line")
+        if line.startswith(f"# {key}\t"):
+            return line.split("\t")[1]
+    raise SystemExit(f"{path}: no {key} line; run scripts/datasets.sh")
+
+
+# The datasets of the experiment on rows: (series, rows, dataset, the large pool for that
+# size). Shared with the traced runs, which read the same datasets under the same pools.
+ROWS_BASE = "df-16919-partial-12-depth-4"
+ROWS_DATASETS = [("base", 600_000, ROWS_BASE, "4g"),
+                 ("keys-per-prefix", 6_000_000, f"{ROWS_BASE}-6m", "32g"),
+                 ("keys-per-prefix", 24_000_000, f"{ROWS_BASE}-24m", "128g"),
+                 ("prefixes", 6_000_000, f"{ROWS_BASE}-6m-prefixes", "32g"),
+                 ("prefixes", 24_000_000, f"{ROWS_BASE}-24m-prefixes", "128g"),
+                 ("concentrated", 6_000_000, f"{ROWS_BASE}-6m-concentrated", "32g")]
+ROWS_SMALL_POOL = "256m"
+
+
+def groups_by_bounds(dataset):
+    """The ordered groups the bounds of a dataset give, from its manifest."""
+    return int(manifest_value(dataset, "groups_by_bounds"))
 
 
 def output_dir(name):
@@ -63,7 +80,7 @@ def repartition_time(out_text, metric):
 
 
 def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeout=300,
-              huge_pages=True):
+              huge_pages=True, pool_type="fair"):
     """Run one SQL file with one of the binaries of bin/ under /usr/bin/time.
 
     Writes <stem>.out and <stem>.err.
@@ -76,7 +93,7 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
     switched off for it alone.
     """
     cmd = ["/usr/bin/time", "-f", "BENCH wall=%e user=%U sys=%S rss_kb=%M minor=%R",
-           *rm.cli_command(rm.binary(binary), pool, sql_path)]
+           *rm.cli_command(rm.binary(binary), pool, sql_path, pool_type)]
     def before_exec():
         if nofile:
             resource.setrlimit(resource.RLIMIT_NOFILE, (nofile, nofile))
@@ -100,8 +117,11 @@ def timed_run(binary, sql_path, stem, pool="256m", env=None, nofile=None, timeou
            "minor_faults": int(tm.group(5)) if tm else "",
            "elapsed_s": feats["elapsed_seconds"],
            "scan_groups": feats["scan_groups"],
+           "sort_exec": feats["sort_exec"], "final_mode": feats["final_mode"],
            "error": error}
-    for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb"):
+    for key in ("sort_spills", "final_agg_spills", "repartition_spills", "repartition_out_mb",
+                "partial_agg_spills", "sort_spill_mb", "final_agg_spill_mb", "partial_agg_spill_mb",
+                "repartition_spill_mb"):
         row[key] = feats.get(key, "")
     # how long the inputs of the plan's repartitions (all of them, summed) waited to
     # hand their batches to the outputs

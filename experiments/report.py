@@ -137,77 +137,99 @@ def large_pools(out, figures):
         return missing(title, out)
     rows = read_tsv(path)
     pools = list(dict.fromkeys(r["pool"] for r in rows))
-
-    def cell(pool, variant):
-        return select(rows, pool=pool, variant=variant)
-
-    def med(pool, variant, key):
-        return median(completed(cell(pool, variant)), key)
-
-    def all_completed(pool):
-        return all(len(completed(cell(pool, v))) == len(cell(pool, v)) > 0
-                   for v in ("original", "accept-groups"))
+    for r in rows:                         # a table written before the query was a column
+        r.setdefault("query", "Q3")
+    queries = list(dict.fromkeys(r["query"] for r in rows))
+    names = {"Q3": "the deduplication", "Q5": "the deduplication without its `ORDER BY`"}
 
     lines = [f"### {title}", "",
-             "`experiments/large-pools/run.py`: the deduplication of the base case with pools "
-             "beyond those of the matrix (" + ", ".join(pools) + "), to reach a pool at which the "
-             "final aggregate of the original plan does not spill. Medians of the completed runs, "
-             "elapsed seconds with the quartiles.", "",
-             "| pool | plan | completed | elapsed, s | peak RSS, MB | sort spills | "
-             "final-aggregate spills | repartition spills |", "|" + "---|" * 8]
-    for pool in pools:
-        for variant, label in PLANS.items():
-            sel = cell(pool, variant)
-            lines.append(f"| {pool} | {label} | {n_of(sel)} | {timed(sel)} | "
-                         f"{num(med(pool, variant, 'rss_mb'), 0)} | "
-                         f"{num(med(pool, variant, 'sort_spills'), 0)} | "
-                         f"{num(med(pool, variant, 'final_agg_spills'), 0)} | "
-                         f"{num(med(pool, variant, 'repartition_spills'), 0)} |")
+             "`experiments/large-pools/run.py`: the base case with pools beyond those of the "
+             "matrix (" + ", ".join(pools) + "), to reach a pool at which the final aggregate of "
+             "the original plan does not spill; the deduplication, and the same query without its "
+             "`ORDER BY`, in which no plan sorts. Medians of the completed runs, elapsed seconds "
+             "with the quartiles.", "",
+             "| query | pool | plan | completed | sorts / final aggregate | elapsed, s | "
+             "peak RSS, MB | sort spills | final-aggregate spills | repartition spills |",
+             "|" + "---|" * 10]
+
+    def cell(query, pool, variant):
+        return select(rows, query=query, pool=pool, variant=variant)
+
+    def med(query, pool, variant, key):
+        return median(completed(cell(query, pool, variant)), key)
+
+    def shape_of(sel):
+        return ", ".join(sorted({f"{r.get('sort_exec', '')} / {r.get('final_mode', '')}"
+                                 for r in completed(sel)})) or "n/a"
+
+    def sorts(query, pool):
+        """Whether the completed runs of the original plan have a SortExec."""
+        return any(str(r.get("sort_exec", "")) not in ("", "0")
+                   for r in completed(cell(query, pool, "original")))
+
+    for query in queries:
+        for pool in pools:
+            for variant, label in PLANS.items():
+                sel = cell(query, pool, variant)
+                lines.append(f"| {query} | {pool} | {label} | {n_of(sel)} | {shape_of(sel)} | "
+                             f"{timed(sel)} | {num(med(query, pool, variant, 'rss_mb'), 0)} | "
+                             f"{num(med(query, pool, variant, 'sort_spills'), 0)} | "
+                             f"{num(med(query, pool, variant, 'final_agg_spills'), 0)} | "
+                             f"{num(med(query, pool, variant, 'repartition_spills'), 0)} |")
     lines.append("")
-    free = []                      # per pool: the original's final aggregate does not spill
-    for pool in pools:
-        o, a = med(pool, "original", "elapsed_s"), med(pool, "accept-groups", "elapsed_s")
-        spills = med(pool, "original", "final_agg_spills")
-        word = stands(cell(pool, "accept-groups"), cell(pool, "original"))
-        free.append(all_completed(pool) and spills == 0)
-        if isnan(o) or isnan(a):
-            lines.append(f"- {pool}: no comparison, {n_of(cell(pool, 'original'))} runs of the "
-                         f"original and {n_of(cell(pool, 'accept-groups'))} of the ordered plan "
-                         "completed.")
+    for query in queries:
+        tag = "large_pools" if query == "Q3" else f"large_pools_{query}"
+        lines += [f"For {names.get(query, query)}:", ""]
+        free = []                  # per pool: the original's final aggregate does not spill
+        for pool in pools:
+            o_sel, a_sel = cell(query, pool, "original"), cell(query, pool, "accept-groups")
+            o, a = med(query, pool, "original", "elapsed_s"), med(query, pool, "accept-groups", "elapsed_s")
+            spills = med(query, pool, "original", "final_agg_spills")
+            word = stands(a_sel, o_sel)
+            complete = all(len(completed(x)) == len(x) > 0 for x in (o_sel, a_sel))
+            free.append(complete and spills == 0)
+            if isnan(o) or isnan(a):
+                lines.append(f"- {pool}: no comparison, {n_of(o_sel)} runs of the original and "
+                             f"{n_of(a_sel)} of the ordered plan completed.")
+            else:
+                sort = (f" and its sort {num(med(query, pool, 'original', 'sort_spills'), 0)}"
+                        if sorts(query, pool) else "")
+                lines.append(f"- {pool}: the ordered plan takes {num(a)} against {num(o)} s, "
+                             f"{less_or_more(a, o)}, {versus(word, 'the original')}; the final "
+                             f"aggregate of the original spills {num(spills, 0)} times{sort}, the final "
+                             f"aggregate of the ordered plan "
+                             f"{num(med(query, pool, 'accept-groups', 'final_agg_spills'), 0)}.")
+            figures += [(f"{tag}_{pool}_original_s", num(o)),
+                        (f"{tag}_{pool}_ordered_s", num(a)),
+                        (f"{tag}_{pool}_ordered_change", less_or_more(a, o)),
+                        (f"{tag}_{pool}_ordered_against_original", word),
+                        (f"{tag}_{pool}_original_final_spills", num(spills, 0)),
+                        (f"{tag}_{pool}_original_sort_spills",
+                         num(med(query, pool, "original", "sort_spills"), 0)
+                         if sorts(query, pool) else "no sort"),
+                        (f"{tag}_{pool}_original_rss_mb", num(med(query, pool, "original", "rss_mb"), 0)),
+                        (f"{tag}_{pool}_ordered_rss_mb", num(med(query, pool, "accept-groups", "rss_mb"), 0)),
+                        (f"{tag}_{pool}_target_s", num(med(query, pool, "original-target", "elapsed_s")))]
+        # the smallest pool from which every larger pool run holds too
+        first = next((i for i in range(len(pools)) if all(free[i:])), None)
+        if first is None:
+            lines.append("- There is no pool from which the final aggregate of the original plan "
+                         "stays without spills in every completed cell: the gain and the spills "
+                         "avoided are not told apart here.")
         else:
-            lines.append(f"- {pool}: the ordered plan takes {num(a)} against {num(o)} s, "
-                         f"{less_or_more(a, o)}, {versus(word, 'the original')}; the final aggregate "
-                         f"of the original spills {num(spills, 0)} times and its sort "
-                         f"{num(med(pool, 'original', 'sort_spills'), 0)}, the final aggregate of the "
-                         f"ordered plan {num(med(pool, 'accept-groups', 'final_agg_spills'), 0)}.")
-        figures += [(f"large_pools_{pool}_original_s", num(o)),
-                    (f"large_pools_{pool}_ordered_s", num(a)),
-                    (f"large_pools_{pool}_ordered_change", less_or_more(a, o)),
-                    (f"large_pools_{pool}_ordered_against_original", word),
-                    (f"large_pools_{pool}_original_final_spills", num(spills, 0)),
-                    (f"large_pools_{pool}_original_sort_spills",
-                     num(med(pool, "original", "sort_spills"), 0)),
-                    (f"large_pools_{pool}_target_s", num(med(pool, "original-target", "elapsed_s")))]
-    # the smallest pool from which every larger pool run holds too
-    first = next((i for i in range(len(pools)) if all(free[i:])), None)
-    if first is None:
-        lines.append("- There is no pool from which the final aggregate of the original plan "
-                     "stays without spills in every completed cell: the gain and the spills "
-                     "avoided are not told apart here.")
-    else:
-        pool = pools[first]
-        word = stands(cell(pool, "accept-groups"), cell(pool, "original"))
-        sort = med(pool, "original", "sort_spills")
-        lines.append(f"- From {pool} on, at every pool run, the final aggregate of the original "
-                     f"plan does not spill (median over all its runs, all completed). At {pool} "
-                     f"the ordered plan is {versus(word, 'the original')} "
-                     f"({num(med(pool, 'accept-groups', 'elapsed_s'))} against "
-                     f"{num(med(pool, 'original', 'elapsed_s'))} s). The criterion looks at the "
-                     f"final aggregate alone: the sort of the original, which the ordered plan "
-                     f"does not have, spills {num(sort, 0)} times there.")
-    figures.append(("large_pools_original_final_spill_free_from",
-                    pools[first] if first is not None else "none"))
-    lines.append("")
+            pool = pools[first]
+            word = stands(cell(query, pool, "accept-groups"), cell(query, pool, "original"))
+            lines.append(f"- From {pool} on, at every pool run, the final aggregate of the original "
+                         f"plan does not spill (median over all its runs, all completed). At {pool} "
+                         f"the ordered plan is {versus(word, 'the original')} "
+                         f"({num(med(query, pool, 'accept-groups', 'elapsed_s'))} against "
+                         f"{num(med(query, pool, 'original', 'elapsed_s'))} s)."
+                         + (f" The sort of the original spills "
+                            f"{num(med(query, pool, 'original', 'sort_spills'), 0)} times there."
+                            if sorts(query, pool) else " No plan of this query sorts."))
+        figures.append((f"{tag}_original_final_spill_free_from",
+                        pools[first] if first is not None else "none"))
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -221,7 +243,7 @@ def target_partitions(out, figures):
     rows = read_tsv(path)
     cells = list(dict.fromkeys((r["files"], r["pool"]) for r in rows))
     raised = sorted({int(r["target_partitions"]) for r in rows if r["variant"] == "original-target"})
-    base = sorted({int(r["target_partitions"]) for r in rows if r["variant"] != "original-target"})
+    base = sorted({int(r["target_partitions"]) for r in rows if r["variant"] in ("original", "accept-groups")})
 
     def cell(files, pool, variant):
         return select(rows, files=files, pool=pool, variant=variant)
@@ -230,21 +252,31 @@ def target_partitions(out, figures):
         return sorted({int(g) for g in ((r.get("scan_groups") or "") for r in completed(sel))
                        if g.isdigit()})
 
+    def shape_of(sel):
+        """'<SortExec count> / <mode of the final aggregate>' of the completed runs."""
+        shapes = sorted({f"{r.get('sort_exec', '')} / {r.get('final_mode', '')}" for r in completed(sel)})
+        return ", ".join(shapes) or "n/a"
+
     lines = [f"### {title}", "",
              "`experiments/target-partitions/run.py`: the files with total overlap. The original "
              "plan and the ordered plan run with the target at "
              + ", ".join(map(str, base)) + "; the third row is the original binary with "
              "`target_partitions` raised to the ordered groups the manifest of the dataset gives ("
-             + ", ".join(map(str, raised)) + "). Medians of the completed runs.", "",
-             "| files | pool | plan | target | completed | file groups | elapsed, s | "
-             "peak RSS, MB | final-aggregate spills | repartition spills | errors |",
-             "|" + "---|" * 11]
+             + ", ".join(map(str, raised)) + "); the fourth raises the target with "
+             "`split_file_groups_by_statistics` off. Medians of the completed runs.", "",
+             "| files | pool | plan | target | completed | file groups | sorts / final aggregate | "
+             "elapsed, s | peak RSS, MB | final-aggregate spills | repartition spills | errors |",
+             "|" + "---|" * 12]
+    plans = {**PLANS, "original-target-split-off": "original, target raised, grouping off"}
     for files, pool in cells:
-        for variant, label in PLANS.items():
+        for variant, label in plans.items():
             sel = cell(files, pool, variant)
+            if not sel:
+                continue
             ok = completed(sel)
-            lines.append(f"| {files} | {pool} | {label} | {sel[0]['target_partitions'] if sel else ''} | "
-                         f"{n_of(sel)} | {', '.join(map(str, groups_of(sel))) or 'n/a'} | {timed(sel)} | "
+            lines.append(f"| {files} | {pool} | {label} | {sel[0]['target_partitions']} | "
+                         f"{n_of(sel)} | {', '.join(map(str, groups_of(sel))) or 'n/a'} | "
+                         f"{shape_of(sel)} | {timed(sel)} | "
                          f"{num(median(ok, 'rss_mb'), 0)} | {num(median(ok, 'final_agg_spills'), 0)} | "
                          f"{num(median(ok, 'repartition_spills'), 0)} | {error_kinds(sel)} |")
     lines.append("")
@@ -261,6 +293,14 @@ def target_partitions(out, figures):
             if set(groups_of(t)) != wanted:
                 text += (f". The scan shows {', '.join(map(str, groups_of(t)))} file groups, not the "
                          "target: these runs are not the workaround")
+        off = cell(files, pool, "original-target-split-off")
+        if off:
+            text += f". With the grouping by statistics off and the same target, {n_of(off)} complete"
+            if completed(off):
+                text += (f", in {num(median(completed(off), 'elapsed_s'))} s with "
+                         f"{num(median(completed(off), 'rss_mb'), 0)} MB of RSS")
+            figures += [(f"target_{files}_{pool}_split_off_completed", n_of(off)),
+                        (f"target_{files}_{pool}_split_off_s", num(median(completed(off), "elapsed_s")))]
         lines.append(text + ".")
         figures += [(f"target_{files}_{pool}_completed", n_of(t)),
                     (f"target_{files}_{pool}_s", num(median(completed(t), "elapsed_s"))),
@@ -269,6 +309,444 @@ def target_partitions(out, figures):
                     (f"target_{files}_{pool}_ordered_completed", n_of(a)),
                     (f"target_{files}_{pool}_ordered_s", num(median(completed(a), "elapsed_s"))),
                     (f"target_{files}_{pool}_ordered_rss_mb", num(median(completed(a), "rss_mb"), 0))]
+    lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- rows
+
+def rows(out, figures):
+    title = "More rows for the same files"
+    path = Path(out) / "results.tsv"
+    if not path.is_file() or not path.stat().st_size:
+        return missing(title, out)
+    table = read_tsv(path)
+    # one dataset: (series, rows), with its prefixes and keys per prefix from the manifest
+    sets = list(dict.fromkeys((r["series"], r["rows"], r["distinct_prefixes"],
+                               f"{r['keys_per_prefix']} (largest {r['keys_per_prefix_max']})")
+                              for r in table))
+
+    def cell(series, size, kind, variant):
+        return [r for r in select(table, series=series, pool_kind=kind, variant=variant)
+                if r["rows"] == size]
+
+    def med(series, size, kind, variant, key):
+        return median(completed(cell(series, size, kind, variant)), key)
+
+    def pool_of(series, size, kind):
+        return next((r["pool"] for r in table if (r["series"], r["rows"], r["pool_kind"])
+                     == (series, size, kind)), "n/a")
+
+    def all_completed(sel):
+        return len(completed(sel)) == len(sel) > 0
+
+    lines = [f"### {title}", "",
+             "`experiments/rows/run.py`: the base layout (twelve files, depth 4) with more rows, "
+             "in two series. In `keys-per-prefix` the distinct (col_1, col_2) prefixes stay and "
+             "the grouping keys under each grow; in `prefixes` the prefixes grow and the keys "
+             "under each stay; `concentrated` puts the keys under few prefixes. Prefixes and keys "
+             "per prefix (mean, and the largest prefix) are those of the manifests, counted on "
+             "the source table and not on what reaches each partition of the final aggregate. The deduplication runs "
+             "under a small pool and under a pool chosen for each size so that the original plan "
+             "has room. Medians of the completed runs, elapsed seconds with the quartiles. What "
+             "the plans reserve on these datasets is in the section on the traced runs.", "",
+             "| series | rows | prefixes | keys per prefix | pool | plan | completed | elapsed, s | "
+             "peak RSS, MB | sort spills | final-aggregate spills | repartition spills | errors |",
+             "|" + "---|" * 13]
+    for series, size, prefixes, per in sets:
+        for kind in ("small", "large"):
+            for variant, label in PLANS.items():
+                sel = cell(series, size, kind, variant)
+                lines.append(f"| {series} | {int(size):,} | {int(prefixes):,} | {per} | "
+                             f"{pool_of(series, size, kind)} | {label} | {n_of(sel)} | {timed(sel)} | "
+                             f"{num(med(series, size, kind, variant, 'rss_mb'), 0)} | "
+                             f"{num(med(series, size, kind, variant, 'sort_spills'), 0)} | "
+                             f"{num(med(series, size, kind, variant, 'final_agg_spills'), 0)} | "
+                             f"{num(med(series, size, kind, variant, 'repartition_spills'), 0)} | "
+                             f"{error_kinds(sel)} |")
+    lines.append("")
+    for series, size, prefixes, per in sets:
+        tag = f"rows_{series}_{size}"
+        figures += [(f"{tag}_prefixes", prefixes), (f"{tag}_keys_per_prefix", per)]
+        for kind in ("small", "large"):
+            o, a = cell(series, size, kind, "original"), cell(series, size, kind, "accept-groups")
+            word = stands(a, o)
+            to, ta = (med(series, size, kind, v, "elapsed_s") for v in ("original", "accept-groups"))
+            so, sa = (med(series, size, kind, v, "final_agg_spills") for v in ("original", "accept-groups"))
+            text = (f"- {series}, {int(size):,} rows ({int(prefixes):,} prefixes, {per} keys under "
+                    f"each), {pool_of(series, size, kind)}: ")
+            if isnan(to) or isnan(ta):
+                text += (f"no comparison, {n_of(o)} runs of the original and {n_of(a)} of the "
+                         "ordered plan completed.")
+            else:
+                text += (f"the ordered plan takes {num(ta)} against {num(to)} s, {less_or_more(ta, to)}, "
+                         f"{versus(word, 'the original')}; final-aggregate spills {num(so, 0)} for the "
+                         f"original and {num(sa, 0)} for the ordered plan; peak RSS "
+                         f"{num(med(series, size, kind, 'accept-groups', 'rss_mb'), 0)} against "
+                         f"{num(med(series, size, kind, 'original', 'rss_mb'), 0)} MB.")
+                if kind == "large" and not (all_completed(o) and so == 0):
+                    text += (" The final aggregate of the original still spills, or not all its "
+                             "runs completed: this size does not tell the gain from the spills avoided.")
+            lines.append(text)
+            figures += [(f"{tag}_{kind}_pool", pool_of(series, size, kind)),
+                        (f"{tag}_{kind}_original_s", num(to)), (f"{tag}_{kind}_ordered_s", num(ta)),
+                        (f"{tag}_{kind}_ordered_change", less_or_more(ta, to)),
+                        (f"{tag}_{kind}_ordered_against_original", word),
+                        (f"{tag}_{kind}_original_final_spills", num(so, 0)),
+                        (f"{tag}_{kind}_ordered_final_spills", num(sa, 0)),
+                        (f"{tag}_{kind}_original_rss_mb",
+                         num(med(series, size, kind, "original", "rss_mb"), 0)),
+                        (f"{tag}_{kind}_ordered_rss_mb",
+                         num(med(series, size, kind, "accept-groups", "rss_mb"), 0)),
+                        (f"{tag}_{kind}_target_s",
+                         num(med(series, size, kind, "original-target", "elapsed_s"))),
+                        (f"{tag}_{kind}_target_completed",
+                         n_of(cell(series, size, kind, "original-target")))]
+    lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- causes
+
+def causes(out, figures):
+    title = "Why plans with many ordered groups fail or lose"
+    path = Path(out) / "results.tsv"
+    if not path.is_file() or not path.stat().st_size:
+        return missing(title, out)
+    rows = read_tsv(path)
+    plan = {"original": "original", "accept-groups": "ordered"}
+
+    def shape_of(sel):
+        return ", ".join(sorted({f"{r.get('sort_exec', '')} / {r.get('final_mode', '')}"
+                                 for r in completed(sel)})) or "n/a"
+
+    def groups_of(sel):
+        return ", ".join(sorted({r["scan_groups"] for r in completed(sel) if r["scan_groups"]},
+                                key=int)) or "n/a"
+
+    def table(part):
+        keys = list(dict.fromkeys((r["change"], r["files"], r["pool"], r["binary"],
+                                   r["target_partitions"], r["pool_type"], r["strings"])
+                                  for r in rows if r["part"] == part))
+        out = ["| what changes | files | pool | binary | target | pool type | strings | completed | "
+               "file groups | sorts / final aggregate | elapsed, s | peak RSS, MB | "
+               "final-aggregate spills | repartition spills | errors |", "|" + "---|" * 15]
+        for change, files, pool, binary, target, pool_type, strings in keys:
+            sel = select(rows, part=part, change=change, files=files, pool=pool, binary=binary,
+                         target_partitions=target, pool_type=pool_type, strings=strings)
+            ok = completed(sel)
+            out.append(f"| {change} | {files} | {pool} | {plan[binary]} | {target} | {pool_type} | "
+                       f"{strings} | {n_of(sel)} | {groups_of(sel)} | {shape_of(sel)} | {timed(sel)} | "
+                       f"{num(median(ok, 'rss_mb'), 0)} | {num(median(ok, 'final_agg_spills'), 0)} | "
+                       f"{num(median(ok, 'repartition_spills'), 0)} | {error_kinds(sel)} |")
+        return out
+
+    lines = [f"### {title}", "",
+             "`experiments/causes/run.py`: from two configurations of the lab one thing changes at "
+             "a time. Medians of the completed runs.", "",
+             "W. The workaround on the files with total overlap that need 120 groups, and what "
+             "changes from it: the pool, the strings, the outputs of the repartition (the ordered "
+             "plan has the same ordered inputs; its target is the number of outputs).", ""]
+    lines += table("W") + [""]
+
+    def w(pool, change, **more):
+        return select(rows, part="W", pool=pool, change=change, **more)
+
+    for pool in dict.fromkeys(r["pool"] for r in rows if r["part"] == "W"):
+        base, greedy, utf8 = w(pool, "none"), w(pool, "pool"), w(pool, "strings")
+        outs = sorted({int(r["target_partitions"]) for r in w(pool, "outputs")})
+        done = {o: n_of(w(pool, "outputs", target_partitions=o)) for o in outs}
+        whole = [o for o in outs
+                 if len(completed(w(pool, "outputs", target_partitions=o)))
+                 == len(w(pool, "outputs", target_partitions=o)) > 0]
+        lines.append(f"- {pool}: the workaround completes {n_of(base)} runs; with the greedy pool "
+                     f"{n_of(greedy)}; with plain `Utf8` {n_of(utf8)}; the ordered plan with "
+                     + ", ".join(f"{o} outputs {done[o]}" for o in outs) + ".")
+        figures += [(f"causes_W_{pool}_workaround_completed", n_of(base)),
+                    (f"causes_W_{pool}_greedy_completed", n_of(greedy)),
+                    (f"causes_W_{pool}_utf8_completed", n_of(utf8)),
+                    (f"causes_W_{pool}_most_outputs_all_completed",
+                     str(max(whole)) if whole else "none")]
+        figures += [(f"causes_W_{pool}_outputs_{o}_completed", done[o]) for o in outs]
+    lines += ["", "S. The ordered plan at 128 MB as the ordered streams grow, with the original as "
+              "reference, and at 1200 files with the pool and the strings changed.", ""]
+    lines += table("S") + [""]
+
+    def s_(files, binary, change):
+        return select(rows, part="S", files=files, binary=binary, change=change)
+
+    for files in dict.fromkeys(r["files"] for r in rows if r["part"] == "S"):
+        a, o = s_(files, "accept-groups", "none"), s_(files, "original", "reference")
+        if not a or not o:
+            continue
+        word = stands(a, o)
+        ta, to = median(completed(a), "elapsed_s"), median(completed(o), "elapsed_s")
+        lines.append(f"- {files} files: the ordered plan ({groups_of(a)} groups) takes {num(ta)} "
+                     f"against {num(to)} s, {less_or_more(ta, to)}, {versus(word, 'the original')}; "
+                     f"its final aggregate spills {num(median(completed(a), 'final_agg_spills'), 0)} "
+                     f"times and its repartition {num(median(completed(a), 'repartition_spills'), 0)}; "
+                     f"{n_of(a)} of its runs complete.")
+        figures += [(f"causes_S_{files}_ordered_s", num(ta)), (f"causes_S_{files}_original_s", num(to)),
+                    (f"causes_S_{files}_ordered_against_original", word),
+                    (f"causes_S_{files}_ordered_final_spills",
+                     num(median(completed(a), "final_agg_spills"), 0))]
+    for change, label in (("pool", "the greedy pool"), ("strings", "plain `Utf8`")):
+        files = next((r["files"] for r in rows if r["part"] == "S" and r["change"] == change), None)
+        if files is None:
+            continue
+        a, o = s_(files, "accept-groups", change), s_(files, "original", change)
+        word = stands(a, o)
+        ta, to = median(completed(a), "elapsed_s"), median(completed(o), "elapsed_s")
+        lines.append(f"- {files} files with {label}: the ordered plan takes {num(ta)} against "
+                     f"{num(to)} s, {less_or_more(ta, to)}, {versus(word, 'the original')}; its "
+                     f"final aggregate spills {num(median(completed(a), 'final_agg_spills'), 0)} "
+                     f"times ({n_of(a)} and {n_of(o)} runs complete).")
+        key = "greedy" if change == "pool" else "utf8"
+        figures += [(f"causes_S_{files}_{key}_ordered_s", num(ta)),
+                    (f"causes_S_{files}_{key}_original_s", num(to)),
+                    (f"causes_S_{files}_{key}_ordered_against_original", word),
+                    (f"causes_S_{files}_{key}_ordered_final_spills",
+                     num(median(completed(a), "final_agg_spills"), 0))]
+    lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- trace
+
+# class of consumer -> the column of the operator that reports spills for it
+SPILLS_OF = {"FinalHashAggregateStream": "final_agg_spills",
+             "OrderedFinalAggregateStream": "final_agg_spills",
+             "PartialHashAggregateStream": "partial_agg_spills",
+             "OrderedPartialAggregateStream": "partial_agg_spills",
+             "ExternalSorter": "sort_spills", "RepartitionExec": "repartition_spills"}
+
+
+def read_trace(path):
+    """A trace file of the traced binaries: {'pool': {...}, 'classes': {...}, 'events': [...]}."""
+    pool, classes, events = {}, {}, []
+    for line in Path(path).read_text().splitlines():
+        f = line.split("\t")
+        if f[0] == "pool":
+            pool = {"fair": f[1] == "fair", "limit": int(f[2]) if f[2].isdigit() else None,
+                    "peak_reserved": int(f[3]), "refusals": int(f[4]), "dropped": int(f[5])}
+        elif f[0] == "class":
+            classes[f[1]] = dict(zip(("consumers", "can_spill", "sum_of_peaks", "largest_peak",
+                                      "class_peak", "refusals", "refused_bytes", "then_release",
+                                      "ending_refused"), map(int, f[2:11])))
+        elif f[0] == "event":
+            # the fair pool gives a quota to the consumers that can spill; one that cannot is
+            # refused when the whole pool has no room, and has no quota to be read against
+            can_spill = f[4] == "1"
+            events.append({"kind": f[2], "consumer": f[3], "can_spill": can_spill,
+                           "bytes": int(f[5]), "held": int(f[6]),
+                           "reserved": int(f[7]), "spillable": int(f[8]),
+                           "quota": int(f[11]) if f[11] and can_spill else None, "top": f[12]})
+    return {"pool": pool, "classes": classes, "events": events}
+
+
+def class_name(consumer):
+    """The class of a consumer as the wrapper names it: the index removed."""
+    head, bracket, inside = consumer.partition("[")
+    inside = "".join(c for c in inside.rstrip("]") if not c.isdigit()).strip()
+    return f"{head}[{inside}]" if bracket and inside else head
+
+
+def trace(out, figures):
+    title = "What the memory pool grants and refuses"
+    out = Path(out)
+    path = out / "results.tsv"
+    if not path.is_file() or not path.stat().st_size:
+        return missing(title, out)
+    rows = read_tsv(path)
+    mb = 1 << 20
+
+    def key_of(r):
+        return (r["case"], r["binary"], r["target_partitions"], r["pool"], r["pool_type"])
+
+    keys = list(dict.fromkeys(key_of(r) for r in rows))
+    plan = {"original": "original", "accept-groups": "ordered"}
+
+    def label(k):
+        return f"{k[0]} | {plan[k[1]]} | {k[2]} | {k[3]} | {k[4]}"
+
+    def sel(k, traced):
+        return [r for r in rows if key_of(r) == k and str(r["traced"]) == str(traced)]
+
+    def traces(k):
+        return [(r, read_trace(out / r["trace_file"])) for r in sel(k, 1)
+                if r["trace_file"] and (out / r["trace_file"]).is_file()]
+
+    def med_of(xs):
+        xs = [x for x in xs if x is not None]
+        return st.median(xs) if xs else float("nan")
+
+    head = "| case | plan | target | pool | pool type |"
+    lines = [f"### {title}", "",
+             "`experiments/trace/run.py`: every configuration with the binary of the lab and with "
+             "the traced one (`patch/trace-pool.patch`), which wraps the memory pool and records "
+             "what its consumers reserve and are refused. The wrapper forwards every call "
+             "unchanged, but the lock it takes can change how the tasks interleave: the first "
+             "table sets the two binaries side by side on what does not depend on time. No time "
+             "of a traced run is used.", "",
+             "Completed runs and median spills reported by the operators, plain / traced:", "",
+             head + " completed | final aggregate | partial aggregate | sort | repartition |",
+             "|" + "---|" * 10]
+    same, differ = 0, []
+    for k in keys:
+        p, t = sel(k, 0), sel(k, 1)
+
+        def pair(col):
+            return f"{num(median(completed(p), col), 0)} / {num(median(completed(t), col), 0)}"
+
+        lines.append(f"| {label(k)} | {n_of(p)} / {n_of(t)} | {pair('final_agg_spills')} | "
+                     f"{pair('partial_agg_spills')} | {pair('sort_spills')} | "
+                     f"{pair('repartition_spills')} |")
+        if len(completed(p)) == len(completed(t)):
+            same += 1
+        else:
+            differ.append(f"{k[0]}, {plan[k[1]]}, {k[3]}, {k[4]} ({n_of(p)} against {n_of(t)})")
+    lines += ["", f"- The two binaries complete the same number of runs in {same} of {len(keys)} "
+              "configurations" + ("; they differ in: " + "; ".join(differ) if differ else "")
+              + ". That and the spills above say how far the two are comparable on what was "
+              "recorded; they do not show that the wrapper perturbs nothing. Where the two "
+              "differ, the difference can be variation between runs or an effect of the wrapper, "
+              "and what the traces say of that configuration is read with it.", ""]
+    figures.append(("trace_same_completions", f"{same} of {len(keys)}"))
+
+    lines += ["Refusals, traced runs. The refusals and the peak of the pool are medians over the "
+              "runs; the other columns count the refusals kept, over all the runs (a trace keeps "
+              "the first and the last events of a run). A refusal is above its quota when what "
+              "the consumer held plus what it asked exceeds the quota the wrapper computes at "
+              "that moment; the request fitted the pool when what the pool reported as reserved "
+              "plus the request did not exceed the limit. Only a consumer that can spill has a "
+              "quota, and only under the fair pool: the refusals of the others are not counted in "
+              "that column.", "",
+              head + " refusals | refusals kept | above quota | the request fitted the pool | "
+              "pool peak, MB |", "|" + "---|" * 10]
+    exceptions = {}
+    for k in keys:
+        ts = traces(k)
+        if not ts:
+            lines.append(f"| {label(k)} | n/a | n/a | n/a | n/a | n/a |")
+            continue
+        above = below = kept = withq = 0
+        for _, t in ts:
+            for e in t["events"]:
+                if e["kind"] != "refusal":
+                    continue
+                kept += 1
+                fits = (t["pool"]["limit"] is not None
+                        and e["reserved"] + e["bytes"] <= t["pool"]["limit"])
+                below += fits
+                if e["quota"] is not None:
+                    withq += 1
+                    over = e["held"] + e["bytes"] > e["quota"]
+                    above += over
+                    if not over:
+                        where = (class_name(e["consumer"]),
+                                 "the request fitted the pool" if fits else "the pool was full")
+                        exceptions.setdefault(k, {}).setdefault(where, []).append(
+                            (e["held"] + e["bytes"]) / e["quota"] if e["quota"] else float("nan"))
+        refusals = med_of([t["pool"]["refusals"] for _, t in ts])
+        peak = med_of([t["pool"]["peak_reserved"] / mb for _, t in ts])
+        lines.append(f"| {label(k)} | {num(refusals, 0)} | {kept} | "
+                     + (f"{above} of {withq}" if withq else "no quota") + f" | {below} of {kept} | "
+                     f"{num(peak, 0)} |")
+        tag = "trace_" + "_".join(k)
+        figures += [(f"{tag}_refusals", num(refusals, 0)),
+                    (f"{tag}_above_quota", f"{above} of {withq}" if withq else "no quota"),
+                    (f"{tag}_request_fitted_pool", f"{below} of {kept}"),
+                    (f"{tag}_pool_peak_mb", num(peak, 0))]
+    if exceptions:
+        lines += ["", "Refusals under the fair pool that are not above the quota the wrapper "
+                  "computes, by class. The wrapper computes the quota after the pool has decided, "
+                  "from its own count of the consumers registered then: a request just under it "
+                  "can be one that was above the quota the pool used.", "",
+                  head + " class | where | refusals | held plus asked over the quota, median |",
+                  "|" + "---|" * 9]
+        for k, groups in exceptions.items():
+            for (cls, where), ratios in sorted(groups.items()):
+                lines.append(f"| {label(k)} | {cls} | {where} | {len(ratios)} | "
+                             f"{num(med_of(ratios), 3)} |")
+    lines += ["", "By class of consumer (medians over the traced runs; classes that were refused "
+              "or reserved at least 1 MB). The peak of a class is the largest sum of what its "
+              "consumers held at one moment, as the wrapper kept it; it is not the sum of their "
+              "separate peaks, and it is a reservation, not resident memory. A row reads the "
+              "completed traced runs of its configuration, or the failed ones when none "
+              "completed, and says which. "
+              "The releases after a refusal are what the wrapper sees; "
+              "the spills are what the operator of that class reports in its own metrics. The two "
+              "are set side by side by class and run: a release is consistent with a spill, it is "
+              "not observed as one.", "",
+              head + " runs read | class | consumers | peak of the class, MB | largest single, MB | "
+              "refusals | releases after a refusal | spills the operator reports | "
+              "consumers ending refused |", "|" + "---|" * 14]
+    for k in keys:
+        ts = traces(k)
+        done = [(r, t) for r, t in ts if str(r["ok"]) == "1"]
+        # the completed runs when there are any, so that the wrapper's columns and the
+        # operator's spills are of the same runs; otherwise the failed ones, without spills
+        used = done or ts
+        names = sorted({n for _, t in used for n, c in t["classes"].items()
+                        if c["refusals"] or c["class_peak"] >= mb})
+        for name in names:
+            def m(field, scale=1):          # a run without the class counts as zero
+                return med_of([t["classes"].get(name, {}).get(field, 0) / scale for _, t in used])
+            col = SPILLS_OF.get(name)
+            spills = (num(median([r for r, _ in done], col), 0) if col and done
+                      else "no completed run" if col else "-")
+            lines.append(f"| {label(k)} | {'completed' if done else 'failed'}, {len(used)} | {name} | "
+                         f"{num(m('consumers'), 0)} | "
+                         f"{num(m('class_peak', mb), 1)} | {num(m('largest_peak', mb), 1)} | "
+                         f"{num(m('refusals'), 0)} | {num(m('then_release'), 0)} | {spills} | "
+                         f"{num(m('ending_refused'), 0)} |")
+            if "Aggregate" in name or name in ("ExternalSorter", "RepartitionExec",
+                                               "RepartitionExec[Merge]"):
+                figures.append((f"trace_{'_'.join(k)}_{name}_class_peak_mb",
+                                num(m("class_peak", mb), 1)))
+    lines += ["", "Runs that fail. The error the query returns names the consumer whose request "
+              "ended it; a consumer that merely ends with a refused request can have been cancelled "
+              "after that. For the traced runs that failed: the class the error names, and the "
+              "last refusal kept for the consumer it names (medians over those runs).", "",
+              head + " failed, plain / traced | class named by the error | asked, MB | held, MB | "
+              "quota, MB | pool reserved, MB | limit, MB | holders at that moment (first run) |",
+              "|" + "---|" * 13]
+    for k in keys:
+        p, t = sel(k, 0), sel(k, 1)
+        failed = [(r, tr) for r, tr in traces(k) if str(r["ok"]) != "1"]
+        t_failed = len(t) - len(completed(t))
+        if len(completed(p)) == len(p) and not t_failed:
+            continue
+        if not failed:
+            why = ("no traced run failed" if not t_failed else
+                   "the traced runs that failed left no trace")
+            lines.append(f"| {label(k)} | {len(p) - len(completed(p))} of {len(p)} / "
+                         f"{t_failed} of {len(t)} | {why} | - | - | - | - | - | - |")
+            continue
+        named, last, holders = [], [], ""
+        for r, tr in failed:
+            who = r["error"].partition("failed for ")[2].partition(" with top")[0]
+            named.append(class_name(who) if who else "not named")
+            hits = [e for e in tr["events"] if e["kind"] == "refusal" and e["consumer"] == who]
+            if hits:
+                last.append((hits[-1], tr["pool"]["limit"]))
+                holders = holders or "; ".join(
+                    f"{x.split('=')[0]} {int(x.split('=')[1]) / mb:.0f}"
+                    for x in hits[-1]["top"].split(";") if x)
+        classes = ", ".join(f"{c} ({named.count(c)})" for c in sorted(set(named))) or "n/a"
+
+        def lm(f):
+            return num(med_of([f(e, lim) for e, lim in last]), 1) if last else "not kept"
+
+        if len(failed) < t_failed:
+            classes += f"; {t_failed - len(failed)} failed without a trace"
+        lines.append(f"| {label(k)} | {len(p) - len(completed(p))} of {len(p)} / "
+                     f"{t_failed} of {len(t)} | {classes} | "
+                     f"{lm(lambda e, lim: e['bytes'] / mb)} | {lm(lambda e, lim: e['held'] / mb)} | "
+                     f"{lm(lambda e, lim: e['quota'] / mb if e['quota'] is not None else None)} | "
+                     f"{lm(lambda e, lim: e['reserved'] / mb)} | "
+                     f"{lm(lambda e, lim: lim / mb if lim else None)} | {holders or 'n/a'} |")
+        figures.append((f"trace_{'_'.join(k)}_error_class", classes))
     lines.append("")
     return "\n".join(lines)
 

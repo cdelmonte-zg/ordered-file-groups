@@ -17,3 +17,12 @@ done
 # the experiments
 for f in 150 300 600; do $g --files $f --depth $f --assign rank; done      # many-streams
 for d in 1 2; do $g --files 120 --depth $d --assign entity-rank; done       # depth
+# rows: more grouping keys under each prefix (the prefixes stay) ...
+$g --depth 4 --rows 6000000  --name df-16919-partial-12-depth-4-6m
+$g --depth 4 --rows 24000000 --name df-16919-partial-12-depth-4-24m
+# ... and more prefixes with the keys under each as in the base case (cluster width x10, x40;
+# the prefixes each dataset really has are in its manifest)
+$g --depth 4 --rows 6000000  --cluster-ms 5000  --name df-16919-partial-12-depth-4-6m-prefixes
+$g --depth 4 --rows 24000000 --cluster-ms 20000 --name df-16919-partial-12-depth-4-24m-prefixes
+# ... and the keys concentrated under few prefixes (cluster width 1 ms)
+$g --depth 4 --rows 6000000  --cluster-ms 1     --name df-16919-partial-12-depth-4-6m-concentrated

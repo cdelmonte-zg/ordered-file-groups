@@ -1,0 +1,435 @@
+diff --git a/datafusion-cli/src/lib.rs b/datafusion-cli/src/lib.rs
+index 51202818d..4e9df8b3b 100644
+--- a/datafusion-cli/src/lib.rs
++++ b/datafusion-cli/src/lib.rs
+@@ -34,3 +34,4 @@ pub mod object_storage;
+ pub mod pool_type;
+ pub mod print_format;
+ pub mod print_options;
++pub mod trace_pool;
+diff --git a/datafusion-cli/src/main.rs b/datafusion-cli/src/main.rs
+index 2f84a9aaf..713d2db55 100644
+--- a/datafusion-cli/src/main.rs
++++ b/datafusion-cli/src/main.rs
+@@ -188,7 +188,9 @@ impl Args {
+ #[tokio::main]
+ /// Calls [`main_inner`], then handles printing errors and returning the correct exit code
+ pub async fn main() -> ExitCode {
+-    if let Err(e) = main_inner().await {
++    let result = main_inner().await;
++    datafusion_cli::trace_pool::dump_installed();
++    if let Err(e) = result {
+         println!("Error: {e}");
+         return ExitCode::FAILURE;
+     }
+@@ -233,6 +235,11 @@ async fn main_inner() -> Result<()> {
+             )),
+         };
+ 
++        // the lab's instrument: the same pool, with its reservations recorded
++        let pool = datafusion_cli::trace_pool::install(
++            pool,
++            matches!(args.mem_pool_type, PoolType::Fair),
++        );
+         rt_builder = rt_builder.with_memory_pool(pool)
+     }
+ 
+diff --git a/datafusion-cli/src/trace_pool.rs b/datafusion-cli/src/trace_pool.rs
+new file mode 100644
+index 000000000..37371c343
+--- /dev/null
++++ b/datafusion-cli/src/trace_pool.rs
+@@ -0,0 +1,393 @@
++// A measuring instrument of the ordered-file-groups lab, not part of DataFusion.
++
++//! A memory pool that records what its consumers reserve and what they are refused.
++//!
++//! It wraps the pool the CLI would use and forwards every call unchanged: the
++//! rules of the pool are those of the wrapped one. The lock it takes on every
++//! call can change how the tasks interleave, so a traced run is compared with an
++//! untraced one on completion and spills, and its times are not used.
++//!
++//! When the environment variable `DATAFUSION_TRACE_POOL` names a file,
++//! [`dump_installed`] writes there, as tab-separated lines whose first field is
++//! the kind of line:
++//!
++//! - `pool`: name, limit, peak of the bytes the pool reported as reserved,
++//!   refusals, events dropped from the ring;
++//! - `class`: for every class of consumer (its name with the index removed):
++//!   consumers, how many can spill, sum and largest of their peak reservations,
++//!   peak of the class as a whole, refusals, bytes refused, refusals followed by
++//!   a release of the same consumer, consumers whose last request was refused;
++//! - `event`: the first and the last events (a ring), in order of time.
++//!
++//! What a line reports is of two kinds. Observed: the call itself (who asked, how
++//! much, granted or refused) and what the wrapped pool answers to `reserved()`.
++//! Kept by the wrapper: every reservation as the sum of the grants and releases
++//! it saw, the number of registered consumers that can spill, and the bytes held
++//! by those that cannot. Under the fair pool the quota in a refusal is computed
++//! from these as that pool computes it, (limit - unspillable) / spillable; the
++//! wrapped pool is not asked for it. The field is empty for a consumer that
++//! cannot spill and under any other pool: there is no quota. Columns kept or computed by the wrapper are named `w_...` in
++//! the header line.
++
++use std::collections::{HashMap, VecDeque};
++use std::io::Write;
++use std::sync::{Arc, Mutex, OnceLock};
++use std::time::Instant;
++
++use datafusion::error::Result;
++use datafusion::execution::memory_pool::{
++    MemoryConsumer, MemoryLimit, MemoryPool, MemoryReservation,
++};
++
++/// Events kept from the start and from the end of the run.
++const FIRST_EVENTS: usize = 200;
++const LAST_EVENTS: usize = 2000;
++/// Classes listed in an event, by bytes held at that moment.
++const TOP_CLASSES: usize = 6;
++
++#[derive(Debug, Default)]
++struct Consumer {
++    class: String,
++    can_spill: bool,
++    current: usize,
++    peak: usize,
++    refusals: u64,
++    refused_bytes: u64,
++    /// refusals after which this consumer released memory before asking again
++    released_after_refusal: u64,
++    /// the last request of this consumer was refused and nothing was granted since
++    last_refused: bool,
++    /// a refusal is waiting to see whether a release follows
++    pending_refusal: bool,
++}
++
++#[derive(Debug, Default)]
++struct Class {
++    current: usize,
++    peak: usize,
++}
++
++#[derive(Debug, Default)]
++struct State {
++    consumers: HashMap<usize, Consumer>,
++    classes: HashMap<String, Class>,
++    registered_spillable: i64,
++    registered_unspillable: i64,
++    unspillable_bytes: usize,
++    peak_reserved: usize,
++    refusals: u64,
++    first: Vec<String>,
++    last: VecDeque<String>,
++    dropped: u64,
++}
++
++impl State {
++    fn push(&mut self, line: String) {
++        if self.first.len() < FIRST_EVENTS {
++            self.first.push(line);
++            return;
++        }
++        if self.last.len() == LAST_EVENTS {
++            self.last.pop_front();
++            self.dropped += 1;
++        }
++        self.last.push_back(line);
++    }
++
++    fn top_classes(&self) -> String {
++        let mut held: Vec<(&str, usize)> = self
++            .classes
++            .iter()
++            .filter(|(_, c)| c.current > 0)
++            .map(|(name, c)| (name.as_str(), c.current))
++            .collect();
++        held.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
++        held.iter()
++            .take(TOP_CLASSES)
++            .map(|(name, bytes)| format!("{name}={bytes}"))
++            .collect::<Vec<_>>()
++            .join(";")
++    }
++}
++
++/// See the module documentation.
++#[derive(Debug)]
++pub struct TracePool {
++    inner: Arc<dyn MemoryPool>,
++    /// the wrapped pool divides its limit into quotas
++    fair: bool,
++    started: Instant,
++    state: Mutex<State>,
++}
++
++static INSTALLED: OnceLock<Arc<TracePool>> = OnceLock::new();
++
++/// Wrap the pool of the session and remember it for [`dump_installed`].
++pub fn install(inner: Arc<dyn MemoryPool>, fair: bool) -> Arc<dyn MemoryPool> {
++    let pool = Arc::new(TracePool::new(inner, fair));
++    let _ = INSTALLED.set(Arc::clone(&pool));
++    pool
++}
++
++/// Write the record of the installed pool, if there is one.
++pub fn dump_installed() {
++    if let Some(pool) = INSTALLED.get() {
++        pool.dump();
++    }
++}
++
++/// "RepartitionExec[Merge 80]" -> "RepartitionExec[Merge]", "ExternalSorter[3]" -> "ExternalSorter".
++fn class_of(name: &str) -> String {
++    let Some(open) = name.find('[') else {
++        return name.to_string();
++    };
++    let inside: String = name[open + 1..]
++        .trim_end_matches(']')
++        .chars()
++        .filter(|c| !c.is_ascii_digit())
++        .collect();
++    let inside = inside.trim();
++    if inside.is_empty() {
++        name[..open].to_string()
++    } else {
++        format!("{}[{}]", &name[..open], inside)
++    }
++}
++
++fn consumer_of<'a>(state: &'a mut State, consumer: &MemoryConsumer) -> &'a mut Consumer {
++    state.consumers.entry(consumer.id()).or_insert_with(|| Consumer {
++        class: class_of(consumer.name()),
++        can_spill: consumer.can_spill(),
++        ..Default::default()
++    })
++}
++
++impl TracePool {
++    pub fn new(inner: Arc<dyn MemoryPool>, fair: bool) -> Self {
++        Self {
++            inner,
++            fair,
++            started: Instant::now(),
++            state: Mutex::new(State::default()),
++        }
++    }
++
++    fn limit(&self) -> Option<usize> {
++        match self.inner.memory_limit() {
++            MemoryLimit::Finite(n) => Some(n),
++            _ => None,
++        }
++    }
++
++    fn granted(&self, reservation: &MemoryReservation, additional: usize) {
++        let reserved = self.inner.reserved();
++        let mut state = self.state.lock().unwrap();
++        state.peak_reserved = state.peak_reserved.max(reserved);
++        let entry = consumer_of(&mut state, reservation.consumer());
++        entry.current += additional;
++        entry.peak = entry.peak.max(entry.current);
++        if additional > 0 {
++            entry.last_refused = false;
++            entry.pending_refusal = false;
++        }
++        let (class, can_spill) = (entry.class.clone(), entry.can_spill);
++        if !can_spill {
++            state.unspillable_bytes += additional;
++        }
++        let c = state.classes.entry(class).or_default();
++        c.current += additional;
++        c.peak = c.peak.max(c.current);
++    }
++
++    /// Write the record to the file named by `DATAFUSION_TRACE_POOL`, if any.
++    pub fn dump(&self) {
++        let Ok(path) = std::env::var("DATAFUSION_TRACE_POOL") else {
++            return;
++        };
++        let state = self.state.lock().unwrap();
++        let mut out = String::new();
++        out.push_str("#pool\tname\tlimit\tpeak_reserved\trefusals\tevents_dropped\n");
++        out.push_str(&format!(
++            "pool\t{}\t{}\t{}\t{}\t{}\n",
++            if self.fair { "fair" } else { "not fair" },
++            self.limit().map(|n| n.to_string()).unwrap_or("unknown".into()),
++            state.peak_reserved,
++            state.refusals,
++            state.dropped
++        ));
++        out.push_str(
++            "#class\tclass\tconsumers\tcan_spill\tw_sum_of_peaks\tw_largest_peak\tw_class_peak\t\
++             refusals\trefused_bytes\tw_refusals_then_release\tw_consumers_ending_refused\n",
++        );
++        #[derive(Default, Clone, Copy)]
++        struct Sum {
++            consumers: u64,
++            can_spill: u64,
++            peaks: u64,
++            largest: u64,
++            refusals: u64,
++            refused: u64,
++            released: u64,
++            ending: u64,
++        }
++        let mut classes: HashMap<&str, Sum> = HashMap::new();
++        for c in state.consumers.values() {
++            let e = classes.entry(c.class.as_str()).or_default();
++            e.consumers += 1;
++            e.can_spill += c.can_spill as u64;
++            e.peaks += c.peak as u64;
++            e.largest = e.largest.max(c.peak as u64);
++            e.refusals += c.refusals;
++            e.refused += c.refused_bytes;
++            e.released += c.released_after_refusal;
++            e.ending += c.last_refused as u64;
++        }
++        let mut names: Vec<_> = classes.keys().copied().collect();
++        names.sort();
++        for name in names {
++            let e = classes[name];
++            let peak = state.classes.get(name).map(|c| c.peak).unwrap_or(0);
++            out.push_str(&format!(
++                "class\t{name}\t{}\t{}\t{}\t{}\t{peak}\t{}\t{}\t{}\t{}\n",
++                e.consumers, e.can_spill, e.peaks, e.largest, e.refusals, e.refused,
++                e.released, e.ending
++            ));
++        }
++        out.push_str(
++            "#event\tmicros\tkind\tconsumer\tcan_spill\tbytes\tw_held\treserved\t\
++             w_registered_spillable\tw_registered_unspillable\tw_unspillable_bytes\t\
++             w_fair_quota\tw_top_classes\n",
++        );
++        for line in state.first.iter().chain(state.last.iter()) {
++            out.push_str(line);
++        }
++        if let Ok(mut f) = std::fs::File::create(&path) {
++            let _ = f.write_all(out.as_bytes());
++        }
++    }
++}
++
++impl std::fmt::Display for TracePool {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        // the error messages of the engine print the pool: keep them as they are
++        write!(f, "{}", self.inner)
++    }
++}
++
++impl MemoryPool for TracePool {
++    fn name(&self) -> &str {
++        self.inner.name()
++    }
++
++    fn register(&self, consumer: &MemoryConsumer) {
++        self.inner.register(consumer);
++        let mut state = self.state.lock().unwrap();
++        if consumer.can_spill() {
++            state.registered_spillable += 1;
++        } else {
++            state.registered_unspillable += 1;
++        }
++    }
++
++    fn unregister(&self, consumer: &MemoryConsumer) {
++        self.inner.unregister(consumer);
++        let mut state = self.state.lock().unwrap();
++        if consumer.can_spill() {
++            state.registered_spillable -= 1;
++        } else {
++            state.registered_unspillable -= 1;
++        }
++    }
++
++    fn grow(&self, reservation: &MemoryReservation, additional: usize) {
++        self.inner.grow(reservation, additional);
++        self.granted(reservation, additional);
++    }
++
++    fn shrink(&self, reservation: &MemoryReservation, shrink: usize) {
++        self.inner.shrink(reservation, shrink);
++        let reserved = self.inner.reserved();
++        let micros = self.started.elapsed().as_micros();
++        let mut state = self.state.lock().unwrap();
++        let consumer = reservation.consumer();
++        let Some(entry) = state.consumers.get_mut(&consumer.id()) else {
++            return;
++        };
++        let freed = shrink.min(entry.current);
++        entry.current -= freed;
++        let after_refusal = entry.pending_refusal && shrink > 0;
++        if after_refusal {
++            entry.pending_refusal = false;
++            entry.released_after_refusal += 1;
++        }
++        let (class, can_spill, held) = (entry.class.clone(), entry.can_spill, entry.current);
++        if !can_spill {
++            state.unspillable_bytes = state.unspillable_bytes.saturating_sub(freed);
++        }
++        if let Some(c) = state.classes.get_mut(&class) {
++            c.current = c.current.saturating_sub(freed);
++        }
++        if after_refusal {
++            let line = format!(
++                "event\t{micros}\trelease_after_refusal\t{}\t{}\t{shrink}\t{held}\t{reserved}\t{}\t{}\t{}\t\t{}\n",
++                consumer.name(),
++                can_spill as u8,
++                state.registered_spillable,
++                state.registered_unspillable,
++                state.unspillable_bytes,
++                state.top_classes()
++            );
++            state.push(line);
++        }
++    }
++
++    fn try_grow(&self, reservation: &MemoryReservation, additional: usize) -> Result<()> {
++        match self.inner.try_grow(reservation, additional) {
++            Ok(()) => {
++                self.granted(reservation, additional);
++                Ok(())
++            }
++            Err(e) => {
++                let reserved = self.inner.reserved();
++                let micros = self.started.elapsed().as_micros();
++                let limit = if self.fair { self.limit() } else { None };
++                let mut state = self.state.lock().unwrap();
++                state.refusals += 1;
++                let consumer = reservation.consumer();
++                let entry = consumer_of(&mut state, consumer);
++                entry.refusals += 1;
++                entry.refused_bytes += additional as u64;
++                entry.last_refused = true;
++                entry.pending_refusal = true;
++                let held = entry.current;
++                // the fair pool divides its limit among the consumers that can spill; one
++                // that cannot is refused when the whole pool has no room, and has no quota
++                let quota = match (limit, state.registered_spillable) {
++                    (Some(limit), n) if n > 0 && consumer.can_spill() => {
++                        (limit.saturating_sub(state.unspillable_bytes) / n as usize).to_string()
++                    }
++                    _ => String::new(),
++                };
++                let line = format!(
++                    "event\t{micros}\trefusal\t{}\t{}\t{additional}\t{held}\t{reserved}\t{}\t{}\t{}\t{quota}\t{}\n",
++                    consumer.name(),
++                    consumer.can_spill() as u8,
++                    state.registered_spillable,
++                    state.registered_unspillable,
++                    state.unspillable_bytes,
++                    state.top_classes()
++                );
++                state.push(line);
++                Err(e)
++            }
++        }
++    }
++
++    fn reserved(&self) -> usize {
++        self.inner.reserved()
++    }
++
++    fn memory_limit(&self) -> MemoryLimit {
++        self.inner.memory_limit()
++    }
++}
