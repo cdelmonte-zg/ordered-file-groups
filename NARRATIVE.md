@@ -2,7 +2,7 @@
 
 *Why each experiment exists, what it establishes, and where the explanation stops.*
 
-This document explains the reasoning behind the lab, and how its explanations changed as the experiments were added. [DESIGN.md](DESIGN.md) records the experimental design; [RESULTS.md](RESULTS.md) contains the generated tables and comparisons; the [recorded outputs](results/) support both. The numbers come from the results recorded at lab commit `8157b06d`, on DataFusion commit `e1aa7d956`.
+This document explains the reasoning behind the lab, and how its explanations changed as the experiments were added. [DESIGN.md](DESIGN.md) records the experimental design; [RESULTS.md](RESULTS.md) contains the generated tables and comparisons; the [recorded outputs](results/) support both. The numbers come from the results recorded at lab commit `dcf1f1e7`, on DataFusion commit `e1aa7d956`.
 
 The numbers below are those of `results/figures.tsv` and of the result tables at the commit named above. When the lab is run again they must be checked against the new ones, and where an experiment changes its outcome the interpretation must be read again.
 
@@ -128,7 +128,7 @@ The duplicate experiment keeps the total row count and changes the number of dis
 
 ## 4. What the plans reserve
 
-The fair pool gives every consumer that can spill a quota: the limit, less what the consumers that cannot spill hold, divided by the number of those that can and are registered at that moment. The traced runs show how the two plans meet it.
+The fair pool gives every consumer that can spill a quota: the limit, less what the consumers that cannot spill hold, divided by the number of those that can and are registered at that moment. This is documented behaviour: the [description of the pool](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/datafusion/execution/src/memory_pool/pool.rs) gives the formula and warns that it will sometimes cause spills even when there was sufficient memory to avoid them. The traced runs do not establish that rule. They show where it applies in this case, with what numbers, and who holds the limit when a request is refused.
 
 In the base case at 256 MB the original plan is refused 21 times in median. Of the refusals kept, 106 of 106 are above the quota computed for that moment, and in 106 of 106 the request fitted the pool. The pool itself peaks at 181 MB of 256. An operator is refused at its own quota while the pool as a whole still has capacity.
 
@@ -155,7 +155,7 @@ The ordered plan reserves far less for its aggregation, and in the same configur
 
 ## 5. The cost of keeping the order
 
-Carrying order through the plan is not free. The costs appear as the ordered groups grow in number, and the experiments below take them one at a time.
+Carrying order through the plan is not free, and the engine says so: the [repartition's own documentation](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/datafusion/physical-plan/src/repartition/mod.rs) calls preserving order more expensive at runtime, to be asked for only when an operator after it can use it. The costs appear as the ordered groups grow in number, and the experiments below measure them one at a time.
 
 ### Files, intervals and active streams
 
@@ -181,7 +181,7 @@ The two 1,200-file layouts are a useful comparison of few versus many streams wi
 
 Raising `target_partitions` to the number of groups makes the original binary accept them. The matrix runs this up to twelve groups, where it is faster than the ordered plan and holds more memory. With more groups it stops completing: with 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB (3 of 10 in another experiment with the same configuration), and with about 1,200 groups 0 of 10 at 2 GB.
 
-The traces say what holds at the request that ends the query. Under the fair pool the error names the ordered final aggregate: it asks 3.3 MB holding nothing, against a quota of 0.3 MB at 256 MB and of 2.4 MB at 2 GB. The pool then reports 188 and 1,558 MB reserved, most of it held by the merges of the repartition's outputs, which cannot spill and so narrow every quota. Under the greedy pool, which has no quotas, the error names those merges, and the pool is nearly full: 256 MB of 256, most of it held by the repartition. At the refusals the two pools show different conditions: quotas too small in one, overall capacity nearly exhausted in the other.
+That more partitions leave less memory to each under the fair pool is in DataFusion's [configuration guide](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/docs/source/user-guide/configs.md), which warns that a higher `target_partitions` can make the spilling path more frequent. The traces say what holds, in this case, at the request that ends the query. Under the fair pool the error names the ordered final aggregate: it asks 3.3 MB holding nothing, against a quota of 0.3 MB at 256 MB and of 2.4 MB at 2 GB. The pool then reports 188 and 1,558 MB reserved, most of it held by the merges of the repartition's outputs, which cannot spill and so narrow every quota. Under the greedy pool, which has no quotas, the error names those merges, and the pool is nearly full: 256 MB of 256, most of it held by the repartition. At the refusals the two pools show different conditions: quotas too small in one, overall capacity nearly exhausted in the other.
 
 The error the query returns is the reference here. A consumer that merely ends with a refused request can have been cancelled after the error of another.
 
@@ -342,11 +342,13 @@ Reading the strings as `Utf8` changes outcomes. With about 1,200 streams at 128 
 
 The first reading of the base case was that the ordered plan is faster. The larger pools replaced it: the ordered plan is faster where the final aggregate of the original spills in every run, and the two are not clearly distinguishable, or the original is faster, where it spills in none.
 
-The second reading was that the ordered plan uses less memory. The traces made it specific. Under the fair pool an operator is refused at its own quota while the pool still has capacity; the original's final aggregate reaches that quota and the ordered one, which reserves far less, is not refused in the same configuration.
+The second reading was that the ordered plan uses less memory. The traces replaced it with the documented behaviour of the fair pool, observed in this case: an operator is refused at its own quota while the pool still has capacity; the original's final aggregate reaches that quota and the ordered one, which reserves far less, is not refused in the same configuration.
 
 The third was that raising `target_partitions` is a way out. It is one with few groups. With many, under the fair pool the error comes at a first request above a quota that the reservations of the merges have narrowed, and under the greedy pool with the limit nearly reached, most of it held by the repartition.
 
 The first step came from an experiment that could have gone the other way. The hypothesis on the quotas was written after a pilot that had already shown them, and `DESIGN.md` marks it as such; the run that followed is a repetition of that observation under a fixed design, not a test of a prediction made blind. The predictions that failed are kept beside those that held.
+
+None of the mechanisms named here is new to the engine. Order used by aggregations, the quotas of the fair pool, the price of more partitions and of preserving order are all documented. What the lab adds is a diagnosis of one case: where the ordering is discarded, what accepting it changes and where that stops paying, who holds the limit at the request that ends a query, and a way to repeat the measurements when the engine changes.
 
 ## 8. What the diagnosis supports upstream
 
