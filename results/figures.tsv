@@ -137,6 +137,7 @@ process_Q1_accept-groups_max_parquet_open	246
 process_Q1_accept-groups_rss_mb_when_most_parquet_open	371
 process_Q1_accept-groups_max_temp_open	0
 process_Q1_accept-groups_max_descriptors	256
+large_pools_512m_original_runs_without_final_spills	0 of 10
 large_pools_512m_original_s	0.633
 large_pools_512m_ordered_s	0.350
 large_pools_512m_ordered_change	45 percent less
@@ -146,6 +147,7 @@ large_pools_512m_original_sort_spills	4
 large_pools_512m_original_rss_mb	523
 large_pools_512m_ordered_rss_mb	347
 large_pools_512m_target_s	0.269
+large_pools_1g_original_runs_without_final_spills	0 of 10
 large_pools_1g_original_s	0.611
 large_pools_1g_ordered_s	0.356
 large_pools_1g_ordered_change	42 percent less
@@ -155,6 +157,7 @@ large_pools_1g_original_sort_spills	0
 large_pools_1g_original_rss_mb	720
 large_pools_1g_ordered_rss_mb	352
 large_pools_1g_target_s	0.265
+large_pools_2g_original_runs_without_final_spills	10 of 10
 large_pools_2g_original_s	0.362
 large_pools_2g_ordered_s	0.357
 large_pools_2g_ordered_change	1 percent less
@@ -164,6 +167,7 @@ large_pools_2g_original_sort_spills	12
 large_pools_2g_original_rss_mb	620
 large_pools_2g_ordered_rss_mb	357
 large_pools_2g_target_s	0.263
+large_pools_4g_original_runs_without_final_spills	10 of 10
 large_pools_4g_original_s	0.346
 large_pools_4g_ordered_s	0.357
 large_pools_4g_ordered_change	3 percent more
@@ -174,6 +178,7 @@ large_pools_4g_original_rss_mb	630
 large_pools_4g_ordered_rss_mb	360
 large_pools_4g_target_s	0.263
 large_pools_original_final_spill_free_from	2g
+large_pools_Q5_512m_original_runs_without_final_spills	0 of 10
 large_pools_Q5_512m_original_s	0.581
 large_pools_Q5_512m_ordered_s	0.306
 large_pools_Q5_512m_ordered_change	47 percent less
@@ -183,6 +188,7 @@ large_pools_Q5_512m_original_sort_spills	no sort
 large_pools_Q5_512m_original_rss_mb	479
 large_pools_Q5_512m_ordered_rss_mb	324
 large_pools_Q5_512m_target_s	0.253
+large_pools_Q5_1g_original_runs_without_final_spills	5 of 10
 large_pools_Q5_1g_original_s	0.432
 large_pools_Q5_1g_ordered_s	0.308
 large_pools_Q5_1g_ordered_change	29 percent less
@@ -192,6 +198,7 @@ large_pools_Q5_1g_original_sort_spills	no sort
 large_pools_Q5_1g_original_rss_mb	638
 large_pools_Q5_1g_ordered_rss_mb	319
 large_pools_Q5_1g_target_s	0.240
+large_pools_Q5_2g_original_runs_without_final_spills	10 of 10
 large_pools_Q5_2g_original_s	0.297
 large_pools_Q5_2g_ordered_s	0.310
 large_pools_Q5_2g_ordered_change	4 percent more
@@ -201,6 +208,7 @@ large_pools_Q5_2g_original_sort_spills	no sort
 large_pools_Q5_2g_original_rss_mb	618
 large_pools_Q5_2g_ordered_rss_mb	333
 large_pools_Q5_2g_target_s	0.249
+large_pools_Q5_4g_original_runs_without_final_spills	10 of 10
 large_pools_Q5_4g_original_s	0.306
 large_pools_Q5_4g_ordered_s	0.311
 large_pools_Q5_4g_ordered_change	2 percent more
@@ -259,6 +267,7 @@ rows_base_600000_small_ordered_final_spills	0
 rows_base_600000_small_original_rss_mb	504
 rows_base_600000_small_ordered_rss_mb	361
 rows_base_600000_small_target_s	0.275
+rows_base_600000_small_original_completed	5 of 5
 rows_base_600000_small_target_completed	5 of 5
 rows_base_600000_large_pool	4g
 rows_base_600000_large_original_s	0.360
@@ -270,6 +279,7 @@ rows_base_600000_large_ordered_final_spills	0
 rows_base_600000_large_original_rss_mb	605
 rows_base_600000_large_ordered_rss_mb	350
 rows_base_600000_large_target_s	0.266
+rows_base_600000_large_original_completed	5 of 5
 rows_base_600000_large_target_completed	5 of 5
 rows_keys-per-prefix_6000000_prefixes	115500
 rows_keys-per-prefix_6000000_keys_per_prefix	51.93 (largest 115)
@@ -283,6 +293,7 @@ rows_keys-per-prefix_6000000_small_ordered_final_spills	0
 rows_keys-per-prefix_6000000_small_original_rss_mb	791
 rows_keys-per-prefix_6000000_small_ordered_rss_mb	474
 rows_keys-per-prefix_6000000_small_target_s	2.807
+rows_keys-per-prefix_6000000_small_original_completed	5 of 5
 rows_keys-per-prefix_6000000_small_target_completed	5 of 5
 rows_keys-per-prefix_6000000_large_pool	32g
 rows_keys-per-prefix_6000000_large_original_s	3.317
@@ -294,6 +305,7 @@ rows_keys-per-prefix_6000000_large_ordered_final_spills	0
 rows_keys-per-prefix_6000000_large_original_rss_mb	3649
 rows_keys-per-prefix_6000000_large_ordered_rss_mb	463
 rows_keys-per-prefix_6000000_large_target_s	2.802
+rows_keys-per-prefix_6000000_large_original_completed	5 of 5
 rows_keys-per-prefix_6000000_large_target_completed	5 of 5
 rows_keys-per-prefix_24000000_prefixes	115500
 rows_keys-per-prefix_24000000_keys_per_prefix	207.47 (largest 395)
@@ -307,6 +319,7 @@ rows_keys-per-prefix_24000000_small_ordered_final_spills	0
 rows_keys-per-prefix_24000000_small_original_rss_mb	881
 rows_keys-per-prefix_24000000_small_ordered_rss_mb	509
 rows_keys-per-prefix_24000000_small_target_s	11.673
+rows_keys-per-prefix_24000000_small_original_completed	4 of 5
 rows_keys-per-prefix_24000000_small_target_completed	5 of 5
 rows_keys-per-prefix_24000000_large_pool	128g
 rows_keys-per-prefix_24000000_large_original_s	13.173
@@ -318,6 +331,7 @@ rows_keys-per-prefix_24000000_large_ordered_final_spills	0
 rows_keys-per-prefix_24000000_large_original_rss_mb	13571
 rows_keys-per-prefix_24000000_large_ordered_rss_mb	497
 rows_keys-per-prefix_24000000_large_target_s	11.780
+rows_keys-per-prefix_24000000_large_original_completed	5 of 5
 rows_keys-per-prefix_24000000_large_target_completed	5 of 5
 rows_prefixes_6000000_prefixes	1143628
 rows_prefixes_6000000_keys_per_prefix	5.25 (largest 24)
@@ -331,6 +345,7 @@ rows_prefixes_6000000_small_ordered_final_spills	0
 rows_prefixes_6000000_small_original_rss_mb	778
 rows_prefixes_6000000_small_ordered_rss_mb	454
 rows_prefixes_6000000_small_target_s	2.547
+rows_prefixes_6000000_small_original_completed	5 of 5
 rows_prefixes_6000000_small_target_completed	5 of 5
 rows_prefixes_6000000_large_pool	32g
 rows_prefixes_6000000_large_original_s	3.117
@@ -342,6 +357,7 @@ rows_prefixes_6000000_large_ordered_final_spills	0
 rows_prefixes_6000000_large_original_rss_mb	3814
 rows_prefixes_6000000_large_ordered_rss_mb	445
 rows_prefixes_6000000_large_target_s	2.566
+rows_prefixes_6000000_large_original_completed	5 of 5
 rows_prefixes_6000000_large_target_completed	5 of 5
 rows_prefixes_24000000_prefixes	4573880
 rows_prefixes_24000000_keys_per_prefix	5.25 (largest 24)
@@ -355,6 +371,7 @@ rows_prefixes_24000000_small_ordered_final_spills	0
 rows_prefixes_24000000_small_original_rss_mb	890
 rows_prefixes_24000000_small_ordered_rss_mb	491
 rows_prefixes_24000000_small_target_s	10.215
+rows_prefixes_24000000_small_original_completed	3 of 5
 rows_prefixes_24000000_small_target_completed	5 of 5
 rows_prefixes_24000000_large_pool	128g
 rows_prefixes_24000000_large_original_s	12.828
@@ -366,6 +383,7 @@ rows_prefixes_24000000_large_ordered_final_spills	0
 rows_prefixes_24000000_large_original_rss_mb	13435
 rows_prefixes_24000000_large_ordered_rss_mb	489
 rows_prefixes_24000000_large_target_s	10.176
+rows_prefixes_24000000_large_original_completed	5 of 5
 rows_prefixes_24000000_large_target_completed	5 of 5
 rows_concentrated_6000000_prefixes	231
 rows_concentrated_6000000_keys_per_prefix	21633.38 (largest 31151)
@@ -379,6 +397,7 @@ rows_concentrated_6000000_small_ordered_final_spills	0
 rows_concentrated_6000000_small_original_rss_mb	816
 rows_concentrated_6000000_small_ordered_rss_mb	534
 rows_concentrated_6000000_small_target_s	2.877
+rows_concentrated_6000000_small_original_completed	5 of 5
 rows_concentrated_6000000_small_target_completed	5 of 5
 rows_concentrated_6000000_large_pool	32g
 rows_concentrated_6000000_large_original_s	2.946
@@ -390,6 +409,7 @@ rows_concentrated_6000000_large_ordered_final_spills	0
 rows_concentrated_6000000_large_original_rss_mb	3632
 rows_concentrated_6000000_large_ordered_rss_mb	522
 rows_concentrated_6000000_large_target_s	2.797
+rows_concentrated_6000000_large_original_completed	5 of 5
 rows_concentrated_6000000_large_target_completed	5 of 5
 causes_W_256m_workaround_completed	0 of 10
 causes_W_256m_greedy_completed	0 of 10
@@ -432,6 +452,8 @@ causes_S_1200_utf8_original_s	0.763
 causes_S_1200_utf8_ordered_against_original	faster
 causes_S_1200_utf8_ordered_final_spills	0
 trace_same_completions	39 of 39
+trace_equal_spill_medians	119 of 136
+trace_largest_spill_difference	workaround, original, 2g, fair, repartition: 11070 / 11610
 trace_base_original_2_256m_fair_refusals	21
 trace_base_original_2_256m_fair_above_quota	106 of 106
 trace_base_original_2_256m_fair_request_fitted_pool	106 of 106
@@ -741,6 +763,81 @@ trace_rows-concentrated-6000000_accept-groups_2_32g_fair_OrderedFinalAggregateSt
 trace_rows-concentrated-6000000_accept-groups_2_32g_fair_OrderedPartialAggregateStream_class_peak_mb	41.0
 trace_rows-concentrated-6000000_accept-groups_2_32g_fair_RepartitionExec_class_peak_mb	30.1
 trace_rows-concentrated-6000000_accept-groups_2_32g_fair_RepartitionExec[Merge]_class_peak_mb	40.4
+trace_base_original_2_256m_fair_final_aggregate_refusals_kept	40
+trace_base_original_2_256m_fair_final_aggregate_spillable_registered	7 to 8
+trace_base_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_base_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 36.6
+trace_base_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	60.8, 62.9, 62.9, 62.9, 71.8
+trace_base_original_2_512m_fair_final_aggregate_refusals_kept	20
+trace_base_original_2_512m_fair_final_aggregate_spillable_registered	7 to 8
+trace_base_original_2_512m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_base_original_2_512m_fair_final_aggregate_quota_mb	64.0 to 73.1
+trace_base_original_2_512m_fair_final_aggregate_class_peak_by_run_mb	123.5, 125.5, 127.3, 129.4, 131.7
+trace_workaround_original_120_256m_fair_final_aggregate_refusals_kept	111
+trace_workaround_original_120_256m_fair_final_aggregate_spillable_registered	205 to 235
+trace_workaround_original_120_256m_fair_final_aggregate_unspillable_held_mb	161 to 214
+trace_workaround_original_120_256m_fair_final_aggregate_quota_mb	0.2 to 0.5
+trace_workaround_original_120_256m_fair_final_aggregate_class_peak_by_run_mb	0.0, 0.0, 0.0, 0.0, 0.0
+trace_workaround_original_120_2g_fair_final_aggregate_refusals_kept	126
+trace_workaround_original_120_2g_fair_final_aggregate_spillable_registered	200 to 239
+trace_workaround_original_120_2g_fair_final_aggregate_unspillable_held_mb	1367 to 1850
+trace_workaround_original_120_2g_fair_final_aggregate_quota_mb	0.8 to 3.2
+trace_workaround_original_120_2g_fair_final_aggregate_class_peak_by_run_mb	0.0, 0.0, 0.0, 0.0, 32.2
+trace_many-streams_original_2_128m_fair_final_aggregate_refusals_kept	103
+trace_many-streams_original_2_128m_fair_final_aggregate_spillable_registered	4 to 8
+trace_many-streams_original_2_128m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_many-streams_original_2_128m_fair_final_aggregate_quota_mb	16.0 to 32.0
+trace_many-streams_original_2_128m_fair_final_aggregate_class_peak_by_run_mb	47.4, 47.4, 47.4, 48.5, 54.1
+trace_many-streams_accept-groups_2_128m_fair_final_aggregate_refusals_kept	117
+trace_many-streams_accept-groups_2_128m_fair_final_aggregate_spillable_registered	2 to 5
+trace_many-streams_accept-groups_2_128m_fair_final_aggregate_unspillable_held_mb	2 to 105
+trace_many-streams_accept-groups_2_128m_fair_final_aggregate_quota_mb	5.6 to 62.9
+trace_many-streams_accept-groups_2_128m_fair_final_aggregate_class_peak_by_run_mb	24.7, 82.9, 85.9, 85.9, 85.9
+trace_streams-150_accept-groups_2_128m_fair_final_aggregate_refusals_kept	263
+trace_streams-150_accept-groups_2_128m_fair_final_aggregate_spillable_registered	2 to 8
+trace_streams-150_accept-groups_2_128m_fair_final_aggregate_unspillable_held_mb	0 to 112
+trace_streams-150_accept-groups_2_128m_fair_final_aggregate_quota_mb	2.0 to 64.0
+trace_streams-150_accept-groups_2_128m_fair_final_aggregate_class_peak_by_run_mb	94.8, 94.8, 94.8, 94.8, 94.8
+trace_streams-300_accept-groups_2_128m_fair_final_aggregate_refusals_kept	123
+trace_streams-300_accept-groups_2_128m_fair_final_aggregate_spillable_registered	2 to 4
+trace_streams-300_accept-groups_2_128m_fair_final_aggregate_unspillable_held_mb	2 to 108
+trace_streams-300_accept-groups_2_128m_fair_final_aggregate_quota_mb	5.0 to 62.9
+trace_streams-300_accept-groups_2_128m_fair_final_aggregate_class_peak_by_run_mb	24.7, 82.9, 82.9, 82.9, 83.8
+trace_streams-600_accept-groups_2_128m_fair_final_aggregate_refusals_kept	113
+trace_streams-600_accept-groups_2_128m_fair_final_aggregate_spillable_registered	2 to 4
+trace_streams-600_accept-groups_2_128m_fair_final_aggregate_unspillable_held_mb	6 to 105
+trace_streams-600_accept-groups_2_128m_fair_final_aggregate_quota_mb	5.7 to 61.0
+trace_streams-600_accept-groups_2_128m_fair_final_aggregate_class_peak_by_run_mb	24.7, 82.9, 85.9, 85.9, 85.9
+trace_rows-base-600000_original_2_256m_fair_final_aggregate_refusals_kept	40
+trace_rows-base-600000_original_2_256m_fair_final_aggregate_spillable_registered	7 to 8
+trace_rows-base-600000_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_rows-base-600000_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 36.6
+trace_rows-base-600000_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	61.7, 63.6, 64.4, 71.8, 71.8
+trace_rows-keys-per-prefix-6000000_original_2_256m_fair_final_aggregate_refusals_kept	499
+trace_rows-keys-per-prefix-6000000_original_2_256m_fair_final_aggregate_spillable_registered	4 to 8
+trace_rows-keys-per-prefix-6000000_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_rows-keys-per-prefix-6000000_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 64.0
+trace_rows-keys-per-prefix-6000000_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	94.8, 94.8, 94.8, 94.8, 108.0
+trace_rows-keys-per-prefix-24000000_original_2_256m_fair_final_aggregate_refusals_kept	2023
+trace_rows-keys-per-prefix-24000000_original_2_256m_fair_final_aggregate_spillable_registered	4 to 8
+trace_rows-keys-per-prefix-24000000_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_rows-keys-per-prefix-24000000_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 64.0
+trace_rows-keys-per-prefix-24000000_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	94.8, 94.8, 94.8, 94.8, 94.8
+trace_rows-prefixes-6000000_original_2_256m_fair_final_aggregate_refusals_kept	502
+trace_rows-prefixes-6000000_original_2_256m_fair_final_aggregate_spillable_registered	4 to 8
+trace_rows-prefixes-6000000_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_rows-prefixes-6000000_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 64.0
+trace_rows-prefixes-6000000_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	94.8, 94.8, 94.8, 94.8, 94.8
+trace_rows-prefixes-24000000_original_2_256m_fair_final_aggregate_refusals_kept	2034
+trace_rows-prefixes-24000000_original_2_256m_fair_final_aggregate_spillable_registered	4 to 8
+trace_rows-prefixes-24000000_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_rows-prefixes-24000000_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 64.0
+trace_rows-prefixes-24000000_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	94.8, 95.2, 106.9, 107.3, 126.4
+trace_rows-concentrated-6000000_original_2_256m_fair_final_aggregate_refusals_kept	465
+trace_rows-concentrated-6000000_original_2_256m_fair_final_aggregate_spillable_registered	4 to 8
+trace_rows-concentrated-6000000_original_2_256m_fair_final_aggregate_unspillable_held_mb	0 to 0
+trace_rows-concentrated-6000000_original_2_256m_fair_final_aggregate_quota_mb	32.0 to 64.0
+trace_rows-concentrated-6000000_original_2_256m_fair_final_aggregate_class_peak_by_run_mb	94.8, 94.8, 94.8, 106.3, 107.2
 trace_workaround_original_120_256m_fair_error_class	OrderedFinalAggregateStream (5)
 trace_workaround_original_120_256m_fair_error_asked_mb	3.3
 trace_workaround_original_120_256m_fair_error_held_mb	0.0

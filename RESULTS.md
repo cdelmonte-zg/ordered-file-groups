@@ -657,18 +657,18 @@ In the deduplication the ordered plan holds up to 643 Parquet files and 4495 tem
 
 For the deduplication:
 
-- 512m: the ordered plan takes 0.350 against 0.633 s, 45 percent less, faster than the original; the final aggregate of the original spills 6 times and its sort 4, the final aggregate of the ordered plan 0.
-- 1g: the ordered plan takes 0.356 against 0.611 s, 42 percent less, faster than the original; the final aggregate of the original spills 4 times and its sort 0, the final aggregate of the ordered plan 0.
-- 2g: the ordered plan takes 0.357 against 0.362 s, 1 percent less, within the quartiles of the original; the final aggregate of the original spills 0 times and its sort 12, the final aggregate of the ordered plan 0.
-- 4g: the ordered plan takes 0.357 against 0.346 s, 3 percent more, within the quartiles of the original; the final aggregate of the original spills 0 times and its sort 6, the final aggregate of the ordered plan 0.
+- 512m: the ordered plan takes 0.350 against 0.633 s, 45 percent less, faster than the original; the final aggregate of the original spills 6 times in median and not at all in 0 of its 10 completed runs and its sort 4, the final aggregate of the ordered plan 0.
+- 1g: the ordered plan takes 0.356 against 0.611 s, 42 percent less, faster than the original; the final aggregate of the original spills 4 times in median and not at all in 0 of its 10 completed runs and its sort 0, the final aggregate of the ordered plan 0.
+- 2g: the ordered plan takes 0.357 against 0.362 s, 1 percent less, within the quartiles of the original; the final aggregate of the original spills 0 times in median and not at all in 10 of its 10 completed runs and its sort 12, the final aggregate of the ordered plan 0.
+- 4g: the ordered plan takes 0.357 against 0.346 s, 3 percent more, within the quartiles of the original; the final aggregate of the original spills 0 times in median and not at all in 10 of its 10 completed runs and its sort 6, the final aggregate of the ordered plan 0.
 - From 2g on, at every pool run, the final aggregate of the original plan does not spill (median over all its runs, all completed). At 2g the ordered plan is within the quartiles of the original (0.357 against 0.362 s). The sort of the original spills 12 times there.
 
 For the deduplication without its `ORDER BY`:
 
-- 512m: the ordered plan takes 0.306 against 0.581 s, 47 percent less, faster than the original; the final aggregate of the original spills 4 times, the final aggregate of the ordered plan 0.
-- 1g: the ordered plan takes 0.308 against 0.432 s, 29 percent less, within the quartiles of the original; the final aggregate of the original spills 2 times, the final aggregate of the ordered plan 0.
-- 2g: the ordered plan takes 0.310 against 0.297 s, 4 percent more, slower than the original; the final aggregate of the original spills 0 times, the final aggregate of the ordered plan 0.
-- 4g: the ordered plan takes 0.311 against 0.306 s, 2 percent more, within the quartiles of the original; the final aggregate of the original spills 0 times, the final aggregate of the ordered plan 0.
+- 512m: the ordered plan takes 0.306 against 0.581 s, 47 percent less, faster than the original; the final aggregate of the original spills 4 times in median and not at all in 0 of its 10 completed runs, the final aggregate of the ordered plan 0.
+- 1g: the ordered plan takes 0.308 against 0.432 s, 29 percent less, within the quartiles of the original; the final aggregate of the original spills 2 times in median and not at all in 5 of its 10 completed runs, the final aggregate of the ordered plan 0.
+- 2g: the ordered plan takes 0.310 against 0.297 s, 4 percent more, slower than the original; the final aggregate of the original spills 0 times in median and not at all in 10 of its 10 completed runs, the final aggregate of the ordered plan 0.
+- 4g: the ordered plan takes 0.311 against 0.306 s, 2 percent more, within the quartiles of the original; the final aggregate of the original spills 0 times in median and not at all in 10 of its 10 completed runs, the final aggregate of the ordered plan 0.
 - From 2g on, at every pool run, the final aggregate of the original plan does not spill (median over all its runs, all completed). At 2g the ordered plan is slower than the original (0.310 against 0.297 s). No plan of this query sorts.
 
 ### Raising target_partitions when the groups are many
@@ -853,7 +853,7 @@ Completed runs and median spills reported by the operators, plain / traced:
 | rows-concentrated-6000000 | ordered | 2 | 256m | fair | 5 of 5 / 5 of 5 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
 | rows-concentrated-6000000 | ordered | 2 | 32g | fair | 5 of 5 / 5 of 5 | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
 
-- The two binaries complete the same number of runs in 39 of 39 configurations. That and the spills above say how far the two are comparable on what was recorded; they do not show that the wrapper perturbs nothing. Where the two differ, the difference can be variation between runs or an effect of the wrapper, and what the traces say of that configuration is read with it.
+- The two binaries complete the same number of runs in 39 of 39 configurations. The median spills of an operator are equal in 119 of 136 cells of the table where both binaries completed; the largest differences are: workaround, original, 2g, fair, repartition: 11070 / 11610; rows-prefixes-24000000, original, 128g, fair, sort: 195 / 181; streams-300, ordered, 128m, fair, repartition: 527 / 515; streams-600, ordered, 128m, fair, repartition: 1120 / 1110. That and the spills above say how far the two are comparable on what was recorded; they do not show that the wrapper perturbs nothing. Where the two differ, the difference can be variation between runs or an effect of the wrapper, and what the traces say of that configuration is read with it.
 
 Refusals, traced runs. The refusals and the peak of the pool are medians over the runs; the other columns count the refusals kept, over all the runs (a trace keeps the first and the last events of a run). A refusal is above its quota when what the consumer held plus what it asked exceeds the quota the wrapper computes at that moment; the request fitted the pool when what the pool reported as reserved plus the request did not exceed the limit. Only a consumer that can spill has a quota, and only under the fair pool: the refusals of the others are not counted in that column.
 
@@ -1121,6 +1121,26 @@ By class of consumer (medians over the traced runs; classes that were refused or
 | rows-concentrated-6000000 | ordered | 2 | 32g | fair | completed, 5 | RepartitionExec[Merge] | 2 | 40.4 | 22.2 | 0 | 0 | - | 0 |
 | rows-concentrated-6000000 | ordered | 2 | 32g | fair | completed, 5 | SortPreservingMergeExec | 1 | 30.2 | 30.2 | 0 | 0 | - | 0 |
 
+The final aggregate at its refusals, under the fair pool: on the refusals kept, over all the traced runs, how many consumers that can spill were registered, how much those that cannot spill held, and the quota the wrapper computes; and the peak of the class in each run. The quota is the limit less the second, divided by the first: few consumers and a small quota mean that the second is what narrows it.
+
+| case | plan | target | pool | pool type | refusals kept | consumers that can spill | held by those that cannot, MB | quota, MB | peak of the class by run, MB |
+|---|---|---|---|---|---|---|---|---|---|
+| base | original | 2 | 256m | fair | 40 | 7 to 8 | 0 to 0 | 32.0 to 36.6 | 60.8, 62.9, 62.9, 62.9, 71.8 |
+| base | original | 2 | 512m | fair | 20 | 7 to 8 | 0 to 0 | 64.0 to 73.1 | 123.5, 125.5, 127.3, 129.4, 131.7 |
+| workaround | original | 120 | 256m | fair | 111 | 205 to 235 | 161 to 214 | 0.2 to 0.5 | 0.0, 0.0, 0.0, 0.0, 0.0 |
+| workaround | original | 120 | 2g | fair | 126 | 200 to 239 | 1367 to 1850 | 0.8 to 3.2 | 0.0, 0.0, 0.0, 0.0, 32.2 |
+| many-streams | original | 2 | 128m | fair | 103 | 4 to 8 | 0 to 0 | 16.0 to 32.0 | 47.4, 47.4, 47.4, 48.5, 54.1 |
+| many-streams | ordered | 2 | 128m | fair | 117 | 2 to 5 | 2 to 105 | 5.6 to 62.9 | 24.7, 82.9, 85.9, 85.9, 85.9 |
+| streams-150 | ordered | 2 | 128m | fair | 263 | 2 to 8 | 0 to 112 | 2.0 to 64.0 | 94.8, 94.8, 94.8, 94.8, 94.8 |
+| streams-300 | ordered | 2 | 128m | fair | 123 | 2 to 4 | 2 to 108 | 5.0 to 62.9 | 24.7, 82.9, 82.9, 82.9, 83.8 |
+| streams-600 | ordered | 2 | 128m | fair | 113 | 2 to 4 | 6 to 105 | 5.7 to 61.0 | 24.7, 82.9, 85.9, 85.9, 85.9 |
+| rows-base-600000 | original | 2 | 256m | fair | 40 | 7 to 8 | 0 to 0 | 32.0 to 36.6 | 61.7, 63.6, 64.4, 71.8, 71.8 |
+| rows-keys-per-prefix-6000000 | original | 2 | 256m | fair | 499 | 4 to 8 | 0 to 0 | 32.0 to 64.0 | 94.8, 94.8, 94.8, 94.8, 108.0 |
+| rows-keys-per-prefix-24000000 | original | 2 | 256m | fair | 2023 | 4 to 8 | 0 to 0 | 32.0 to 64.0 | 94.8, 94.8, 94.8, 94.8, 94.8 |
+| rows-prefixes-6000000 | original | 2 | 256m | fair | 502 | 4 to 8 | 0 to 0 | 32.0 to 64.0 | 94.8, 94.8, 94.8, 94.8, 94.8 |
+| rows-prefixes-24000000 | original | 2 | 256m | fair | 2034 | 4 to 8 | 0 to 0 | 32.0 to 64.0 | 94.8, 95.2, 106.9, 107.3, 126.4 |
+| rows-concentrated-6000000 | original | 2 | 256m | fair | 465 | 4 to 8 | 0 to 0 | 32.0 to 64.0 | 94.8, 94.8, 94.8, 106.3, 107.2 |
+
 Runs that fail. The error the query returns names the consumer whose request ended it; a consumer that merely ends with a refused request can have been cancelled after that. For the traced runs that failed: the class the error names, and the last refusal kept for the consumer it names (medians over those runs).
 
 | case | plan | target | pool | pool type | failed, plain / traced | class named by the error | asked, MB | held, MB | quota, MB | pool reserved, MB | limit, MB | holders at that moment (first run) |
@@ -1151,14 +1171,16 @@ Runs that fail. The error the query returns names the consumer whose request end
 - What `output_bytes` measures beyond its definition (the cumulative bytes of
   the batches an operator emitted, as Arrow accounts for their buffers): it is
   not peak resident memory and not necessarily unique bytes.
-- The original plan under the slice accounting, and the reservations
-  themselves: the pool was not instrumented.
+- The original plan under the slice accounting.
+- The memory each operator occupies for itself alone: the traced runs record
+  what the consumers reserve in the pool and are refused, which is an
+  accounting, not resident memory, and not which buffers they share.
 - The occupancy of the repartition's channels; `send_time` is the time the
   inputs spend sending, summed over the inputs, not a trace of who waits for
   whom.
-- The greedy pool outside the experiment on causes, and data beyond the sizes of
-  the experiment on rows: every other query here runs under a second on a few MB
-  of Parquet.
+- The greedy pool outside the experiments that change the pool, and data beyond
+  the sizes of the experiment on rows: every other query here runs in about a
+  second or less on a few MB of Parquet.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
 - The `GROUP BY` on the whole sort key at a size where the hash aggregate

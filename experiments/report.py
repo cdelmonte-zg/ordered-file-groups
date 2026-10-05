@@ -194,9 +194,14 @@ def large_pools(out, figures):
             else:
                 sort = (f" and its sort {num(med(query, pool, 'original', 'sort_spills'), 0)}"
                         if sorts(query, pool) else "")
+                free_runs = sum(float(r["final_agg_spills"] or "nan") == 0 for r in completed(o_sel))
+                figures.append((f"{tag}_{pool}_original_runs_without_final_spills",
+                                f"{free_runs} of {len(completed(o_sel))}"))
                 lines.append(f"- {pool}: the ordered plan takes {num(a)} against {num(o)} s, "
                              f"{less_or_more(a, o)}, {versus(word, 'the original')}; the final "
-                             f"aggregate of the original spills {num(spills, 0)} times{sort}, the final "
+                             f"aggregate of the original spills {num(spills, 0)} times in median "
+                             f"and not at all in {free_runs} of its {len(completed(o_sel))} "
+                             f"completed runs{sort}, the final "
                              f"aggregate of the ordered plan "
                              f"{num(med(query, pool, 'accept-groups', 'final_agg_spills'), 0)}.")
             figures += [(f"{tag}_{pool}_original_s", num(o)),
@@ -400,6 +405,7 @@ def rows(out, figures):
                          num(med(series, size, kind, "accept-groups", "rss_mb"), 0)),
                         (f"{tag}_{kind}_target_s",
                          num(med(series, size, kind, "original-target", "elapsed_s"))),
+                        (f"{tag}_{kind}_original_completed", n_of(o)),
                         (f"{tag}_{kind}_target_completed",
                          n_of(cell(series, size, kind, "original-target")))]
     lines.append("")
@@ -540,6 +546,7 @@ def read_trace(path):
             events.append({"kind": f[2], "consumer": f[3], "can_spill": can_spill,
                            "bytes": int(f[5]), "held": int(f[6]),
                            "reserved": int(f[7]), "spillable": int(f[8]),
+                           "unspillable": int(f[10]),
                            "quota": int(f[11]) if f[11] and can_spill else None, "top": f[12]})
     return {"pool": pool, "classes": classes, "events": events}
 
@@ -591,12 +598,16 @@ def trace(out, figures):
              "Completed runs and median spills reported by the operators, plain / traced:", "",
              head + " completed | final aggregate | partial aggregate | sort | repartition |",
              "|" + "---|" * 10]
-    same, differ = 0, []
+    same, differ, gaps = 0, [], []
     for k in keys:
         p, t = sel(k, 0), sel(k, 1)
 
         def pair(col):
-            return f"{num(median(completed(p), col), 0)} / {num(median(completed(t), col), 0)}"
+            a, b = median(completed(p), col), median(completed(t), col)
+            if not isnan(a) and not isnan(b):
+                gaps.append((abs(a - b), max(a, b), f"{k[0]}, {plan[k[1]]}, {k[3]}, {k[4]}, "
+                             f"{col.replace('_spills', '').replace('_', ' ')}: {a:g} / {b:g}"))
+            return f"{num(a, 0)} / {num(b, 0)}"
 
         lines.append(f"| {label(k)} | {n_of(p)} / {n_of(t)} | {pair('final_agg_spills')} | "
                      f"{pair('partial_agg_spills')} | {pair('sort_spills')} | "
@@ -607,11 +618,17 @@ def trace(out, figures):
             differ.append(f"{k[0]}, {plan[k[1]]}, {k[3]}, {k[4]} ({n_of(p)} against {n_of(t)})")
     lines += ["", f"- The two binaries complete the same number of runs in {same} of {len(keys)} "
               "configurations" + ("; they differ in: " + "; ".join(differ) if differ else "")
+              + f". The median spills of an operator are equal in {sum(g[0] == 0 for g in gaps)} of "
+              f"{len(gaps)} cells of the table where both binaries completed; the largest "
+              "differences are: " + "; ".join(g[2] for g in sorted(gaps, reverse=True)[:4])
               + ". That and the spills above say how far the two are comparable on what was "
               "recorded; they do not show that the wrapper perturbs nothing. Where the two "
               "differ, the difference can be variation between runs or an effect of the wrapper, "
               "and what the traces say of that configuration is read with it.", ""]
-    figures.append(("trace_same_completions", f"{same} of {len(keys)}"))
+    figures += [("trace_same_completions", f"{same} of {len(keys)}"),
+                ("trace_equal_spill_medians", f"{sum(g[0] == 0 for g in gaps)} of {len(gaps)}"),
+                ("trace_largest_spill_difference",
+                 sorted(gaps, reverse=True)[0][2] if gaps else "n/a")]
 
     lines += ["Refusals, traced runs. The refusals and the peak of the pool are medians over the "
               "runs; the other columns count the refusals kept, over all the runs (a trace keeps "
@@ -704,6 +721,34 @@ def trace(out, figures):
                                                "RepartitionExec[Merge]"):
                 figures.append((f"trace_{'_'.join(k)}_{name}_class_peak_mb",
                                 num(m("class_peak", mb), 1)))
+    finals = ("FinalHashAggregateStream", "OrderedFinalAggregateStream")
+    lines += ["", "The final aggregate at its refusals, under the fair pool: on the refusals kept, "
+              "over all the traced runs, how many consumers that can spill were registered, how "
+              "much those that cannot spill held, and the quota the wrapper computes; and the "
+              "peak of the class in each run. The quota is the limit less the second, divided by "
+              "the first: few consumers and a small quota mean that the second is what narrows it.", "",
+              head + " refusals kept | consumers that can spill | held by those that cannot, MB | "
+              "quota, MB | peak of the class by run, MB |", "|" + "---|" * 10]
+    for k in keys:
+        if k[4] != "fair":
+            continue
+        ts = traces(k)
+        ev = [e for _, t in ts for e in t["events"]
+              if e["kind"] == "refusal" and class_name(e["consumer"]) in finals]
+        peaks = sorted(t["classes"][n]["class_peak"] / mb for _, t in ts
+                       for n in finals if n in t["classes"])
+        if not ev:
+            continue
+        quotas = [e["quota"] / mb for e in ev if e["quota"] is not None]
+        spill = f"{min(e['spillable'] for e in ev)} to {max(e['spillable'] for e in ev)}"
+        held = f"{min(e['unspillable'] for e in ev) / mb:.0f} to {max(e['unspillable'] for e in ev) / mb:.0f}"
+        quota = f"{min(quotas):.1f} to {max(quotas):.1f}" if quotas else "n/a"
+        by_run = ", ".join(f"{x:.1f}" for x in peaks)
+        lines.append(f"| {label(k)} | {len(ev)} | {spill} | {held} | {quota} | {by_run} |")
+        tag = "trace_" + "_".join(k) + "_final_aggregate"
+        figures += [(f"{tag}_refusals_kept", str(len(ev))), (f"{tag}_spillable_registered", spill),
+                    (f"{tag}_unspillable_held_mb", held), (f"{tag}_quota_mb", quota),
+                    (f"{tag}_class_peak_by_run_mb", by_run)]
     lines += ["", "Runs that fail. The error the query returns names the consumer whose request "
               "ended it; a consumer that merely ends with a refused request can have been cancelled "
               "after that. For the traced runs that failed: the class the error names, and the "
