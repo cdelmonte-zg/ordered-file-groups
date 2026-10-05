@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[11] with top memory consumers (across reservations) as:
+  RepartitionExec[Merge 57]#425(can spill: false) consumed 21.6 MB, peak 21.7 MB,
+  RepartitionExec[Merge 59]#427(can spill: false) consumed 21.3 MB, peak 21.4 MB,
+  RepartitionExec[Merge 51]#419(can spill: false) consumed 20.8 MB, peak 20.8 MB.
+Error: Failed to allocate additional 2.9 MB for OrderedFinalAggregateStream[11] with 0.0 B already allocated for this reservation - 1997.6 KB remain available for the total memory pool: fair(pool_size: 2.0 GB)
+BENCH wall=0.52 user=1.91 sys=2.53 rss_kb=3463060 minor=7426

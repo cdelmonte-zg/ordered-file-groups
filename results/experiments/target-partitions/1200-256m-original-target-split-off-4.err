@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for FinalHashAggregateStream[155] with top memory consumers (across reservations) as:
+  FinalHashAggregateStream[864]#4657(can spill: true) consumed 680.0 B, peak 680.0 B,
+  FinalHashAggregateStream[617]#3669(can spill: true) consumed 680.0 B, peak 680.0 B,
+  FinalHashAggregateStream[927]#4909(can spill: true) consumed 680.0 B, peak 680.0 B.
+Error: Failed to allocate additional 265.8 KB for FinalHashAggregateStream[155] with 0.0 B already allocated for this reservation - 92.8 KB remain available for the total memory pool: fair(pool_size: 256.0 MB)
+BENCH wall=0.97 user=3.37 sys=1.34 rss_kb=3601220 minor=56194

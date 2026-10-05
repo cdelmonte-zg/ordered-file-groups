@@ -11,6 +11,8 @@
 # cluster_ms	500
 # distinct_prefixes	115500
 # grouping_keys_per_prefix	51.93
+# grouping_keys_per_prefix_median	48
+# grouping_keys_per_prefix_max	115
 file	rows	bytes	row_groups	min_col_1	min_col_2	max_col_1	max_col_2
 0	831772	9213532	1	ENTITY-0000000	1790062995193	ENTITY-0000007	1790633008751
 1	532911	6029035	1	ENTITY-0000002	1790062995193	ENTITY-0000009	1790633008751

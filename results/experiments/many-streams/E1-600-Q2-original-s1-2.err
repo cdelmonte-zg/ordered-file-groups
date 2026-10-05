@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   628           5.0 K      31      
-  abandoned :   363         821          10      
-  reclaima  :   158      
-  reclaimf  :   310      
-  reabandon :   437      
+  pages     :   617           5.3 K      29      
+  abandoned :   356         811           8      
+  reclaima  :   152      
+  reclaimf  :   359      
+  reabandon :   387      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   335.5 MiB   335.5 MiB   335.5 MiB                          
+  committed :   295.7 MiB   295.7 MiB   295.7 MiB                          
   reset     :     0      
-  purged    :   330.3 MiB
+  purged    :   291.3 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   187      
+  purges    :   149      
   guarded   :     0      
-  theaps    :    44          44           0      
+  theaps    :    35          35           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    45          45           1      
+  threads   :    36          36           1      
   numa nodes:     1
-  elapsed   :     0.122 s
-  process   : user: 0.208 s, system: 0.075 s, faults: 0, peak rss: 359.3 MiB, peak commit: 335.5 MiB
+  elapsed   :     0.119 s
+  process   : user: 0.202 s, system: 0.068 s, faults: 0, peak rss: 325.2 MiB, peak commit: 295.7 MiB
 
-BENCH wall=0.12 user=0.20 sys=0.07 rss_kb=367980 minor=8091
+BENCH wall=0.12 user=0.20 sys=0.06 rss_kb=333048 minor=8037

@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:
+  OrderedPartialAggregateStream[29]#34(can spill: true) consumed 3.1 MB, peak 3.1 MB,
+  OrderedPartialAggregateStream[25]#30(can spill: true) consumed 3.0 MB, peak 3.0 MB,
+  OrderedPartialAggregateStream[84]#89(can spill: true) consumed 3.0 MB, peak 3.0 MB.
+Error: Failed to allocate additional 553.8 KB for RepartitionExec[Merge 0] with 1056.5 KB already allocated for this reservation - 367.5 KB remain available for the total memory pool: greedy(used: 255.6 MB, pool_size: 256.0 MB)
+BENCH wall=0.16 user=0.32 sys=0.44 rss_kb=491020 minor=3350

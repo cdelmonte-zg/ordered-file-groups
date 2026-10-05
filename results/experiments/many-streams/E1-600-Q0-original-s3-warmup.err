@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   304           1.8 K      31      
-  abandoned :   115         226          10      
-  reclaima  :    10      
-  reclaimf  :   144      
-  reabandon :    65      
+  pages     :   297           1.9 K      29      
+  abandoned :   114         247           8      
+  reclaima  :     7      
+  reclaimf  :   165      
+  reabandon :    68      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   185.3 MiB   185.3 MiB   185.3 MiB                          
+  committed :   163.3 MiB   163.3 MiB   163.3 MiB                          
   reset     :     0      
-  purged    :   180.2 MiB
+  purged    :   158.7 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   123      
+  purges    :   114      
   guarded   :     0      
-  theaps    :    42          42           0      
+  theaps    :    36          36           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    43          43           1      
+  threads   :    37          37           1      
   numa nodes:     1
-  elapsed   :     0.076 s
-  process   : user: 0.087 s, system: 0.086 s, faults: 0, peak rss: 217.5 MiB, peak commit: 185.3 MiB
+  elapsed   :     0.075 s
+  process   : user: 0.077 s, system: 0.088 s, faults: 0, peak rss: 193.3 MiB, peak commit: 163.3 MiB
 
-BENCH wall=0.07 user=0.08 sys=0.08 rss_kb=222784 minor=27602
+BENCH wall=0.07 user=0.07 sys=0.08 rss_kb=198032 minor=27551

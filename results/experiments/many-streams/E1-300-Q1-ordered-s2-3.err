@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   137           2.3 K      33      
-  abandoned :    63         525          12      
-  reclaima  :    36      
-  reclaimf  :   246      
-  reabandon :   211      
+  pages     :   204           2.1 K      33      
+  abandoned :    76         430          12      
+  reclaima  :    44      
+  reclaimf  :   174      
+  reabandon :   200      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     1.3 avg
+  searches  :     1.2 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   472.2 MiB   472.2 MiB   472.2 MiB                          
+  committed :   443.2 MiB   443.2 MiB   443.2 MiB                          
   reset     :     0      
-  purged    :   465.6 MiB
+  purged    :   437.0 MiB
   arenas    :     1      
   rollback  :     0      
   mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   322      
+  purges    :   380      
   guarded   :     0      
-  theaps    :   147         147           0      
+  theaps    :   105         105           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   148         148           1      
+  threads   :   106         106           1      
   numa nodes:     1
-  elapsed   :     0.122 s
-  process   : user: 0.208 s, system: 0.274 s, faults: 0, peak rss: 514.1 MiB, peak commit: 472.2 MiB
+  elapsed   :     0.121 s
+  process   : user: 0.209 s, system: 0.235 s, faults: 0, peak rss: 472.8 MiB, peak commit: 443.2 MiB
 
-BENCH wall=0.12 user=0.20 sys=0.27 rss_kb=526516 minor=15924
+BENCH wall=0.12 user=0.20 sys=0.23 rss_kb=484188 minor=12782

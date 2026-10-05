@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   311           1.9 K      31      
-  abandoned :   113         227          10      
-  reclaima  :     8      
-  reclaimf  :   147      
-  reabandon :    65      
+  pages     :   296           2.4 K      31      
+  abandoned :   113         251          10      
+  reclaima  :    10      
+  reclaimf  :   165      
+  reabandon :    69      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   196.8 MiB   196.8 MiB   196.8 MiB                          
+  committed :   192.7 MiB   192.7 MiB   192.7 MiB                          
   reset     :     0      
-  purged    :   191.6 MiB
+  purged    :   187.6 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :    65      
+  purges    :   119      
   guarded   :     0      
-  theaps    :    43          43           0      
+  theaps    :    45          45           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    44          44           1      
+  threads   :    46          46           1      
   numa nodes:     1
-  elapsed   :     0.078 s
-  process   : user: 0.084 s, system: 0.094 s, faults: 0, peak rss: 224.9 MiB, peak commit: 196.8 MiB
+  elapsed   :     0.080 s
+  process   : user: 0.091 s, system: 0.098 s, faults: 0, peak rss: 222.7 MiB, peak commit: 192.7 MiB
 
-BENCH wall=0.08 user=0.08 sys=0.09 rss_kb=230300 minor=27632
+BENCH wall=0.08 user=0.09 sys=0.09 rss_kb=228092 minor=27596

@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   581           3.3 K      29      
-  abandoned :   361         834           8      
-  reclaima  :   106      
-  reclaimf  :   477      
-  reabandon :   294      
+  pages     :   633           4.0 K      27      
+  abandoned :   373         836           6      
+  reclaima  :   152      
+  reclaimf  :   485      
+  reabandon :   267      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   293.4 MiB   293.4 MiB   293.4 MiB                          
+  committed :   285.0 MiB   285.0 MiB   285.0 MiB                          
   reset     :     0      
-  purged    :   288.9 MiB
+  purged    :   280.7 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   149      
+  purges    :   145      
   guarded   :     0      
-  theaps    :    32          32           0      
+  theaps    :    35          35           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    33          33           1      
+  threads   :    36          36           1      
   numa nodes:     1
-  elapsed   :     0.120 s
-  process   : user: 0.219 s, system: 0.041 s, faults: 0, peak rss: 325.0 MiB, peak commit: 293.4 MiB
+  elapsed   :     0.117 s
+  process   : user: 0.202 s, system: 0.056 s, faults: 0, peak rss: 310.0 MiB, peak commit: 285.0 MiB
 
-BENCH wall=0.12 user=0.21 sys=0.04 rss_kb=332852 minor=7976
+BENCH wall=0.11 user=0.20 sys=0.05 rss_kb=317492 minor=8010

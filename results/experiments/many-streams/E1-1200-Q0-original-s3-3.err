@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   471           3.3 K      29      
-  abandoned :   282         553           8      
-  reclaima  :     0      
-  reclaimf  :   389      
-  reabandon :   155      
+  pages     :   472           3.4 K      29      
+  abandoned :   282         516           8      
+  reclaima  :     1      
+  reclaimf  :   350      
+  reabandon :   151      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   149.1 MiB   149.1 MiB   149.1 MiB                          
+  committed :   153.7 MiB   153.7 MiB   153.7 MiB                          
   reset     :     0      
-  purged    :   144.7 MiB
+  purged    :   149.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   111      
+  purges    :   146      
   guarded   :     0      
-  theaps    :    35          35           0      
+  theaps    :    39          39           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    36          36           1      
+  threads   :    40          40           1      
   numa nodes:     1
-  elapsed   :     0.134 s
-  process   : user: 0.161 s, system: 0.109 s, faults: 0, peak rss: 186.0 MiB, peak commit: 149.1 MiB
+  elapsed   :     0.135 s
+  process   : user: 0.156 s, system: 0.126 s, faults: 0, peak rss: 188.8 MiB, peak commit: 153.7 MiB
 
-BENCH wall=0.13 user=0.16 sys=0.10 rss_kb=190480 minor=52149
+BENCH wall=0.13 user=0.15 sys=0.12 rss_kb=193404 minor=52187

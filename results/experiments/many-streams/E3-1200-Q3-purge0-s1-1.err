@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     2.1 K      22.0 K      37      
-  abandoned :   919           5.9 K      16      
-  reclaima  :   232      
-  reclaimf  :     4.7 K  
-  reabandon :   781      
+  pages     :     2.3 K      20.0 K      37      
+  abandoned :     1.0 K       5.3 K      16      
+  reclaima  :   259      
+  reclaimf  :     3.9 K  
+  reabandon :   974      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     3.0 GiB     3.0 GiB     3.0 GiB                          
-  committed :     2.3 GiB     2.3 GiB     2.3 GiB                          
+  committed :     2.9 GiB     2.9 GiB     2.9 GiB                          
   reset     :     0      
-  purged    :     5.6 GiB
+  purged    :     5.9 GiB
   arenas    :     3      
   rollback  :     0      
-  mmaps     :     9      
+  mmaps     :    10      
   commits   :     0      
   resets    :     0      
-  purges    :    22.0 K  
+  purges    :    20.0 K  
   guarded   :     0      
-  theaps    :   387         387           0      
+  theaps    :   528         528           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   388         388           1      
+  threads   :   529         529           1      
   numa nodes:     1
-  elapsed   :     0.757 s
-  process   : user: 1.757 s, system: 1.180 s, faults: 0, peak rss: 1.5 GiB, peak commit: 2.3 GiB
+  elapsed   :     0.775 s
+  process   : user: 1.816 s, system: 1.262 s, faults: 0, peak rss: 1.8 GiB, peak commit: 2.9 GiB
 
-BENCH wall=0.76 user=1.75 sys=1.18 rss_kb=1614000 minor=218661
+BENCH wall=0.77 user=1.81 sys=1.26 rss_kb=1935532 minor=200305

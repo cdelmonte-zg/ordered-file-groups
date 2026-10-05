@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :    79           1.2 K      31      
-  abandoned :    34         241          10      
-  reclaima  :    63      
-  reclaimf  :   108      
-  reabandon :    56      
+  pages     :    79           1.1 K      31      
+  abandoned :    28         230          10      
+  reclaima  :    45      
+  reclaimf  :   119      
+  reabandon :    71      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   402.8 MiB   402.8 MiB   402.8 MiB                          
+  committed :   423.3 MiB   423.3 MiB   423.3 MiB                          
   reset     :     0      
-  purged    :   397.4 MiB
+  purged    :   418.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   117      
+  purges    :   124      
   guarded   :     0      
-  theaps    :    70          70           0      
+  theaps    :    56          56           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    71          71           1      
+  threads   :    57          57           1      
   numa nodes:     1
-  elapsed   :     0.032 s
-  process   : user: 0.092 s, system: 0.154 s, faults: 0, peak rss: 351.4 MiB, peak commit: 402.8 MiB
+  elapsed   :     0.034 s
+  process   : user: 0.089 s, system: 0.157 s, faults: 0, peak rss: 373.7 MiB, peak commit: 423.3 MiB
 
-BENCH wall=0.03 user=0.09 sys=0.15 rss_kb=359884 minor=9605
+BENCH wall=0.03 user=0.08 sys=0.15 rss_kb=382704 minor=9604

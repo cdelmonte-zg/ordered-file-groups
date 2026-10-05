@@ -1,0 +1,474 @@
+#pool	name	limit	peak_reserved	refusals	events_dropped
+pool	fair	134217728	116586795	423	0
+#class	class	consumers	can_spill	w_sum_of_peaks	w_largest_peak	w_class_peak	refusals	refused_bytes	w_refusals_then_release	w_consumers_ending_refused
+class	DataFusion-Cli	1	0	5505	5505	5505	0	0	0	0
+class	OrderedFinalAggregateStream	2	2	132511776	66256896	99383328	53	271621467	16	0
+class	OrderedPartialAggregateStream	150	150	137624060	4315694	8121356	130	319084130	0	0
+class	RepartitionExec	2	2	7474929	4222590	6338726	240	123077955	25	0
+class	RepartitionExec[Merge]	2	0	113897143	58752004	113695559	0	0	0	0
+class	SortPreservingMergeExec	1	0	15666638	15666638	15666638	0	0	0	0
+#event	micros	kind	consumer	can_spill	bytes	w_held	reserved	w_registered_spillable	w_registered_unspillable	w_unspillable_bytes	w_fair_quota	w_top_classes
+event	21817	refusal	OrderedPartialAggregateStream[90]	1	1797347	0	0	154	4	0	871543	
+event	22291	refusal	OrderedPartialAggregateStream[87]	1	1795808	0	0	154	4	0	871543	
+event	23235	refusal	OrderedPartialAggregateStream[82]	1	1812755	0	745844	153	4	0	877240	RepartitionExec=745844
+event	23617	refusal	OrderedPartialAggregateStream[92]	1	1856126	0	1490344	152	4	0	883011	RepartitionExec=1490344
+event	24099	refusal	RepartitionExec[0]	1	378767	745172	1491168	152	4	0	883011	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	24424	refusal	OrderedPartialAggregateStream[115]	1	1953137	0	1491168	152	4	0	883011	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	24638	refusal	RepartitionExec[1]	1	378767	745172	1491992	152	4	0	883011	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	24747	refusal	RepartitionExec[0]	1	395173	745172	1491992	152	4	0	883011	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	24906	refusal	OrderedPartialAggregateStream[97]	1	1826390	0	1491992	152	4	0	883011	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	25004	refusal	OrderedPartialAggregateStream[86]	1	1825787	0	1491168	151	4	0	888859	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	25066	refusal	RepartitionExec[1]	1	395173	745172	1491168	151	4	0	888859	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	25092	refusal	OrderedPartialAggregateStream[101]	1	1910711	0	1491168	151	4	0	888859	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	25473	refusal	OrderedPartialAggregateStream[14]	1	3261073	0	1491168	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	25519	refusal	RepartitionExec[0]	1	383937	745172	1491992	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	25607	refusal	RepartitionExec[0]	1	431920	745172	1492816	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	25624	refusal	RepartitionExec[0]	1	383598	745172	1492816	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	25686	refusal	OrderedPartialAggregateStream[31]	1	1964261	0	1492816	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	25779	refusal	RepartitionExec[1]	1	383937	745172	1492816	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	26103	refusal	RepartitionExec[1]	1	383598	745172	1492816	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	26119	refusal	RepartitionExec[1]	1	431920	745172	1492816	150	4	0	894784	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	26383	refusal	RepartitionExec[0]	1	415850	745172	1492816	149	4	0	900790	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	26429	refusal	OrderedPartialAggregateStream[4]	1	4026685	0	1491992	148	4	0	906876	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	26600	refusal	OrderedPartialAggregateStream[5]	1	3678466	0	1491168	147	4	0	913045	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	26752	refusal	RepartitionExec[1]	1	415850	745172	1491168	147	4	0	913045	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	26811	refusal	OrderedPartialAggregateStream[88]	1	1824716	0	1491992	147	4	0	913045	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	26976	refusal	RepartitionExec[0]	1	436191	745172	1491992	147	4	0	913045	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	27118	refusal	OrderedPartialAggregateStream[10]	1	3529777	0	1491992	147	4	0	913045	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	27150	refusal	OrderedPartialAggregateStream[95]	1	1846964	0	1491992	147	4	0	913045	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	27253	refusal	OrderedPartialAggregateStream[83]	1	1771931	0	1491168	146	4	0	919299	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	27342	refusal	OrderedPartialAggregateStream[144]	1	3649441	0	1491168	146	4	0	919299	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	27822	refusal	RepartitionExec[1]	1	436191	745172	1491168	146	4	0	919299	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	28400	refusal	OrderedPartialAggregateStream[14]	1	1036232	0	1491168	146	4	0	919299	RepartitionExec=1490344;OrderedPartialAggregateStream=824
+event	28471	refusal	OrderedPartialAggregateStream[8]	1	3743554	0	1491992	146	4	0	919299	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	28913	refusal	RepartitionExec[0]	1	383262	745172	1492816	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	28928	refusal	RepartitionExec[0]	1	363260	745172	1492816	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	28950	refusal	RepartitionExec[0]	1	618608	745172	1492816	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	29077	refusal	OrderedPartialAggregateStream[94]	1	1798193	0	1492816	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	29171	refusal	RepartitionExec[1]	1	383262	745172	1492816	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	29189	refusal	RepartitionExec[1]	1	363260	745172	1492816	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	29329	refusal	OrderedPartialAggregateStream[5]	1	1036616	0	1493640	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=3296
+event	29336	refusal	RepartitionExec[1]	1	618608	745172	1494464	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=4120
+event	29449	refusal	RepartitionExec[0]	1	391689	745172	1494464	145	4	0	925639	RepartitionExec=1490344;OrderedPartialAggregateStream=4120
+event	29601	refusal	OrderedPartialAggregateStream[126]	1	2133169	0	1492816	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	29635	refusal	OrderedPartialAggregateStream[4]	1	1036872	0	1492816	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=2472
+event	29681	refusal	RepartitionExec[0]	1	776720	745172	1493640	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=3296
+event	29897	refusal	OrderedPartialAggregateStream[10]	1	1036488	0	1493640	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=3296
+event	29968	refusal	RepartitionExec[0]	1	908761	745172	1494464	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=4120
+event	30035	refusal	OrderedPartialAggregateStream[89]	1	1801262	0	1494464	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=4120
+event	30111	refusal	OrderedPartialAggregateStream[144]	1	1036616	0	1494464	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=4120
+event	30128	refusal	RepartitionExec[0]	1	720419	745172	1496112	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	30193	refusal	RepartitionExec[0]	1	373261	745172	1496112	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	30211	refusal	OrderedPartialAggregateStream[100]	1	1924814	0	1496112	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	30247	refusal	OrderedPartialAggregateStream[8]	1	1036616	0	1496112	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	30315	refusal	RepartitionExec[0]	1	765705	745172	1496936	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=6592
+event	30453	refusal	RepartitionExec[0]	1	801329	745172	1497760	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=7416
+event	30503	refusal	RepartitionExec[0]	1	374384	745172	1497760	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=7416
+event	30656	refusal	RepartitionExec[0]	1	478332	745172	1499408	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=9064
+event	30675	refusal	RepartitionExec[0]	1	421132	745172	1499408	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=9064
+event	30750	refusal	OrderedPartialAggregateStream[102]	1	1954334	0	1499408	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=9064
+event	31243	refusal	RepartitionExec[0]	1	432368	745172	1500232	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=9888
+event	31815	refusal	OrderedPartialAggregateStream[129]	1	2163544	0	1500232	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=9888
+event	31850	refusal	OrderedPartialAggregateStream[84]	1	1815824	0	1500232	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=9888
+event	32350	refusal	RepartitionExec[0]	1	489904	745172	1501880	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=11536
+event	32410	refusal	RepartitionExec[0]	1	379890	745172	1501880	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=11536
+event	32539	refusal	OrderedPartialAggregateStream[118]	1	2020133	0	1501880	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=11536
+event	32779	refusal	OrderedPartialAggregateStream[9]	1	4609369	0	1501880	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=11536
+event	33052	refusal	RepartitionExec[0]	1	457316	745172	1502704	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	33867	refusal	OrderedPartialAggregateStream[9]	1	1037128	0	1502704	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	33978	refusal	RepartitionExec[0]	1	1036304	745172	1503528	143	4	0	938585	RepartitionExec=1490344;OrderedPartialAggregateStream=13184
+event	38047	refusal	RepartitionExec[1]	1	391689	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38159	refusal	RepartitionExec[1]	1	776720	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38198	refusal	RepartitionExec[1]	1	373261	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38247	refusal	RepartitionExec[1]	1	908761	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38281	refusal	RepartitionExec[1]	1	720419	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38313	refusal	RepartitionExec[1]	1	765705	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38331	refusal	RepartitionExec[1]	1	374384	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38401	refusal	RepartitionExec[1]	1	801329	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38418	refusal	RepartitionExec[1]	1	432368	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38430	refusal	RepartitionExec[1]	1	478332	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38463	refusal	RepartitionExec[1]	1	379890	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38478	refusal	RepartitionExec[1]	1	489904	745172	1502704	142	4	0	945195	RepartitionExec=1490344;OrderedPartialAggregateStream=12360
+event	38575	refusal	RepartitionExec[1]	1	457316	745172	1501880	141	4	0	951898	RepartitionExec=1490344;OrderedPartialAggregateStream=11536
+event	38632	refusal	RepartitionExec[1]	1	421132	745172	1501056	140	4	0	958698	RepartitionExec=1490344;OrderedPartialAggregateStream=10712
+event	38831	refusal	RepartitionExec[1]	1	1036304	745172	1499408	138	4	0	972592	RepartitionExec=1490344;OrderedPartialAggregateStream=9064
+event	40558	refusal	OrderedPartialAggregateStream[103]	1	1888796	0	1496112	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	41012	refusal	RepartitionExec[0]	1	407423	745172	1496936	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=6592
+event	41021	refusal	OrderedPartialAggregateStream[110]	1	1990460	0	1496936	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=6592
+event	41285	refusal	OrderedPartialAggregateStream[81]	1	1827353	0	1496936	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=6592
+event	41500	refusal	RepartitionExec[0]	1	446080	745172	1497760	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=7416
+event	41665	refusal	OrderedPartialAggregateStream[96]	1	1834715	0	1497760	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=7416
+event	41922	refusal	RepartitionExec[0]	1	384273	745172	1498584	134	4	0	1001624	RepartitionExec=1490344;OrderedPartialAggregateStream=8240
+event	42126	refusal	RepartitionExec[1]	1	384273	745172	1496112	131	4	0	1024562	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	42211	refusal	RepartitionExec[0]	1	386970	745172	1496112	130	4	0	1032444	RepartitionExec=1490344;OrderedPartialAggregateStream=5768
+event	42250	refusal	RepartitionExec[1]	1	407423	745172	1495288	129	4	0	1040447	RepartitionExec=1490344;OrderedPartialAggregateStream=4944
+event	42318	refusal	RepartitionExec[1]	1	446080	745172	1495288	129	4	0	1040447	RepartitionExec=1490344;OrderedPartialAggregateStream=4944
+event	42588	refusal	RepartitionExec[1]	1	386970	745172	1494464	128	4	0	1048576	RepartitionExec=1490344;OrderedPartialAggregateStream=4120
+event	42811	refusal	OrderedPartialAggregateStream[11]	1	3436060	0	1493640	127	4	0	1056832	RepartitionExec=1490344;OrderedPartialAggregateStream=3296
+event	43145	refusal	OrderedPartialAggregateStream[13]	1	3339580	0	1491992	125	4	0	1073741	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	43268	refusal	OrderedPartialAggregateStream[0]	1	4609081	0	1491992	125	4	0	1073741	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	43327	refusal	OrderedPartialAggregateStream[3]	1	3582004	0	1491992	125	4	0	1073741	RepartitionExec=1490344;OrderedPartialAggregateStream=1648
+event	43469	release_after_refusal	RepartitionExec[0]	1	372250	372922	2156479	125	4	232888		RepartitionExec=1118094;OrderedPartialAggregateStream=805497;RepartitionExec[Merge]=232888
+event	43755	refusal	OrderedPartialAggregateStream[2]	1	3781012	0	2255949	125	4	1077120	1065124	RepartitionExec[Merge]=1077120;RepartitionExec=1020222;OrderedPartialAggregateStream=158607
+event	44021	refusal	OrderedPartialAggregateStream[124]	1	2152735	0	3596878	124	4	1921160	1066907	RepartitionExec[Merge]=1921160;RepartitionExec=1674894;OrderedPartialAggregateStream=824
+event	44224	refusal	RepartitionExec[1]	1	648387	822435	4336425	124	4	2696406	1060655	RepartitionExec[Merge]=2696406;RepartitionExec=1638371;OrderedPartialAggregateStream=1648
+event	44406	refusal	OrderedPartialAggregateStream[91]	1	1862813	0	4336425	124	4	2696406	1060655	RepartitionExec[Merge]=2696406;RepartitionExec=1638371;OrderedPartialAggregateStream=1648
+event	44595	refusal	RepartitionExec[0]	1	485860	815936	4571801	124	4	2930134	1058770	RepartitionExec[Merge]=2930134;RepartitionExec=1638371;OrderedPartialAggregateStream=3296
+event	44634	refusal	OrderedPartialAggregateStream[85]	1	1785692	0	4809269	124	4	3167602	1056855	RepartitionExec[Merge]=3167602;RepartitionExec=1638371;OrderedPartialAggregateStream=3296
+event	44715	refusal	RepartitionExec[0]	1	740197	815936	5048689	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=3296
+event	45446	refusal	RepartitionExec[0]	1	397758	815936	5050337	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=4944
+event	45483	refusal	OrderedPartialAggregateStream[98]	1	1823789	0	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	45654	refusal	RepartitionExec[0]	1	1036304	815936	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	45728	refusal	OrderedPartialAggregateStream[117]	1	1975313	0	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	45761	refusal	OrderedPartialAggregateStream[108]	1	1902854	0	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	45845	refusal	OrderedPartialAggregateStream[111]	1	2120299	0	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	45899	refusal	RepartitionExec[0]	1	815489	815936	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	46102	refusal	OrderedPartialAggregateStream[128]	1	2231737	0	5051161	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=5768
+event	46571	refusal	RepartitionExec[0]	1	368427	815936	5051985	124	4	3407022	1054925	RepartitionExec[Merge]=3407022;RepartitionExec=1638371;OrderedPartialAggregateStream=6592
+event	46873	release_after_refusal	RepartitionExec[0]	1	648387	167549	4404422	124	4	3407022		RepartitionExec[Merge]=3407022;RepartitionExec=989984;OrderedPartialAggregateStream=7416
+event	46978	refusal	RepartitionExec[1]	1	382923	822435	5519588	124	4	4139265	1049019	RepartitionExec[Merge]=4139265;RepartitionExec=1372907;OrderedPartialAggregateStream=7416
+event	47128	refusal	RepartitionExec[1]	1	473498	822435	5994734	124	4	4139265	1049019	RepartitionExec[Merge]=4139265;RepartitionExec=1846405;OrderedPartialAggregateStream=9064
+event	47192	refusal	RepartitionExec[0]	1	440235	1023970	5995558	124	4	4139265	1049019	RepartitionExec[Merge]=4139265;RepartitionExec=1846405;OrderedPartialAggregateStream=9888
+event	47254	refusal	RepartitionExec[0]	1	515751	1023970	5996382	124	4	4139265	1049019	RepartitionExec[Merge]=4139265;RepartitionExec=1846405;OrderedPartialAggregateStream=10712
+event	47318	refusal	RepartitionExec[0]	1	412817	1023970	5996382	124	4	4139265	1049019	RepartitionExec[Merge]=4139265;RepartitionExec=1846405;OrderedPartialAggregateStream=10712
+event	47512	release_after_refusal	RepartitionExec[0]	1	382923	641047	5845891	124	4	4371697		RepartitionExec[Merge]=4371697;RepartitionExec=1463482;OrderedPartialAggregateStream=10712
+event	48018	refusal	OrderedPartialAggregateStream[12]	1	3411211	0	6632694	124	4	5631998	1036981	RepartitionExec[Merge]=5631998;RepartitionExec=989984;OrderedPartialAggregateStream=10712
+event	48706	refusal	OrderedPartialAggregateStream[12]	1	1036360	0	8826962	124	4	7826266	1019285	RepartitionExec[Merge]=7826266;RepartitionExec=989984;OrderedPartialAggregateStream=10712
+event	48781	refusal	RepartitionExec[1]	1	675357	822435	9740939	124	4	8064062	1017368	RepartitionExec[Merge]=8064062;RepartitionExec=1665341;OrderedPartialAggregateStream=11536
+event	49249	refusal	OrderedPartialAggregateStream[6]	1	4609180	0	11393735	124	4	9716858	1004039	RepartitionExec[Merge]=9716858;RepartitionExec=1665341;OrderedPartialAggregateStream=11536
+event	50255	refusal	OrderedPartialAggregateStream[6]	1	1037128	0	14290459	124	4	13288939	975232	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=11536
+event	50372	refusal	RepartitionExec[0]	1	1036304	167549	14291283	124	4	13288939	975232	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=12360
+event	51128	refusal	RepartitionExec[1]	1	485860	822435	14291283	124	4	13288939	975232	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=12360
+event	51246	refusal	RepartitionExec[1]	1	740197	822435	14290459	124	4	13288939	975232	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=12360
+event	51256	refusal	RepartitionExec[1]	1	397758	822435	14290459	123	4	13288939	983160	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=11536
+event	51360	refusal	RepartitionExec[1]	1	368427	822435	14289635	122	4	13288939	991219	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=10712
+event	51425	refusal	RepartitionExec[1]	1	815489	822435	14289635	122	4	13288939	991219	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=10712
+event	51428	refusal	RepartitionExec[1]	1	440235	822435	14289635	122	4	13288939	991219	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=10712
+event	51436	refusal	RepartitionExec[1]	1	1036304	822435	14289635	122	4	13288939	991219	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=10712
+event	51509	refusal	OrderedPartialAggregateStream[104]	1	1910747	0	14288811	121	4	13288939	999411	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=9888
+event	51524	refusal	RepartitionExec[1]	1	515751	822435	14287987	120	4	13288939	1007739	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=9064
+event	51831	refusal	RepartitionExec[1]	1	1036304	822435	14284691	116	4	13288939	1042489	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=5768
+event	51922	refusal	RepartitionExec[1]	1	412817	822435	14283043	114	4	13288939	1060778	RepartitionExec[Merge]=13288939;RepartitionExec=989984;OrderedPartialAggregateStream=4120
+event	52353	refusal	RepartitionExec[1]	1	415850	822435	14697245	111	4	13288939	1089448	RepartitionExec[Merge]=13288939;RepartitionExec=1405834;OrderedPartialAggregateStream=2472
+event	52834	release_after_refusal	RepartitionExec[1]	1	684910	137525	14555705	111	4	13785795		RepartitionExec[Merge]=13785795;RepartitionExec=747239;OrderedPartialAggregateStream=22671
+event	53596	refusal	OrderedPartialAggregateStream[107]	1	1861328	0	15330699	110	4	14560789	1087790	RepartitionExec[Merge]=14560789;RepartitionExec=747239;OrderedPartialAggregateStream=22671
+event	53714	refusal	OrderedPartialAggregateStream[99]	1	1827326	0	15330699	110	4	14560789	1087790	RepartitionExec[Merge]=14560789;RepartitionExec=747239;OrderedPartialAggregateStream=22671
+event	54262	refusal	RepartitionExec[0]	1	384273	1006909	16125913	109	4	14560789	1097770	RepartitionExec[Merge]=14560789;RepartitionExec=1541629;OrderedPartialAggregateStream=23495
+event	54388	refusal	OrderedPartialAggregateStream[113]	1	1950896	0	16178377	109	4	15010448	1093644	RepartitionExec[Merge]=15010448;RepartitionExec=1144434;OrderedPartialAggregateStream=23495
+event	54977	refusal	OrderedPartialAggregateStream[125]	1	2219911	0	17127990	108	4	15576612	1098528	RepartitionExec[Merge]=15576612;RepartitionExec=1528707;OrderedPartialAggregateStream=22671
+event	55137	refusal	OrderedPartialAggregateStream[6]	1	1898565	824	17128814	108	4	15576612	1098528	RepartitionExec[Merge]=15576612;RepartitionExec=1528707;OrderedPartialAggregateStream=23495
+event	55169	refusal	RepartitionExec[0]	1	431133	1006909	17128814	108	4	15576612	1098528	RepartitionExec[Merge]=15576612;RepartitionExec=1528707;OrderedPartialAggregateStream=23495
+event	55485	refusal	OrderedPartialAggregateStream[112]	1	2012312	0	17559123	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=22671
+event	55589	refusal	OrderedPartialAggregateStream[119]	1	2111776	0	17559123	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=22671
+event	55710	refusal	RepartitionExec[0]	1	511256	1006909	17559947	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	55722	refusal	RepartitionExec[0]	1	411467	1006909	17559947	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	55813	refusal	OrderedPartialAggregateStream[105]	1	1935272	0	17559947	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	55892	refusal	RepartitionExec[1]	1	411467	952931	17559947	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	55951	refusal	RepartitionExec[1]	1	511256	952931	17559947	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56103	refusal	OrderedPartialAggregateStream[109]	1	1891766	0	17560771	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	56171	refusal	RepartitionExec[0]	1	454395	1006909	17560771	107	4	15576612	1108795	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	56331	refusal	RepartitionExec[0]	1	470353	1006909	17559947	105	4	15576612	1129915	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56446	refusal	RepartitionExec[1]	1	454395	952931	17559947	105	4	15576612	1129915	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56522	refusal	OrderedPartialAggregateStream[130]	1	3279991	0	17559947	105	4	15576612	1129915	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56593	refusal	RepartitionExec[1]	1	470353	952931	17559947	105	4	15576612	1129915	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56714	refusal	RepartitionExec[0]	1	425176	1006909	17560771	105	4	15576612	1129915	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	56792	refusal	OrderedPartialAggregateStream[127]	1	3192547	0	17560771	104	4	15576612	1140779	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	56825	refusal	RepartitionExec[0]	1	408658	1006909	17560771	104	4	15576612	1140779	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	56935	refusal	OrderedPartialAggregateStream[122]	1	2228839	0	17559947	103	4	15576612	1151855	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56971	refusal	OrderedPartialAggregateStream[15]	1	3242416	0	17559947	103	4	15576612	1151855	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	56998	refusal	RepartitionExec[1]	1	425176	952931	17559947	103	4	15576612	1151855	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	57148	refusal	RepartitionExec[1]	1	408658	952931	17559947	103	4	15576612	1151855	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	57295	refusal	OrderedPartialAggregateStream[135]	1	3464518	0	17559947	103	4	15576612	1151855	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	57754	refusal	OrderedPartialAggregateStream[7]	1	3908533	0	17559123	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=22671
+event	57806	refusal	OrderedPartialAggregateStream[114]	1	1975403	0	17559123	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=22671
+event	57880	refusal	RepartitionExec[0]	1	625800	1006909	17559123	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=22671
+event	58104	refusal	RepartitionExec[0]	1	514628	1006909	17560771	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	58274	refusal	RepartitionExec[0]	1	592649	1006909	17561595	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25143
+event	58304	refusal	RepartitionExec[1]	1	625800	952931	17561595	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25143
+event	58492	refusal	RepartitionExec[0]	1	611528	1006909	17561595	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25143
+event	58496	refusal	RepartitionExec[1]	1	514628	952931	17561595	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25143
+event	58648	refusal	OrderedPartialAggregateStream[138]	1	3458884	0	17562419	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25967
+event	58648	refusal	RepartitionExec[1]	1	592649	952931	17562419	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25967
+event	58652	refusal	RepartitionExec[0]	1	440347	1006909	17562419	101	4	15576612	1174664	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25967
+event	58870	refusal	RepartitionExec[1]	1	611528	952931	17562419	100	4	15576612	1186411	RepartitionExec[Merge]=15576612;RepartitionExec=1959840;OrderedPartialAggregateStream=25967
+event	59393	refusal	RepartitionExec[0]	1	695698	1006909	17786859	99	4	15802700	1196111	RepartitionExec[Merge]=15802700;RepartitionExec=1959840;OrderedPartialAggregateStream=25143
+event	59522	refusal	RepartitionExec[1]	1	440347	952931	18029039	98	4	16044056	1205853	RepartitionExec[Merge]=16044056;RepartitionExec=1959840;OrderedPartialAggregateStream=25143
+event	59834	refusal	RepartitionExec[0]	1	863923	1006909	18028215	97	4	16044056	1218285	RepartitionExec[Merge]=16044056;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	59897	refusal	RepartitionExec[1]	1	695698	952931	18028215	97	4	16044056	1218285	RepartitionExec[Merge]=16044056;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	59933	refusal	OrderedPartialAggregateStream[137]	1	3284644	0	18028215	97	4	16044056	1218285	RepartitionExec[Merge]=16044056;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	60082	refusal	OrderedPartialAggregateStream[120]	1	2167603	0	19303119	96	4	16283296	1228483	RepartitionExec[Merge]=16283296;RepartitionExec=1959840;OrderedPartialAggregateStream=1059983
+event	60236	refusal	RepartitionExec[1]	1	863923	952931	18503775	96	4	16519616	1226022	RepartitionExec[Merge]=16519616;RepartitionExec=1959840;OrderedPartialAggregateStream=24319
+event	60262	refusal	RepartitionExec[0]	1	693561	1006909	18502951	95	4	16519616	1238927	RepartitionExec[Merge]=16519616;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	60297	refusal	OrderedPartialAggregateStream[106]	1	1895546	0	18502951	95	4	16519616	1238927	RepartitionExec[Merge]=16519616;RepartitionExec=1959840;OrderedPartialAggregateStream=23495
+event	60375	release_after_refusal	RepartitionExec[1]	1	384273	568658	18362118	95	4	16763056		RepartitionExec[Merge]=16763056;RepartitionExec=1575567;OrderedPartialAggregateStream=23495
+event	60593	refusal	RepartitionExec[1]	1	693561	568658	18795507	95	4	17196445	1231802	RepartitionExec[Merge]=17196445;RepartitionExec=1575567;OrderedPartialAggregateStream=23495
+event	60914	refusal	RepartitionExec[0]	1	491478	1006909	19060699	94	4	17460813	1242094	RepartitionExec[Merge]=17460813;RepartitionExec=1575567;OrderedPartialAggregateStream=24319
+event	61322	refusal	RepartitionExec[0]	1	410120	1006909	19060699	93	4	17460813	1255450	RepartitionExec[Merge]=17460813;RepartitionExec=1575567;OrderedPartialAggregateStream=24319
+event	61341	refusal	RepartitionExec[0]	1	627598	1006909	19060699	93	4	17460813	1255450	RepartitionExec[Merge]=17460813;RepartitionExec=1575567;OrderedPartialAggregateStream=24319
+event	61485	refusal	OrderedPartialAggregateStream[131]	1	3325693	0	19060699	93	4	17460813	1255450	RepartitionExec[Merge]=17460813;RepartitionExec=1575567;OrderedPartialAggregateStream=24319
+event	62145	refusal	OrderedPartialAggregateStream[132]	1	3382492	0	19610761	93	4	17950530	1250184	RepartitionExec[Merge]=17950530;RepartitionExec=1635912;OrderedPartialAggregateStream=24319
+event	62161	refusal	RepartitionExec[1]	1	627598	1039123	20020881	93	4	17950530	1250184	RepartitionExec[Merge]=17950530;RepartitionExec=2046032;OrderedPartialAggregateStream=24319
+event	62215	release_after_refusal	RepartitionExec[1]	1	491478	547645	19529403	93	4	17950530		RepartitionExec[Merge]=17950530;RepartitionExec=1554554;OrderedPartialAggregateStream=24319
+event	62716	refusal	OrderedPartialAggregateStream[116]	1	1941104	0	20085957	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=1554554;OrderedPartialAggregateStream=21847
+event	62855	refusal	OrderedPartialAggregateStream[93]	1	1835552	0	20085957	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=1554554;OrderedPartialAggregateStream=21847
+event	63479	refusal	RepartitionExec[0]	1	427313	1011845	20097009	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=1585805;OrderedPartialAggregateStream=1648
+event	63627	refusal	OrderedPartialAggregateStream[141]	1	3632431	0	20617073	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=1585805;OrderedPartialAggregateStream=2472
+event	63652	refusal	RepartitionExec[0]	1	642993	1011845	20617073	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=1585805;OrderedPartialAggregateStream=2472
+event	63821	refusal	RepartitionExec[0]	1	664569	1011845	20098657	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=1585805;OrderedPartialAggregateStream=3296
+event	63859	refusal	RepartitionExec[0]	1	387306	1011845	20525970	90	4	18509556	1285646	RepartitionExec[Merge]=18509556;RepartitionExec=2013118;OrderedPartialAggregateStream=3296
+event	64272	refusal	RepartitionExec[1]	1	642993	1001273	20525146	89	4	18509556	1300091	RepartitionExec[Merge]=18509556;RepartitionExec=2013118;OrderedPartialAggregateStream=2472
+event	64277	refusal	RepartitionExec[1]	1	387306	1001273	20525146	89	4	18509556	1300091	RepartitionExec[Merge]=18509556;RepartitionExec=2013118;OrderedPartialAggregateStream=2472
+event	64322	refusal	RepartitionExec[1]	1	664569	1001273	20525146	89	4	18509556	1300091	RepartitionExec[Merge]=18509556;RepartitionExec=2013118;OrderedPartialAggregateStream=2472
+event	64686	refusal	OrderedPartialAggregateStream[16]	1	3559198	0	20524322	88	4	18509556	1314865	RepartitionExec[Merge]=18509556;RepartitionExec=2013118;OrderedPartialAggregateStream=1648
+event	65327	refusal	OrderedPartialAggregateStream[139]	1	3559990	0	20927422	86	4	18913480	1340747	RepartitionExec[Merge]=18913480;RepartitionExec=2013118;OrderedPartialAggregateStream=824
+event	65332	refusal	RepartitionExec[0]	1	759300	1011845	20927422	86	4	18913480	1340747	RepartitionExec[Merge]=18913480;RepartitionExec=2013118;OrderedPartialAggregateStream=824
+event	65490	refusal	OrderedPartialAggregateStream[1]	1	4303859	0	20927422	86	4	18913480	1340747	RepartitionExec[Merge]=18913480;RepartitionExec=2013118;OrderedPartialAggregateStream=824
+event	65490	refusal	OrderedPartialAggregateStream[133]	1	3210025	0	20927422	86	4	18913480	1340747	RepartitionExec[Merge]=18913480;RepartitionExec=2013118;OrderedPartialAggregateStream=824
+event	65604	release_after_refusal	RepartitionExec[0]	1	415850	595995	20511572	86	4	18913480		RepartitionExec[Merge]=18913480;RepartitionExec=1597268;OrderedPartialAggregateStream=824
+event	65721	refusal	OrderedPartialAggregateStream[123]	1	2180383	0	21036058	86	4	19835161	1330029	RepartitionExec[Merge]=19835161;RepartitionExec=1200073;OrderedPartialAggregateStream=824
+event	65875	refusal	OrderedPartialAggregateStream[136]	1	3508429	0	21304002	86	4	20103105	1326914	RepartitionExec[Merge]=20103105;RepartitionExec=1200073;OrderedPartialAggregateStream=824
+event	66513	refusal	RepartitionExec[1]	1	731543	1001273	22984165	86	4	21050901	1315893	RepartitionExec[Merge]=21050901;RepartitionExec=1931616;OrderedPartialAggregateStream=1648
+event	66733	refusal	OrderedPartialAggregateStream[134]	1	3300637	0	23371217	86	4	21437129	1311402	RepartitionExec[Merge]=21437129;RepartitionExec=1931616;OrderedPartialAggregateStream=2472
+event	66889	refusal	OrderedPartialAggregateStream[145]	1	3737704	0	23371217	86	4	21437129	1311402	RepartitionExec[Merge]=21437129;RepartitionExec=1931616;OrderedPartialAggregateStream=2472
+event	66979	refusal	RepartitionExec[0]	1	731882	930343	23910517	86	4	21976429	1305131	RepartitionExec[Merge]=21976429;RepartitionExec=1931616;OrderedPartialAggregateStream=2472
+event	67123	refusal	RepartitionExec[0]	1	496312	930343	24146713	86	4	22210977	1302404	RepartitionExec[Merge]=22210977;RepartitionExec=1931616;OrderedPartialAggregateStream=4120
+event	67280	refusal	RepartitionExec[0]	1	599278	930343	24216129	86	4	22210977	1302404	RepartitionExec[Merge]=22210977;RepartitionExec=1931616;OrderedPartialAggregateStream=4120
+event	67319	release_after_refusal	RepartitionExec[0]	1	731543	198800	23730346	86	4	22526153		RepartitionExec[Merge]=22526153;RepartitionExec=1200073;OrderedPartialAggregateStream=4120
+event	67681	refusal	OrderedPartialAggregateStream[140]	1	4461971	0	24803765	86	4	23598748	1286267	RepartitionExec[Merge]=23598748;RepartitionExec=1200073;OrderedPartialAggregateStream=4944
+event	67993	refusal	OrderedPartialAggregateStream[121]	1	3193294	0	25341645	86	4	24134156	1280041	RepartitionExec[Merge]=24134156;RepartitionExec=1200073;OrderedPartialAggregateStream=7416
+event	68028	refusal	RepartitionExec[1]	1	633552	1001273	26311874	86	4	24134156	1280041	RepartitionExec[Merge]=24134156;RepartitionExec=2170302;OrderedPartialAggregateStream=7416
+event	68041	refusal	RepartitionExec[1]	1	970229	1001273	26311874	86	4	24134156	1280041	RepartitionExec[Merge]=24134156;RepartitionExec=2170302;OrderedPartialAggregateStream=7416
+event	68091	refusal	RepartitionExec[0]	1	712328	1169029	27029174	86	4	24851456	1271700	RepartitionExec[Merge]=24851456;RepartitionExec=2170302;OrderedPartialAggregateStream=7416
+event	68167	refusal	RepartitionExec[0]	1	799195	1169029	27495962	86	4	25318244	1266273	RepartitionExec[Merge]=25318244;RepartitionExec=2170302;OrderedPartialAggregateStream=7416
+event	68289	release_after_refusal	RepartitionExec[0]	1	970229	198800	26770977	86	4	25563488		RepartitionExec[Merge]=25563488;RepartitionExec=1200073;OrderedPartialAggregateStream=7416
+event	68551	refusal	OrderedPartialAggregateStream[143]	1	4609090	0	28832878	86	4	27625389	1239445	RepartitionExec[Merge]=27625389;RepartitionExec=1200073;OrderedPartialAggregateStream=7416
+event	69506	release_after_refusal	RepartitionExec[1]	1	410120	591153	30441479	86	4	29049589		RepartitionExec[Merge]=29049589;RepartitionExec=1382826;OrderedPartialAggregateStream=9064
+event	69506	refusal	RepartitionExec[1]	1	592873	591153	30441479	86	4	29049589	1222885	RepartitionExec[Merge]=29049589;RepartitionExec=1382826;OrderedPartialAggregateStream=9064
+event	69798	refusal	RepartitionExec[0]	1	1030126	198800	31937831	86	4	31138814	1198592	RepartitionExec[Merge]=31138814;RepartitionExec=789953;OrderedPartialAggregateStream=9064
+event	70066	refusal	OrderedPartialAggregateStream[142]	1	3939961	0	32234015	86	4	31434998	1195148	RepartitionExec[Merge]=31434998;RepartitionExec=789953;OrderedPartialAggregateStream=9064
+event	70145	release_after_refusal	RepartitionExec[1]	1	427313	163840	32080662	86	4	31708958		RepartitionExec[Merge]=31708958;RepartitionExec=362640;OrderedPartialAggregateStream=9064
+event	71098	refusal	RepartitionExec[1]	1	496312	895722	33776921	86	4	32672511	1180758	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=9888
+event	71169	refusal	RepartitionExec[1]	1	599278	895722	33776097	85	4	32672511	1194649	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=9064
+event	71350	refusal	RepartitionExec[0]	1	1036304	198800	33776097	85	4	32672511	1194649	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=9064
+event	71436	refusal	RepartitionExec[1]	1	799195	895722	33774449	83	4	32672511	1223436	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=7416
+event	71473	refusal	RepartitionExec[1]	1	712328	895722	33774449	83	4	32672511	1223436	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=7416
+event	71921	refusal	RepartitionExec[1]	1	1030126	895722	33771153	79	4	32672511	1285382	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=4120
+event	72081	refusal	RepartitionExec[1]	1	759300	895722	33771153	79	4	32672511	1285382	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=4120
+event	72085	refusal	RepartitionExec[1]	1	1036304	895722	33771153	79	4	32672511	1285382	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=4120
+event	72396	refusal	OrderedPartialAggregateStream[34]	1	1990883	0	33770329	77	4	32672511	1318769	RepartitionExec[Merge]=32672511;RepartitionExec=1094522;OrderedPartialAggregateStream=3296
+event	72598	refusal	RepartitionExec[1]	1	875834	895722	34646163	77	4	32672511	1318769	RepartitionExec[Merge]=32672511;RepartitionExec=1970356;OrderedPartialAggregateStream=3296
+event	72880	refusal	OrderedPartialAggregateStream[42]	1	1868402	0	34645339	76	4	32672511	1336121	RepartitionExec[Merge]=32672511;RepartitionExec=1970356;OrderedPartialAggregateStream=2472
+event	73816	refusal	RepartitionExec[1]	1	399780	1341914	36873052	74	4	33669173	1358764	RepartitionExec[Merge]=33669173;RepartitionExec=2386686;OrderedPartialAggregateStream=817193
+event	74068	refusal	RepartitionExec[1]	1	142202	1341914	36357260	73	4	33669173	1377377	RepartitionExec[Merge]=33669173;RepartitionExec=2528888;OrderedPartialAggregateStream=159199
+event	74351	refusal	OrderedPartialAggregateStream[74]	1	1781525	0	36670304	72	4	33983041	1392148	RepartitionExec[Merge]=33983041;RepartitionExec=2528888;OrderedPartialAggregateStream=158375
+event	74407	refusal	OrderedPartialAggregateStream[67]	1	1799642	0	36670304	72	4	33983041	1392148	RepartitionExec[Merge]=33983041;RepartitionExec=2528888;OrderedPartialAggregateStream=158375
+event	75204	refusal	RepartitionExec[0]	1	366856	1186974	37336368	72	4	34648281	1382908	RepartitionExec[Merge]=34648281;RepartitionExec=2528888;OrderedPartialAggregateStream=159199
+event	75364	refusal	RepartitionExec[0]	1	373821	1186974	37669216	72	4	34980305	1378297	RepartitionExec[Merge]=34980305;RepartitionExec=2528888;OrderedPartialAggregateStream=160023
+event	75378	refusal	RepartitionExec[1]	1	366856	1341914	37669216	72	4	34980305	1378297	RepartitionExec[Merge]=34980305;RepartitionExec=2528888;OrderedPartialAggregateStream=160023
+event	75379	refusal	OrderedPartialAggregateStream[79]	1	1759034	0	37669216	72	4	34980305	1378297	RepartitionExec[Merge]=34980305;RepartitionExec=2528888;OrderedPartialAggregateStream=160023
+event	75444	refusal	OrderedPartialAggregateStream[22]	1	2163292	0	37669216	72	4	34980305	1378297	RepartitionExec[Merge]=34980305;RepartitionExec=2528888;OrderedPartialAggregateStream=160023
+event	75498	release_after_refusal	RepartitionExec[0]	1	446192	740782	37223024	72	4	34980305		RepartitionExec[Merge]=34980305;RepartitionExec=2082696;OrderedPartialAggregateStream=160023
+event	75655	refusal	RepartitionExec[1]	1	373821	1341914	37784876	72	4	35942761	1364930	RepartitionExec[Merge]=35942761;RepartitionExec=1682916;OrderedPartialAggregateStream=159199
+event	75852	refusal	OrderedPartialAggregateStream[23]	1	2130775	0	37784876	71	4	35942761	1384154	RepartitionExec[Merge]=35942761;RepartitionExec=1682916;OrderedPartialAggregateStream=159199
+event	75939	refusal	OrderedPartialAggregateStream[24]	1	2136778	0	37784876	71	4	35942761	1384154	RepartitionExec[Merge]=35942761;RepartitionExec=1682916;OrderedPartialAggregateStream=159199
+event	76235	refusal	OrderedPartialAggregateStream[75]	1	1816391	0	38257884	70	4	36415769	1397170	RepartitionExec[Merge]=36415769;RepartitionExec=1682916;OrderedPartialAggregateStream=159199
+event	76318	refusal	OrderedPartialAggregateStream[63]	1	1806023	0	38257884	70	4	36415769	1397170	RepartitionExec[Merge]=36415769;RepartitionExec=1682916;OrderedPartialAggregateStream=159199
+event	76378	refusal	RepartitionExec[1]	1	358314	1341914	38616198	70	4	36415769	1397170	RepartitionExec[Merge]=36415769;RepartitionExec=2041230;OrderedPartialAggregateStream=159199
+event	76440	refusal	OrderedPartialAggregateStream[20]	1	3170056	0	38616198	70	4	36415769	1397170	RepartitionExec[Merge]=36415769;RepartitionExec=2041230;OrderedPartialAggregateStream=159199
+event	76611	refusal	OrderedPartialAggregateStream[58]	1	1807850	0	39057438	70	4	36856185	1390879	RepartitionExec[Merge]=36856185;RepartitionExec=2041230;OrderedPartialAggregateStream=160023
+event	76710	refusal	RepartitionExec[1]	1	489792	1341914	39546406	69	4	36856185	1411036	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=159199
+event	76905	refusal	RepartitionExec[0]	1	477545	1189108	39547230	69	4	36856185	1411036	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=160023
+event	76982	refusal	OrderedPartialAggregateStream[35]	1	2000198	0	39548878	69	4	36856185	1411036	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=161671
+event	77121	refusal	OrderedPartialAggregateStream[38]	1	1947249	0	39549702	69	4	36856185	1411036	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	77190	refusal	RepartitionExec[0]	1	479791	1189108	39549702	69	4	36856185	1411036	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	77204	refusal	RepartitionExec[0]	1	376182	1189108	39549702	69	4	36856185	1411036	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	77221	refusal	RepartitionExec[0]	1	380114	1189108	39548878	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=161671
+event	77244	refusal	OrderedPartialAggregateStream[18]	1	3402076	0	39548878	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=161671
+event	77258	refusal	OrderedPartialAggregateStream[25]	1	2107987	0	39548878	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=161671
+event	77286	refusal	RepartitionExec[1]	1	477545	1341914	39548878	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=161671
+event	77555	refusal	RepartitionExec[0]	1	376857	1189108	39549702	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	77609	refusal	RepartitionExec[1]	1	376182	1341914	39606050	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	77631	refusal	RepartitionExec[1]	1	479791	1341914	39606050	68	4	36856185	1431787	RepartitionExec[Merge]=36856185;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	77898	refusal	RepartitionExec[0]	1	449788	1189108	40132842	67	4	37438501	1444466	RepartitionExec[Merge]=37438501;RepartitionExec=2531022;OrderedPartialAggregateStream=163319
+event	77923	refusal	RepartitionExec[0]	1	584107	1189108	40132842	67	4	37438501	1444466	RepartitionExec[Merge]=37438501;RepartitionExec=2531022;OrderedPartialAggregateStream=163319
+event	77947	refusal	RepartitionExec[1]	1	376857	1341914	40132842	67	4	37438501	1444466	RepartitionExec[Merge]=37438501;RepartitionExec=2531022;OrderedPartialAggregateStream=163319
+event	78305	refusal	RepartitionExec[0]	1	429671	1189108	41017954	65	4	38324437	1475281	RepartitionExec[Merge]=38324437;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	78334	refusal	RepartitionExec[1]	1	449788	1341914	41017954	65	4	38324437	1475281	RepartitionExec[Merge]=38324437;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	78395	refusal	RepartitionExec[1]	1	584107	1341914	41017954	65	4	38324437	1475281	RepartitionExec[Merge]=38324437;RepartitionExec=2531022;OrderedPartialAggregateStream=162495
+event	78478	release_after_refusal	RepartitionExec[1]	1	446192	895722	40571762	65	4	38324437		RepartitionExec[Merge]=38324437;RepartitionExec=2084830;OrderedPartialAggregateStream=162495
+event	78591	refusal	OrderedPartialAggregateStream[47]	1	1893809	0	41077078	65	4	38829753	1467507	RepartitionExec[Merge]=38829753;RepartitionExec=2084830;OrderedPartialAggregateStream=162495
+event	78896	refusal	RepartitionExec[1]	1	380114	1325393	41783485	65	4	39105665	1463262	RepartitionExec[Merge]=39105665;RepartitionExec=2514501;OrderedPartialAggregateStream=163319
+event	79073	refusal	RepartitionExec[0]	1	468891	1189108	42342525	63	4	39666353	1500815	RepartitionExec[Merge]=39666353;RepartitionExec=2514501;OrderedPartialAggregateStream=161671
+event	79444	refusal	RepartitionExec[1]	1	468891	1325393	42893825	61	4	40218477	1540971	RepartitionExec[Merge]=40218477;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	79466	refusal	RepartitionExec[0]	1	672097	1189108	42893825	61	4	40218477	1540971	RepartitionExec[Merge]=40218477;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	79512	refusal	OrderedPartialAggregateStream[76]	1	1792541	0	42893825	61	4	40218477	1540971	RepartitionExec[Merge]=40218477;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	79727	refusal	OrderedPartialAggregateStream[40]	1	1934372	0	43484209	60	4	40809685	1556800	RepartitionExec[Merge]=40809685;RepartitionExec=2514501;OrderedPartialAggregateStream=160023
+event	79763	refusal	RepartitionExec[1]	1	672097	1325393	43485033	60	4	40809685	1556800	RepartitionExec[Merge]=40809685;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	79853	refusal	OrderedPartialAggregateStream[148]	1	4011286	0	43485033	60	4	40809685	1556800	RepartitionExec[Merge]=40809685;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	79859	refusal	RepartitionExec[0]	1	409445	1189108	43485033	60	4	40809685	1556800	RepartitionExec[Merge]=40809685;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	80153	refusal	RepartitionExec[1]	1	409445	1325393	43755421	59	4	41080073	1578604	RepartitionExec[Merge]=41080073;RepartitionExec=2514501;OrderedPartialAggregateStream=160847
+event	80186	refusal	RepartitionExec[1]	1	371012	1325393	44127257	59	4	41080073	1578604	RepartitionExec[Merge]=41080073;RepartitionExec=2885513;OrderedPartialAggregateStream=161671
+event	80217	refusal	RepartitionExec[0]	1	424728	1560120	44127257	59	4	41080073	1578604	RepartitionExec[Merge]=41080073;RepartitionExec=2885513;OrderedPartialAggregateStream=161671
+event	80439	refusal	RepartitionExec[1]	1	424728	1325393	44571377	58	4	41525017	1598150	RepartitionExec[Merge]=41525017;RepartitionExec=2885513;OrderedPartialAggregateStream=160847
+event	80696	refusal	OrderedPartialAggregateStream[66]	1	1786925	0	44825205	56	4	41780493	1650664	RepartitionExec[Merge]=41780493;RepartitionExec=2885513;OrderedPartialAggregateStream=159199
+event	80731	refusal	OrderedPartialAggregateStream[21]	1	2193136	0	45235429	56	4	42190717	1643339	RepartitionExec[Merge]=42190717;RepartitionExec=2885513;OrderedPartialAggregateStream=159199
+event	80913	release_after_refusal	RepartitionExec[0]	1	358314	1201806	45175251	56	4	42488853		RepartitionExec[Merge]=42488853;RepartitionExec=2527199;OrderedPartialAggregateStream=159199
+event	81182	refusal	RepartitionExec[0]	1	902916	1201806	45957133	56	4	43269911	1624068	RepartitionExec[Merge]=43269911;RepartitionExec=2527199;OrderedPartialAggregateStream=160023
+event	81186	refusal	OrderedPartialAggregateStream[41]	1	1851797	0	45957133	56	4	43269911	1624068	RepartitionExec[Merge]=43269911;RepartitionExec=2527199;OrderedPartialAggregateStream=160023
+event	81338	refusal	RepartitionExec[1]	1	368990	1325393	46326947	56	4	43269911	1624068	RepartitionExec[Merge]=43269911;RepartitionExec=2896189;OrderedPartialAggregateStream=160847
+event	81441	refusal	RepartitionExec[1]	1	902916	1325393	46744639	56	4	44058615	1609984	RepartitionExec[Merge]=44058615;RepartitionExec=2525177;OrderedPartialAggregateStream=160847
+event	81511	refusal	OrderedPartialAggregateStream[19]	1	3253540	0	46745463	56	4	44058615	1609984	RepartitionExec[Merge]=44058615;RepartitionExec=2525177;OrderedPartialAggregateStream=161671
+event	81523	refusal	OrderedPartialAggregateStream[51]	1	1844921	0	46745463	56	4	44058615	1609984	RepartitionExec[Merge]=44058615;RepartitionExec=2525177;OrderedPartialAggregateStream=161671
+event	81587	refusal	RepartitionExec[0]	1	501143	1199784	47073595	55	4	44387571	1633275	RepartitionExec[Merge]=44387571;RepartitionExec=2525177;OrderedPartialAggregateStream=160847
+event	81597	release_after_refusal	RepartitionExec[0]	1	489792	709992	46583803	55	4	44387571		RepartitionExec[Merge]=44387571;RepartitionExec=2035385;OrderedPartialAggregateStream=160847
+event	81638	refusal	OrderedPartialAggregateStream[36]	1	2100202	0	46652679	55	4	44387571	1633275	RepartitionExec[Merge]=44387571;RepartitionExec=2035385;OrderedPartialAggregateStream=160847
+event	81803	refusal	RepartitionExec[1]	1	393487	1325393	47534918	54	4	44945199	1653194	RepartitionExec[Merge]=44945199;RepartitionExec=2428872;OrderedPartialAggregateStream=160847
+event	81886	refusal	RepartitionExec[1]	1	501143	1325393	47534918	54	4	44945199	1653194	RepartitionExec[Merge]=44945199;RepartitionExec=2428872;OrderedPartialAggregateStream=160847
+event	82140	refusal	RepartitionExec[1]	1	390902	1325393	48538420	52	4	45952110	1697415	RepartitionExec[Merge]=45952110;RepartitionExec=2426287;OrderedPartialAggregateStream=160023
+event	82278	release_after_refusal	RepartitionExec[1]	1	429671	895722	48664473	51	4	46877648		RepartitionExec[Merge]=46877648;RepartitionExec=1627626;OrderedPartialAggregateStream=159199
+event	82592	refusal	OrderedPartialAggregateStream[26]	1	3177562	0	50423132	50	4	47703767	1730279	RepartitionExec[Merge]=47703767;RepartitionExec=2559342;OrderedPartialAggregateStream=160023
+event	82655	refusal	RepartitionExec[0]	1	615687	1197762	50422308	49	4	47703767	1765591	RepartitionExec[Merge]=47703767;RepartitionExec=2559342;OrderedPartialAggregateStream=159199
+event	82958	refusal	OrderedPartialAggregateStream[77]	1	1803665	0	51516144	49	4	48797603	1743267	RepartitionExec[Merge]=48797603;RepartitionExec=2559342;OrderedPartialAggregateStream=159199
+event	82964	refusal	RepartitionExec[1]	1	615687	1361580	51516144	49	4	48797603	1743267	RepartitionExec[Merge]=48797603;RepartitionExec=2559342;OrderedPartialAggregateStream=159199
+event	82984	refusal	OrderedPartialAggregateStream[48]	1	1910279	0	51516144	49	4	48797603	1743267	RepartitionExec[Merge]=48797603;RepartitionExec=2559342;OrderedPartialAggregateStream=159199
+event	83014	refusal	OrderedPartialAggregateStream[39]	1	1995662	0	51516144	49	4	48797603	1743267	RepartitionExec[Merge]=48797603;RepartitionExec=2559342;OrderedPartialAggregateStream=159199
+event	83541	refusal	RepartitionExec[0]	1	586804	1197762	52194332	48	4	49474967	1765474	RepartitionExec[Merge]=49474967;RepartitionExec=2559342;OrderedPartialAggregateStream=160023
+event	83546	refusal	OrderedPartialAggregateStream[59]	1	1816265	0	52194332	48	4	49474967	1765474	RepartitionExec[Merge]=49474967;RepartitionExec=2559342;OrderedPartialAggregateStream=160023
+event	83603	refusal	RepartitionExec[0]	1	447990	1573045	52945722	47	4	49474967	1803037	RepartitionExec[Merge]=49474967;RepartitionExec=3309908;OrderedPartialAggregateStream=160847
+event	83681	refusal	RepartitionExec[0]	1	415626	1573045	52945722	47	4	49474967	1803037	RepartitionExec[Merge]=49474967;RepartitionExec=3309908;OrderedPartialAggregateStream=160847
+event	83769	refusal	RepartitionExec[1]	1	447990	1736863	52945722	47	4	49474967	1803037	RepartitionExec[Merge]=49474967;RepartitionExec=3309908;OrderedPartialAggregateStream=160847
+event	83808	refusal	RepartitionExec[1]	1	586804	1736863	52945722	47	4	49474967	1803037	RepartitionExec[Merge]=49474967;RepartitionExec=3309908;OrderedPartialAggregateStream=160847
+event	83811	release_after_refusal	RepartitionExec[1]	1	375283	1361580	52570439	47	4	49474967		RepartitionExec[Merge]=49474967;RepartitionExec=2934625;OrderedPartialAggregateStream=160847
+event	83811	refusal	OrderedPartialAggregateStream[17]	1	3370261	0	52570439	47	4	49474967	1803037	RepartitionExec[Merge]=49474967;RepartitionExec=2934625;OrderedPartialAggregateStream=160847
+event	84130	refusal	RepartitionExec[0]	1	380114	1573045	55525328	45	4	50235554	1866270	RepartitionExec[Merge]=50235554;RepartitionExec=3350251;OrderedPartialAggregateStream=1939523
+event	84348	refusal	RepartitionExec[1]	1	380114	1777206	56051680	44	4	50762730	1896704	RepartitionExec[Merge]=50762730;RepartitionExec=3350251;OrderedPartialAggregateStream=1938699
+event	84502	refusal	RepartitionExec[0]	1	347057	1573045	58216306	44	4	50762730	1896704	RepartitionExec[Merge]=50762730;OrderedPartialAggregateStream=4103325;RepartitionExec=3350251
+event	84657	release_after_refusal	RepartitionExec[0]	1	465858	1107187	58071772	43	4	51084878		RepartitionExec[Merge]=51084878;OrderedPartialAggregateStream=4102501;RepartitionExec=2884393
+event	84783	release_after_refusal	RepartitionExec[1]	1	731882	1045324	59500925	43	4	51393234		RepartitionExec[Merge]=51393234;OrderedPartialAggregateStream=5955180;RepartitionExec=2152511
+event	85247	refusal	OrderedPartialAggregateStream[37]	1	1971137	0	60678372	43	4	52223624	1906839	RepartitionExec[Merge]=52223624;OrderedPartialAggregateStream=5955180;RepartitionExec=2499568
+event	86103	refusal	RepartitionExec[1]	1	659962	1760921	60870319	43	4	53445032	1878434	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=3802187;RepartitionExec=3623100
+event	86305	refusal	RepartitionExec[0]	1	438776	1862179	64472155	43	4	53445032	1878434	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=7404023;RepartitionExec=3623100
+event	86371	refusal	OrderedPartialAggregateStream[149]	1	3816463	0	62946987	43	4	53445032	1878434	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=5878855;RepartitionExec=3623100
+event	86408	refusal	RepartitionExec[0]	1	378143	1862179	62946163	43	4	53445032	1878434	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=5878031;RepartitionExec=3623100
+event	86555	refusal	RepartitionExec[1]	1	438776	1760921	64763670	42	4	53445032	1923159	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=7695538;RepartitionExec=3623100
+event	86700	refusal	RepartitionExec[0]	1	352112	1862179	63137869	42	4	53445032	1923159	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=6069737;RepartitionExec=3623100
+event	86813	refusal	RepartitionExec[1]	1	378143	1760921	63286593	42	4	53445032	1923159	RepartitionExec[Merge]=53445032;OrderedPartialAggregateStream=6069737;RepartitionExec=3653124
+event	86916	refusal	RepartitionExec[1]	1	359693	1760921	62206999	42	4	53983924	1910328	RepartitionExec[Merge]=53983924;OrderedPartialAggregateStream=4585541;RepartitionExec=3637534
+event	86948	refusal	RepartitionExec[1]	1	352112	1760921	62630210	42	4	54407135	1900252	RepartitionExec[Merge]=54407135;OrderedPartialAggregateStream=4585541;RepartitionExec=3637534
+event	87165	refusal	RepartitionExec[0]	1	363233	1935309	62959599	41	4	54641831	1940875	RepartitionExec[Merge]=54641831;OrderedPartialAggregateStream=4621538;RepartitionExec=3696230
+event	87257	refusal	RepartitionExec[0]	1	58696	1935309	63003825	41	4	55335447	1923958	RepartitionExec[Merge]=55335447;OrderedPartialAggregateStream=3972148;RepartitionExec=3696230
+event	87258	refusal	RepartitionExec[0]	1	58696	1935309	63003825	41	4	55335447	1923958	RepartitionExec[Merge]=55335447;OrderedPartialAggregateStream=3972148;RepartitionExec=3696230
+event	87331	release_after_refusal	RepartitionExec[0]	1	659962	1275347	64379651	41	4	55562683		RepartitionExec[Merge]=55562683;OrderedPartialAggregateStream=5780700;RepartitionExec=3036268
+event	87416	refusal	RepartitionExec[1]	1	363233	1760921	65404093	41	4	56587125	1893429	RepartitionExec[Merge]=56587125;OrderedPartialAggregateStream=5780700;RepartitionExec=3036268
+event	87871	refusal	RepartitionExec[0]	1	828974	1275347	63609477	41	4	56587125	1893429	RepartitionExec[Merge]=56587125;OrderedPartialAggregateStream=3927388;RepartitionExec=3094964
+event	87890	refusal	RepartitionExec[1]	1	379661	1819617	63989138	41	4	56587125	1893429	RepartitionExec[Merge]=56587125;OrderedPartialAggregateStream=3927388;RepartitionExec=3474625
+event	88174	refusal	RepartitionExec[0]	1	359441	1655008	64308008	41	4	56587125	1893429	RepartitionExec[Merge]=56587125;OrderedPartialAggregateStream=4246258;RepartitionExec=3474625
+event	88428	refusal	RepartitionExec[1]	1	828974	1819617	66189109	41	4	56587125	1893429	RepartitionExec[Merge]=56587125;OrderedPartialAggregateStream=6127359;RepartitionExec=3474625
+event	88562	refusal	RepartitionExec[0]	1	351605	1655008	64722951	41	4	56587125	1893429	RepartitionExec[Merge]=56587125;OrderedPartialAggregateStream=4661201;RepartitionExec=3474625
+event	88614	refusal	RepartitionExec[1]	1	359441	1819617	64889164	41	4	57022345	1882814	RepartitionExec[Merge]=57022345;OrderedPartialAggregateStream=4333498;RepartitionExec=3533321
+event	88718	refusal	OrderedPartialAggregateStream[27]	1	3168328	0	65561084	41	4	57694265	1866425	RepartitionExec[Merge]=57694265;OrderedPartialAggregateStream=4333498;RepartitionExec=3533321
+event	88849	refusal	RepartitionExec[1]	1	351605	1819617	64366460	40	4	57977953	1905994	RepartitionExec[Merge]=57977953;RepartitionExec=3533321;OrderedPartialAggregateStream=2855186
+event	88907	refusal	RepartitionExec[0]	1	356660	1713704	64366460	40	4	57977953	1905994	RepartitionExec[Merge]=57977953;RepartitionExec=3533321;OrderedPartialAggregateStream=2855186
+event	89073	refusal	RepartitionExec[1]	1	390149	1819617	65517693	40	4	59464770	1868823	RepartitionExec[Merge]=59464770;RepartitionExec=3253933;OrderedPartialAggregateStream=2798990
+event	89134	refusal	OrderedPartialAggregateStream[43]	1	1903349	0	65252238	40	4	59464770	1868823	RepartitionExec[Merge]=59464770;RepartitionExec=3312629;OrderedPartialAggregateStream=2474839
+event	89163	refusal	RepartitionExec[1]	1	356660	1819617	65252238	40	4	59464770	1868823	RepartitionExec[Merge]=59464770;RepartitionExec=3312629;OrderedPartialAggregateStream=2474839
+event	89402	refusal	RepartitionExec[1]	1	58696	1819617	64923207	40	4	59464770	1868823	RepartitionExec[Merge]=59464770;RepartitionExec=3312629;OrderedPartialAggregateStream=2145808
+event	89652	refusal	RepartitionExec[0]	1	364622	1551708	66830001	40	4	59464770	1868823	RepartitionExec[Merge]=59464770;OrderedPartialAggregateStream=3993906;RepartitionExec=3371325
+event	89807	release_after_refusal	RepartitionExec[0]	1	390149	1161559	68251847	40	4	59464770		RepartitionExec[Merge]=59464770;OrderedPartialAggregateStream=5805901;RepartitionExec=2981176
+event	89878	refusal	RepartitionExec[1]	1	364622	1819617	70543443	40	4	60339940	1846944	RepartitionExec[Merge]=60339940;OrderedPartialAggregateStream=7601988;RepartitionExec=2601515
+event	89962	refusal	RepartitionExec[1]	1	583435	1819617	71127702	40	4	60339940	1846944	RepartitionExec[Merge]=60339940;OrderedPartialAggregateStream=7602812;RepartitionExec=3184950
+event	89990	refusal	OrderedPartialAggregateStream[147]	1	4609522	0	71127702	40	4	60339940	1846944	RepartitionExec[Merge]=60339940;OrderedPartialAggregateStream=7602812;RepartitionExec=3184950
+event	90001	refusal	RepartitionExec[1]	1	413041	1819617	71833355	40	4	60632552	1839629	RepartitionExec[Merge]=60632552;OrderedPartialAggregateStream=7602812;RepartitionExec=3597991
+event	90135	refusal	RepartitionExec[0]	1	58696	1778374	70288003	40	4	60893360	1833109	RepartitionExec[Merge]=60893360;OrderedPartialAggregateStream=5796652;RepartitionExec=3597991
+event	90160	refusal	RepartitionExec[0]	1	357923	1778374	70288003	40	4	60893360	1833109	RepartitionExec[Merge]=60893360;OrderedPartialAggregateStream=5796652;RepartitionExec=3597991
+event	90382	refusal	RepartitionExec[1]	1	357923	1819617	66799873	35	4	60893360	2094981	RepartitionExec[Merge]=60893360;RepartitionExec=3597991;OrderedPartialAggregateStream=2774380
+event	90395	refusal	RepartitionExec[0]	1	382568	1778374	66799873	35	4	60893360	2094981	RepartitionExec[Merge]=60893360;RepartitionExec=3597991;OrderedPartialAggregateStream=2774380
+event	90399	refusal	RepartitionExec[0]	1	360452	1778374	66799873	35	4	60893360	2094981	RepartitionExec[Merge]=60893360;RepartitionExec=3597991;OrderedPartialAggregateStream=2774380
+event	90488	refusal	RepartitionExec[0]	1	354008	1778374	65328241	35	4	60893360	2094981	RepartitionExec[Merge]=60893360;RepartitionExec=3597991;OrderedPartialAggregateStream=1302748
+event	90492	release_after_refusal	RepartitionExec[1]	1	465858	1353759	65328241	35	4	60893360		RepartitionExec[Merge]=60893360;RepartitionExec=3132133;OrderedPartialAggregateStream=1302748
+event	90843	refusal	RepartitionExec[1]	1	382568	2126915	67566648	31	4	61423526	2348200	RepartitionExec[Merge]=61423526;RepartitionExec=4022681;OrderedPartialAggregateStream=2120441
+event	91161	refusal	RepartitionExec[1]	1	352490	2126915	69364042	31	4	62408330	2316432	RepartitionExec[Merge]=62408330;RepartitionExec=4375171;OrderedPartialAggregateStream=2580541
+event	91944	refusal	RepartitionExec[0]	1	410369	2248256	73195614	31	4	63564712	2279129	RepartitionExec[Merge]=63564712;OrderedPartialAggregateStream=5922505;RepartitionExec=3708397
+event	92288	refusal	RepartitionExec[0]	1	407462	2248256	72758333	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;OrderedPartialAggregateStream=4510515;RepartitionExec=4177462
+event	92311	refusal	RepartitionExec[0]	1	365507	2248256	72758333	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;OrderedPartialAggregateStream=4510515;RepartitionExec=4177462
+event	92363	refusal	RepartitionExec[0]	1	375617	2248256	71239771	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;RepartitionExec=4177462;OrderedPartialAggregateStream=2991953
+event	92566	refusal	RepartitionExec[1]	1	375617	2336668	73524860	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;OrderedPartialAggregateStream=4869580;RepartitionExec=4584924
+event	92582	refusal	RepartitionExec[1]	1	365507	2336668	73524860	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;OrderedPartialAggregateStream=4869580;RepartitionExec=4584924
+event	92644	refusal	RepartitionExec[0]	1	1036304	2248256	73252333	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;RepartitionExec=4643620;OrderedPartialAggregateStream=4538357
+event	92808	refusal	RepartitionExec[1]	1	58696	2395364	71254169	29	4	64070356	2418874	RepartitionExec[Merge]=64070356;RepartitionExec=4643620;OrderedPartialAggregateStream=2540193
+event	92904	refusal	RepartitionExec[1]	1	443858	2395364	71698027	25	4	64070356	2805894	RepartitionExec[Merge]=64070356;RepartitionExec=5087478;OrderedPartialAggregateStream=2540193
+event	93087	release_after_refusal	RepartitionExec[1]	1	360452	2034912	73432926	24	4	64070356		RepartitionExec[Merge]=64070356;RepartitionExec=4727026;OrderedPartialAggregateStream=4635544
+event	93183	refusal	RepartitionExec[1]	1	1036304	2034912	72278306	22	4	64464508	3170600	RepartitionExec[Merge]=64464508;RepartitionExec=4727026;OrderedPartialAggregateStream=3086772
+event	93359	refusal	RepartitionExec[0]	1	58696	3139570	74409858	22	4	64875984	3151897	RepartitionExec[Merge]=64875984;RepartitionExec=5621938;OrderedPartialAggregateStream=3911936
+event	93452	release_after_refusal	RepartitionExec[0]	1	413041	2726529	74677101	22	4	65556268		RepartitionExec[Merge]=65556268;RepartitionExec=5208897;OrderedPartialAggregateStream=3911936
+event	94425	refusal	RepartitionExec[0]	1	361967	3252339	76684982	19	4	68479756	3459893	RepartitionExec[Merge]=68479756;RepartitionExec=5911942;OrderedPartialAggregateStream=2293284
+event	94551	release_after_refusal	RepartitionExec[0]	1	583435	2668904	78598927	19	4	68792640		RepartitionExec[Merge]=68792640;RepartitionExec=5328507;OrderedPartialAggregateStream=4477780
+event	105066	refusal	OrderedFinalAggregateStream[0]	1	4510726	0	115171315	8	4	112281727	2742000	RepartitionExec[Merge]=112281727;RepartitionExec=2889588
+event	110144	refusal	OrderedFinalAggregateStream[1]	1	4642209	0	116386659	8	4	113496247	2590185	RepartitionExec[Merge]=113496247;RepartitionExec=2889588;OrderedFinalAggregateStream=824
+event	112529	refusal	OrderedFinalAggregateStream[0]	1	4641034	824	116386659	8	4	113496247	2590185	RepartitionExec[Merge]=113496247;RepartitionExec=2889588;OrderedFinalAggregateStream=824
+event	117528	refusal	OrderedFinalAggregateStream[1]	1	4640836	824	116387483	8	4	113496247	2590185	RepartitionExec[Merge]=113496247;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	119704	refusal	OrderedFinalAggregateStream[0]	1	4641394	824	116387483	8	4	113496247	2590185	RepartitionExec[Merge]=113496247;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	124635	refusal	OrderedFinalAggregateStream[1]	1	4641394	824	116387483	8	4	113496247	2590185	RepartitionExec[Merge]=113496247;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	127017	refusal	OrderedFinalAggregateStream[0]	1	4641151	824	116387483	8	4	113496247	2590185	RepartitionExec[Merge]=113496247;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	131937	refusal	OrderedFinalAggregateStream[1]	1	4509341	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	134459	refusal	OrderedFinalAggregateStream[0]	1	4641295	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	139164	refusal	OrderedFinalAggregateStream[1]	1	4641079	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	141773	refusal	OrderedFinalAggregateStream[0]	1	4509545	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	146318	refusal	OrderedFinalAggregateStream[1]	1	4641016	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	149084	refusal	OrderedFinalAggregateStream[0]	1	4640998	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	153685	refusal	OrderedFinalAggregateStream[1]	1	4509689	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	156514	refusal	OrderedFinalAggregateStream[0]	1	4509875	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	161093	refusal	OrderedFinalAggregateStream[1]	1	4509830	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	163821	refusal	OrderedFinalAggregateStream[0]	1	4640854	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	168530	refusal	OrderedFinalAggregateStream[1]	1	4641160	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	171100	refusal	OrderedFinalAggregateStream[0]	1	4641223	824	115743659	8	4	112852423	2670663	RepartitionExec[Merge]=112852423;RepartitionExec=2889588;OrderedFinalAggregateStream=1648
+event	176041	refusal	OrderedFinalAggregateStream[1]	1	4509776	824	115221883	8	4	112468172	2718694	RepartitionExec[Merge]=112468172;RepartitionExec=2752063;OrderedFinalAggregateStream=1648
+event	178462	refusal	OrderedFinalAggregateStream[0]	1	4641358	824	115221883	8	4	112468172	2718694	RepartitionExec[Merge]=112468172;RepartitionExec=2752063;OrderedFinalAggregateStream=1648
+event	183595	refusal	OrderedFinalAggregateStream[1]	1	4641304	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	185743	refusal	OrderedFinalAggregateStream[0]	1	4509632	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	191089	refusal	OrderedFinalAggregateStream[1]	1	4641232	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	193192	refusal	OrderedFinalAggregateStream[0]	1	4509461	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	198613	refusal	OrderedFinalAggregateStream[1]	1	4641133	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	200640	refusal	OrderedFinalAggregateStream[0]	1	4641124	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	206160	refusal	OrderedFinalAggregateStream[1]	1	4641178	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	207974	refusal	OrderedFinalAggregateStream[0]	1	4640944	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	213673	refusal	OrderedFinalAggregateStream[1]	1	4641133	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	215273	refusal	OrderedFinalAggregateStream[0]	1	4641232	824	114696891	8	4	112080705	2767127	RepartitionExec[Merge]=112080705;RepartitionExec=2614538;OrderedFinalAggregateStream=1648
+event	226519	refusal	OrderedFinalAggregateStream[1]	1	4640674	824	114171403	7	4	111581532	3233742	RepartitionExec[Merge]=111581532;RepartitionExec=2588223;OrderedFinalAggregateStream=1648
+event	227755	refusal	OrderedFinalAggregateStream[0]	1	4509749	824	114171403	7	4	111581532	3233742	RepartitionExec[Merge]=111581532;RepartitionExec=2588223;OrderedFinalAggregateStream=1648
+event	234239	refusal	OrderedFinalAggregateStream[1]	1	4641169	824	113650139	7	4	111086583	3304449	RepartitionExec[Merge]=111086583;RepartitionExec=2561908;OrderedFinalAggregateStream=1648
+event	235276	refusal	OrderedFinalAggregateStream[0]	1	4509650	824	113650139	7	4	111086583	3304449	RepartitionExec[Merge]=111086583;RepartitionExec=2561908;OrderedFinalAggregateStream=1648
+event	241919	refusal	OrderedFinalAggregateStream[1]	1	4641160	824	110572098	6	4	108043502	4362371	RepartitionExec[Merge]=108043502;RepartitionExec=2526948;OrderedFinalAggregateStream=1648
+event	243380	refusal	OrderedFinalAggregateStream[0]	1	4641052	824	110572098	6	4	108043502	4362371	RepartitionExec[Merge]=108043502;RepartitionExec=2526948;OrderedFinalAggregateStream=1648
+event	255923	refusal	OrderedFinalAggregateStream[1]	1	4182404	4510051	104510282	6	4	92831074	6897775	RepartitionExec[Merge]=92831074;OrderedFinalAggregateStream=9152260;RepartitionExec=2526948
+event	257041	refusal	OrderedFinalAggregateStream[0]	1	4051020	4642209	104510282	6	4	92831074	6897775	RepartitionExec[Merge]=92831074;OrderedFinalAggregateStream=9152260;RepartitionExec=2526948
+event	260939	release_after_refusal	OrderedFinalAggregateStream[1]	1	4509227	824	100001055	6	4	92831074		RepartitionExec[Merge]=92831074;OrderedFinalAggregateStream=4643033;RepartitionExec=2526948
+event	261557	release_after_refusal	OrderedFinalAggregateStream[0]	1	4641385	824	94930834	6	4	92402238		RepartitionExec[Merge]=92402238;RepartitionExec=2526948;OrderedFinalAggregateStream=1648
+event	279461	refusal	OrderedFinalAggregateStream[0]	1	5312810	8693163	93655272	6	4	74092999	10020788	RepartitionExec[Merge]=74092999;OrderedFinalAggregateStream=17386149;RepartitionExec=2176124
+event	279560	refusal	OrderedFinalAggregateStream[1]	1	5312954	8692986	93655272	6	4	74092999	10020788	RepartitionExec[Merge]=74092999;OrderedFinalAggregateStream=17386149;RepartitionExec=2176124
+event	286658	release_after_refusal	OrderedFinalAggregateStream[0]	1	8692339	824	84962933	6	4	74092999		RepartitionExec[Merge]=74092999;OrderedFinalAggregateStream=8693810;RepartitionExec=2176124
+event	286713	release_after_refusal	OrderedFinalAggregateStream[1]	1	8692162	824	76270771	6	4	74092999		RepartitionExec[Merge]=74092999;RepartitionExec=2176124;OrderedFinalAggregateStream=1648
+event	303023	refusal	OrderedFinalAggregateStream[0]	1	5312630	8693262	78409484	6	4	59668598	12424855	RepartitionExec[Merge]=59668598;OrderedFinalAggregateStream=17386506;RepartitionExec=1354380
+event	303666	refusal	OrderedFinalAggregateStream[1]	1	5312183	8693244	78409484	6	4	59668598	12424855	RepartitionExec[Merge]=59668598;OrderedFinalAggregateStream=17386506;RepartitionExec=1354380
+event	309869	release_after_refusal	OrderedFinalAggregateStream[0]	1	8692438	824	69717046	6	4	59668598		RepartitionExec[Merge]=59668598;OrderedFinalAggregateStream=8694068;RepartitionExec=1354380
+event	310729	release_after_refusal	OrderedFinalAggregateStream[1]	1	8692420	824	60728242	6	4	59430910		RepartitionExec[Merge]=59430910;RepartitionExec=1295684;OrderedFinalAggregateStream=1648
+event	332639	refusal	OrderedFinalAggregateStream[0]	1	2789794	14006324	69811067	6	4	40679048	15589780	RepartitionExec[Merge]=40679048;OrderedFinalAggregateStream=28012423;RepartitionExec=1119596
+event	333114	refusal	OrderedFinalAggregateStream[1]	1	2789566	14006099	69811067	6	4	40679048	15589780	RepartitionExec[Merge]=40679048;OrderedFinalAggregateStream=28012423;RepartitionExec=1119596
+event	341853	release_after_refusal	OrderedFinalAggregateStream[0]	1	14005500	824	55805567	6	4	40679048		RepartitionExec[Merge]=40679048;OrderedFinalAggregateStream=14006923;RepartitionExec=1119596
+event	342299	release_after_refusal	OrderedFinalAggregateStream[1]	1	14005275	824	41571192	6	4	40449948		RepartitionExec[Merge]=40449948;RepartitionExec=1119596;OrderedFinalAggregateStream=1648
+event	369521	refusal	OrderedFinalAggregateStream[0]	1	8294665	16795830	47716788	6	4	13005712	20202002	OrderedFinalAggregateStream=33591480;RepartitionExec[Merge]=13005712;RepartitionExec=1119596
+event	369811	refusal	OrderedFinalAggregateStream[1]	1	8295175	16795650	47716788	6	4	13005712	20202002	OrderedFinalAggregateStream=33591480;RepartitionExec[Merge]=13005712;RepartitionExec=1119596
+event	381817	release_after_refusal	OrderedFinalAggregateStream[0]	1	16795006	824	30921782	6	4	13005712		OrderedFinalAggregateStream=16796474;RepartitionExec[Merge]=13005712;RepartitionExec=1119596
+event	382274	release_after_refusal	OrderedFinalAggregateStream[1]	1	16794826	824	13351594	3	4	12788936		RepartitionExec[Merge]=12788936;RepartitionExec=561010;OrderedFinalAggregateStream=1648
+event	386686	refusal	OrderedFinalAggregateStream[0]	1	8280096	41409552	46199328	3	3	4227942	43329928	OrderedFinalAggregateStream=41410376;RepartitionExec[Merge]=4227942;RepartitionExec=561010
+event	386687	release_after_refusal	OrderedFinalAggregateStream[0]	1	20704776	20704776	25494552	3	3	4227942		OrderedFinalAggregateStream=20705600;RepartitionExec[Merge]=4227942;RepartitionExec=561010
+event	391210	refusal	OrderedFinalAggregateStream[0]	1	8282112	66251856	73798675	2	2	0	67108864	OrderedFinalAggregateStream=73798675
+event	391211	release_after_refusal	OrderedFinalAggregateStream[0]	1	33125928	33125928	40672747	2	2	0		OrderedFinalAggregateStream=40672747
+event	395188	refusal	OrderedFinalAggregateStream[1]	1	8282112	66250848	99376776	2	2	0	67108864	OrderedFinalAggregateStream=99376776
+event	395190	release_after_refusal	OrderedFinalAggregateStream[1]	1	33125424	33125424	66251352	2	2	0		OrderedFinalAggregateStream=66251352
+event	398466	refusal	OrderedFinalAggregateStream[0]	1	8282112	66254880	99380304	2	2	0	67108864	OrderedFinalAggregateStream=99380304
+event	398468	release_after_refusal	OrderedFinalAggregateStream[0]	1	33127440	33127440	66252864	2	2	0		OrderedFinalAggregateStream=66252864
+event	402431	refusal	OrderedFinalAggregateStream[1]	1	8282112	66255888	99383328	2	2	0	67108864	OrderedFinalAggregateStream=99383328
+event	402432	release_after_refusal	OrderedFinalAggregateStream[1]	1	33127944	33127944	66255384	2	2	0		OrderedFinalAggregateStream=66255384
+event	409659	refusal	OrderedFinalAggregateStream[1]	1	8282112	66256896	93735372	2	2	0	67108864	OrderedFinalAggregateStream=93735372
+event	409660	release_after_refusal	OrderedFinalAggregateStream[1]	1	33128448	33128448	60606924	2	2	0		OrderedFinalAggregateStream=60606924

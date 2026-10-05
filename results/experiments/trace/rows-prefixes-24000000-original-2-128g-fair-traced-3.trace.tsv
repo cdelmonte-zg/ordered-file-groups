@@ -1,0 +1,363 @@
+#pool	name	limit	peak_reserved	refusals	events_dropped
+pool	fair	137438953472	71079152320	176	0
+#class	class	consumers	can_spill	w_sum_of_peaks	w_largest_peak	w_class_peak	refusals	refused_bytes	w_refusals_then_release	w_consumers_ending_refused
+class	DataFusion-Cli	1	0	6082	6082	6082	0	0	0	0
+class	ExternalSorter	2	2	100667768832	66748446720	67293545472	176	363666489344	176	0
+class	ExternalSorterMerge	2	0	8287474320	5179671336	5697638880	0	0	0	0
+class	FinalHashAggregateStream	2	2	12939385483	6638794396	12939385483	0	0	0	0
+class	PartialHashAggregateStream	2	2	107715809	53858988	107715809	0	0	0	0
+class	RepartitionExec	2	2	23940181	12913685	13836714	0	0	0	0
+class	SortPreservingMergeExec	1	0	25194088	25194088	25194088	0	0	0	0
+#event	micros	kind	consumer	can_spill	bytes	w_held	reserved	w_registered_spillable	w_registered_unspillable	w_unspillable_bytes	w_fair_quota	w_top_classes
+event	10309067	refusal	ExternalSorter[1]	1	1884406784	33919322112	42280649212	4	4	10485760	34357116928	ExternalSorter=33919322112;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10309665	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	40568603132	4	4	10485760		ExternalSorter=32207276032;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10320913	refusal	ExternalSorter[1]	1	1884406784	33919322112	42280649212	4	4	10485760	34357116928	ExternalSorter=33919322112;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10321150	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	40568603132	4	4	10485760		ExternalSorter=32207276032;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10338806	refusal	ExternalSorter[1]	1	1884406784	33919322112	42280649212	4	4	10485760	34357116928	ExternalSorter=33919322112;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10339190	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	40568603132	4	4	10485760		ExternalSorter=32207276032;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10350704	refusal	ExternalSorter[1]	1	1884406784	33919322112	42280649212	4	4	10485760	34357116928	ExternalSorter=33919322112;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10350934	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	40568603132	4	4	10485760		ExternalSorter=32207276032;FinalHashAggregateStream=8350841340;ExternalSorterMerge=10485760
+event	10360950	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10361264	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10363881	refusal	ExternalSorter[1]	1	1884406784	32034915328	40452164840	4	4	2427665960	33752821878	ExternalSorter=34259863552;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	10364255	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	38740118760	4	4	2427665960		ExternalSorter=32547817472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	10380609	refusal	ExternalSorter[1]	1	1884406784	33919322112	37773757120	4	4	20971520	34354495488	ExternalSorter=33988150272;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10380905	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36061711040	4	4	20971520		ExternalSorter=32276104192;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10383160	refusal	ExternalSorter[0]	1	2224948224	33374223360	38875901864	4	4	1737043176	33925477574	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1737043176
+event	10383472	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	36995970040	4	4	1909698872		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1909698872
+event	10396592	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10396846	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10399265	refusal	ExternalSorter[1]	1	1884406784	32034915328	38399872312	4	4	2600321656	33709657954	ExternalSorter=32034915328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10399673	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36690841912	4	4	2600321656		ExternalSorter=30325884928;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10408757	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10409091	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10412471	refusal	ExternalSorter[1]	1	1884406784	32034915328	38247407848	4	4	2427665960	33752821878	ExternalSorter=32055106560;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	10412855	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36535066776	4	4	2427370968		ExternalSorter=30343060480;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427370968
+event	10419670	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10420043	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10424729	refusal	ExternalSorter[1]	1	1884406784	32034915328	38081995688	4	4	2254125288	33796207046	ExternalSorter=32063235072;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2254125288
+event	10425176	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	35855588184	4	4	1736748184		ExternalSorter=30354204672;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1736748184
+event	10431086	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10431375	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10436468	refusal	ExternalSorter[1]	1	1884406784	33919322112	39111877384	4	4	1391731784	34011805422	ExternalSorter=33955510272;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1391731784
+event	10436986	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	37398946328	4	4	1390846808		ExternalSorter=32243464192;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1390846808
+event	10443038	refusal	ExternalSorter[0]	1	2224948224	33374223360	39091365720	4	4	1909108888	33882461146	ExternalSorter=33417621504;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1909108888
+event	10443538	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37038778200	4	4	1909108888		ExternalSorter=31365033984;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1909108888
+event	10451155	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10451514	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10454552	refusal	ExternalSorter[0]	1	2224948224	33374223360	40260163112	4	4	3118288744	33580166182	ExternalSorter=33377239040;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10455029	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38207575592	4	4	3118288744		ExternalSorter=31324651520;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10466334	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10466665	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10471522	refusal	ExternalSorter[0]	1	2224948224	33374223360	40277338664	4	4	3118288744	33580166182	ExternalSorter=33394414592;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10471974	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38227766824	4	4	3118288744		ExternalSorter=31344842752;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10482423	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10482908	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10484872	refusal	ExternalSorter[1]	1	1884406784	32034915328	38402887992	4	4	2600321656	33709657954	ExternalSorter=32037931008;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10486561	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36696578280	4	4	2600026664		ExternalSorter=30331916288;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600026664
+event	10495865	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10496391	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10501717	refusal	ExternalSorter[1]	1	1884406784	33919322112	37758552768	4	4	20971520	34354495488	ExternalSorter=33972945920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10502043	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36046506688	4	4	20971520		ExternalSorter=32260899840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10506834	refusal	ExternalSorter[0]	1	2224948224	33374223360	39769925784	4	4	2599731672	33709805450	ExternalSorter=33405558784;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2599731672
+event	10507189	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37375042552	4	4	2254420280		ExternalSorter=31355986944;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2254420280
+event	10515216	refusal	ExternalSorter[1]	1	1884406784	33919322112	37750164160	4	4	20971520	34354495488	ExternalSorter=33964557312;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10515690	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36038118080	4	4	20971520		ExternalSorter=32252511232;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10517910	refusal	ExternalSorter[0]	1	2224948224	33374223360	40257147432	4	4	3118288744	33580166182	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10518413	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38207575592	4	4	3118288744		ExternalSorter=31324651520;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10528110	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10528509	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10529291	refusal	ExternalSorter[0]	1	2224948224	33374223360	54972284440	4	4	873764696	34141297194	ExternalSorter=50333884416;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	10529611	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	49496194744	4	4	1219076088		ExternalSorter=44512483328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1219076088
+event	10540288	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10541135	refusal	ExternalSorter[1]	1	1884406784	33919322112	71079152320	4	4	20971520	34354495488	ExternalSorter=67293545472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10541712	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	69026564800	4	4	20971520		ExternalSorter=65240957952;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10542383	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	53954639064	4	4	183141912		ExternalSorter=50006861824;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183141912
+event	10553300	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10553652	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10555643	refusal	ExternalSorter[1]	1	1884406784	33919322112	39248344920	4	4	1564387480	33968641498	ExternalSorter=33919322112;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1564387480
+event	10556009	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	38054265928	4	4	2082354568		ExternalSorter=32207276032;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2082354568
+event	10564546	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10564859	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10568890	refusal	ExternalSorter[1]	1	1884406784	33919322112	39105551032	4	4	1391436792	34011879170	ExternalSorter=33949478912;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1391436792
+event	10569194	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	37223569944	4	4	1218486104		ExternalSorter=32240448512;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218486104
+event	10575375	refusal	ExternalSorter[0]	1	2224948224	33374223360	37894510024	4	4	701109000	34184461118	ExternalSorter=33428765696;FinalHashAggregateStream=3764635328;ExternalSorterMerge=701109000
+event	10575865	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35499331800	4	4	355502616		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355502616
+event	10581846	refusal	ExternalSorter[1]	1	1884406784	33919322112	38943121000	4	4	1218781096	34055043094	ExternalSorter=33959704576;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218781096
+event	10582209	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	37060844920	4	4	1045535416		ExternalSorter=32250674176;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1045535416
+event	10587765	refusal	ExternalSorter[0]	1	2224948224	33374223360	38063855048	4	4	873469704	34141370942	ExternalSorter=33425750016;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873469704
+event	10588156	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	36010972536	4	4	873174712		ExternalSorter=31373162496;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873174712
+event	10594500	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10594954	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10598454	refusal	ExternalSorter[0]	1	2224948224	33374223360	39757274424	4	4	2600321656	33709657954	ExternalSorter=33392317440;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10598950	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37709504744	4	4	2600026664		ExternalSorter=31344842752;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600026664
+event	10607477	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10607775	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10608873	refusal	ExternalSorter[0]	1	2224948224	33374223360	58913753704	4	4	1046420392	34098133270	ExternalSorter=54102697984;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1046420392
+event	10609431	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	55322070792	4	4	1391731784		ExternalSorter=50165703680;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1391731784
+event	10619471	refusal	ExternalSorter[0]	1	2224948224	33374223360	37218306752	4	4	20971520	34354495488	ExternalSorter=33432699904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10619861	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35165719232	4	4	20971520		ExternalSorter=31380112384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10621972	refusal	ExternalSorter[1]	1	1884406784	33919322112	39421000616	4	4	1737043176	33925477574	ExternalSorter=33919322112;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1737043176
+event	10622384	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	38226921624	4	4	2255010264		ExternalSorter=32207276032;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2255010264
+event	10636318	refusal	ExternalSorter[1]	1	1884406784	32034915328	38402887992	4	4	2600321656	33709657954	ExternalSorter=32037931008;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10636662	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36690841912	4	4	2600321656		ExternalSorter=30325884928;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10649225	refusal	ExternalSorter[1]	1	1884406784	33919322112	37754358464	4	4	20971520	34354495488	ExternalSorter=33968751616;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10649688	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36042312384	4	4	20971520		ExternalSorter=32256705536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10652371	refusal	ExternalSorter[0]	1	2224948224	33374223360	37494656296	4	4	355797608	34270788966	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	10652901	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35442068776	4	4	355797608		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	10666125	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10666465	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10670714	refusal	ExternalSorter[1]	1	1884406784	33919322112	38942202472	4	4	1218781096	34055043094	ExternalSorter=33958786048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218781096
+event	10671180	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36887860680	4	4	873469704		ExternalSorter=32249755648;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873469704
+event	10677161	refusal	ExternalSorter[0]	1	2224948224	33374223360	39603596440	4	4	2427370968	33752895626	ExternalSorter=33411590144;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427370968
+event	10677566	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37381368904	4	4	2254715272		ExternalSorter=31362018304;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2254715272
+event	10687147	refusal	ExternalSorter[0]	1	2224948224	33374223360	52235084480	4	4	20971520	34354495488	ExternalSorter=48449477632;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10687539	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	50182496960	4	4	20971520		ExternalSorter=46396890112;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10689694	refusal	ExternalSorter[1]	1	1884406784	33919322112	38903033528	4	4	1219076088	34054969346	ExternalSorter=33919322112;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1219076088
+event	10689913	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	37536298840	4	4	1564387480		ExternalSorter=32207276032;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1564387480
+event	10701363	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10701731	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10710927	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10711217	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10713193	refusal	ExternalSorter[0]	1	2224948224	33374223360	40084491736	4	4	2945633048	33623330106	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2945633048
+event	10713579	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38204559912	4	4	3118288744		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10723944	refusal	ExternalSorter[1]	1	1884406784	33919322112	37750164160	4	4	20971520	34354495488	ExternalSorter=33964557312;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10724504	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36038118080	4	4	20971520		ExternalSorter=32252511232;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10725413	refusal	ExternalSorter[0]	1	2224948224	33374223360	39897030168	4	4	873764696	34141297194	ExternalSorter=35258630144;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	10725864	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37844442648	4	4	873764696		ExternalSorter=33206042624;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	10737420	refusal	ExternalSorter[0]	1	2224948224	33374223360	40928643776	4	4	20971520	34354495488	ExternalSorter=37143036928;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10737491	refusal	ExternalSorter[1]	1	1884406784	33919322112	71079152320	4	4	20971520	34354495488	ExternalSorter=67293545472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10737858	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	69026564800	4	4	20971520		ExternalSorter=65240957952;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10738274	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	56179587288	4	4	183141912		ExternalSorter=52231810048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183141912
+event	10751549	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10751839	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10760309	refusal	ExternalSorter[0]	1	2224948224	33374223360	37551919320	4	4	355502616	34270862714	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355502616
+event	10760788	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10767005	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10767334	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10771462	refusal	ExternalSorter[0]	1	2224948224	33374223360	40278257192	4	4	3118288744	33580166182	ExternalSorter=33395333120;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10771863	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38230782504	4	4	3118288744		ExternalSorter=31347858432;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10780167	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10780460	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10782813	refusal	ExternalSorter[0]	1	2224948224	33374223360	39048557560	4	4	1909698872	33882313650	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1909698872
+event	10783144	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37168625736	4	4	2082354568		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2082354568
+event	10794413	refusal	ExternalSorter[0]	1	2224948224	33374223360	37222501056	4	4	20971520	34354495488	ExternalSorter=33436894208;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10794643	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35169913536	4	4	20971520		ExternalSorter=31384306688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10796486	refusal	ExternalSorter[1]	1	1884406784	32034915328	38399872312	4	4	2600321656	33709657954	ExternalSorter=32034915328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10796950	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36687826232	4	4	2600321656		ExternalSorter=30322869248;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10806555	refusal	ExternalSorter[0]	1	2224948224	33374223360	37215291072	4	4	20971520	34354495488	ExternalSorter=33429684224;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10806928	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35162703552	4	4	20971520		ExternalSorter=31377096704;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10811179	refusal	ExternalSorter[1]	1	1884406784	33919322112	38770170312	4	4	1045830408	34098280766	ExternalSorter=33959704576;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1045830408
+event	10811552	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36716123512	4	4	700814008		ExternalSorter=32250674176;FinalHashAggregateStream=3764635328;ExternalSorterMerge=700814008
+event	10817064	refusal	ExternalSorter[0]	1	2224948224	33374223360	37890020728	4	4	700814008	34184534866	ExternalSorter=33424571392;FinalHashAggregateStream=3764635328;ExternalSorterMerge=700814008
+event	10817461	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35324873944	4	4	183141912		ExternalSorter=31377096704;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183141912
+event	10824173	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10824502	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10828531	refusal	ExternalSorter[0]	1	2224948224	33374223360	40272225832	4	4	3118288744	33580166182	ExternalSorter=33389301760;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10828905	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38222653992	4	4	3118288744		ExternalSorter=31339729920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10837220	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10837607	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10839348	refusal	ExternalSorter[0]	1	2224948224	33374223360	39221213256	4	4	2082354568	33839149726	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2082354568
+event	10839649	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37341281432	4	4	2255010264		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2255010264
+event	10850889	refusal	ExternalSorter[0]	1	2224948224	33374223360	37218306752	4	4	20971520	34354495488	ExternalSorter=33432699904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10851236	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35165719232	4	4	20971520		ExternalSorter=31380112384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10854521	refusal	ExternalSorter[1]	1	1884406784	32034915328	38411935032	4	4	2600321656	33709657954	ExternalSorter=32046978048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	10854928	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36702609640	4	4	2600026664		ExternalSorter=30337947648;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600026664
+event	10862405	refusal	ExternalSorter[0]	1	2224948224	33374223360	37211096768	4	4	20971520	34354495488	ExternalSorter=33425489920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10862685	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35158509248	4	4	20971520		ExternalSorter=31372902400;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10866150	refusal	ExternalSorter[1]	1	1884406784	32034915328	38238984344	4	4	2427370968	33752895626	ExternalSorter=32046978048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427370968
+event	10866471	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36357298248	4	4	2254715272		ExternalSorter=30337947648;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2254715272
+event	10873709	refusal	ExternalSorter[0]	1	2224948224	33374223360	37213193920	4	4	20971520	34354495488	ExternalSorter=33427587072;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10874103	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35160606400	4	4	20971520		ExternalSorter=31374999552;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10879956	refusal	ExternalSorter[1]	1	1884406784	33919322112	38941907480	4	4	1218486104	34055116842	ExternalSorter=33958786048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218486104
+event	10880238	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36887860680	4	4	873469704		ExternalSorter=32249755648;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873469704
+event	10885958	refusal	ExternalSorter[0]	1	2224948224	33374223360	38236805736	4	4	1046420392	34098133270	ExternalSorter=33425750016;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1046420392
+event	10886315	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35841627512	4	4	700814008		ExternalSorter=31376178176;FinalHashAggregateStream=3764635328;ExternalSorterMerge=700814008
+event	10892588	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10892972	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10897293	refusal	ExternalSorter[0]	1	2224948224	33374223360	39942876472	4	4	2772682360	33666567778	ExternalSorter=33405558784;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2772682360
+event	10897611	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37722451096	4	4	2599731672		ExternalSorter=31358084096;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2599731672
+event	10905257	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10905601	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10908052	refusal	ExternalSorter[0]	1	2224948224	33374223360	40260163112	4	4	3118288744	33580166182	ExternalSorter=33377239040;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10908468	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38212688424	4	4	3118288744		ExternalSorter=31329764352;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10917829	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10918091	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	38217831104	4	4	20971520		ExternalSorter=34432224256;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10918201	refusal	ExternalSorter[0]	1	2224948224	33374223360	69194745536	4	4	20971520	34354495488	ExternalSorter=65409138688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10918550	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	59939356968	4	4	355797608		ExternalSorter=55818924032;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	10931849	refusal	ExternalSorter[0]	1	2224948224	33374223360	38406445752	4	4	1219076088	34054969346	ExternalSorter=33422734336;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1219076088
+event	10932130	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	36353563240	4	4	1218781096		ExternalSorter=31370146816;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218781096
+event	10939653	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10940180	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10942154	refusal	ExternalSorter[0]	1	2224948224	33374223360	40257147432	4	4	3118288744	33580166182	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10942516	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38209672744	4	4	3118288744		ExternalSorter=31326748672;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	10952049	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10952507	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10953155	refusal	ExternalSorter[1]	1	1884406784	33919322112	56184652232	4	4	701109000	34184461118	ExternalSorter=51718907904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=701109000
+event	10953447	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	50195365400	4	4	873764696		ExternalSorter=45556965376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	10962520	refusal	ExternalSorter[0]	1	2224948224	33374223360	37222501056	4	4	20971520	34354495488	ExternalSorter=33436894208;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10962915	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35169913536	4	4	20971520		ExternalSorter=31384306688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10966132	refusal	ExternalSorter[1]	1	1884406784	32034915328	38242295016	4	4	2427665960	33752821878	ExternalSorter=32049993728;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	10966506	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36533264616	4	4	2427665960		ExternalSorter=30340963328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	10973395	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10973824	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10977963	refusal	ExternalSorter[1]	1	1884406784	32034915328	37740323512	4	4	1908518904	33882608642	ExternalSorter=32067169280;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1908518904
+event	10978374	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	35341555304	4	4	1218781096		ExternalSorter=30358138880;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218781096
+event	10984155	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10984480	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	10990361	refusal	ExternalSorter[1]	1	1884406784	33919322112	38935911016	4	4	1218781096	34055043094	ExternalSorter=33952494592;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1218781096
+event	10990748	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	37053929928	4	4	1045830408		ExternalSorter=32243464192;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1045830408
+event	10996327	refusal	ExternalSorter[0]	1	2224948224	33374223360	38923232872	4	4	1735863208	33925772566	ExternalSorter=33422734336;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1735863208
+event	10996832	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	36183628232	4	4	1045830408		ExternalSorter=31373162496;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1045830408
+event	11002963	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11003286	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11006675	refusal	ExternalSorter[0]	1	2224948224	33374223360	39221213256	4	4	2082354568	33839149726	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2082354568
+event	11007105	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37513937128	4	4	2427665960		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	11018954	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11019182	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11020038	refusal	ExternalSorter[1]	1	1884406784	33919322112	60634548680	4	4	701109000	34184461118	ExternalSorter=56168804352;FinalHashAggregateStream=3764635328;ExternalSorterMerge=701109000
+event	11020317	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	59095158296	4	4	873764696		ExternalSorter=54456758272;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	11029498	refusal	ExternalSorter[0]	1	2224948224	33374223360	37222501056	4	4	20971520	34354495488	ExternalSorter=33436894208;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11029864	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35169913536	4	4	20971520		ExternalSorter=31384306688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11033456	refusal	ExternalSorter[1]	1	1884406784	32034915328	37735177128	4	4	1909403880	33882387398	ExternalSorter=32061137920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1909403880
+event	11033918	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	35853491032	4	4	1736748184		ExternalSorter=30352107520;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1736748184
+event	11040760	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11041163	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11045765	refusal	ExternalSorter[1]	1	1884406784	33919322112	38251319592	4	4	528158312	34227698790	ExternalSorter=33958525952;FinalHashAggregateStream=3764635328;ExternalSorterMerge=528158312
+event	11046184	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36038118080	4	4	20971520		ExternalSorter=32252511232;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11050926	refusal	ExternalSorter[0]	1	2224948224	33374223360	39603596440	4	4	2427370968	33752895626	ExternalSorter=33411590144;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427370968
+event	11051352	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37550713928	4	4	2427075976		ExternalSorter=31359002624;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427075976
+event	11058609	refusal	ExternalSorter[1]	1	1884406784	33919322112	37752261312	4	4	20971520	34354495488	ExternalSorter=33966654464;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11058895	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36040215232	4	4	20971520		ExternalSorter=32254608384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11061744	refusal	ExternalSorter[0]	1	2224948224	33374223360	40262883800	4	4	3117993752	33580239930	ExternalSorter=33380254720;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3117993752
+event	11062041	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38040951256	4	4	2945633048		ExternalSorter=31330682880;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2945633048
+event	11071805	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11072205	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11072792	refusal	ExternalSorter[0]	1	2224948224	33374223360	58741098008	4	4	873764696	34141297194	ExternalSorter=54102697984;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	11073545	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	48129755048	4	4	1737043176		ExternalSorter=42628076544;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1737043176
+event	11084471	refusal	ExternalSorter[1]	1	1884406784	33919322112	37758552768	4	4	20971520	34354495488	ExternalSorter=33972945920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11084746	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36046506688	4	4	20971520		ExternalSorter=32260899840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11084875	refusal	ExternalSorter[0]	1	2224948224	33374223360	69194745536	4	4	20971520	34354495488	ExternalSorter=65409138688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11085176	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	63708170536	4	4	355797608		ExternalSorter=59587737600;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	11095872	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11096208	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11098846	refusal	ExternalSorter[1]	1	1884406784	32034915328	38239279336	4	4	2427665960	33752821878	ExternalSorter=32046978048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	11099208	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36527233256	4	4	2427665960		ExternalSorter=30334931968;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	11106638	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11106869	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11120817	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11121207	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11121570	refusal	ExternalSorter[1]	1	1884406784	33919322112	57891928360	4	4	183436904	34313879142	ExternalSorter=53943856128;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183436904
+event	11121840	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	56524898680	4	4	528453304		ExternalSorter=52231810048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=528453304
+event	11131703	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11132025	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11134115	refusal	ExternalSorter[1]	1	1884406784	32034915328	38233247976	4	4	2427665960	33752821878	ExternalSorter=32040946688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	11134543	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36521201896	4	4	2427665960		ExternalSorter=30328900608;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	11143675	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11143950	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11146079	refusal	ExternalSorter[1]	1	1884406784	32034915328	38054560920	4	4	2255010264	33795985802	ExternalSorter=32034915328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2255010264
+event	11146368	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36687826232	4	4	2600321656		ExternalSorter=30322869248;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11155151	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11155401	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11158647	refusal	ExternalSorter[1]	1	1884406784	32034915328	38414950712	4	4	2600321656	33709657954	ExternalSorter=32049993728;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11158934	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36705920312	4	4	2600321656		ExternalSorter=30340963328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11166006	refusal	ExternalSorter[0]	1	2224948224	33374223360	37219485376	4	4	20971520	34354495488	ExternalSorter=33433878528;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11166303	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35166897856	4	4	20971520		ExternalSorter=31381291008;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11170887	refusal	ExternalSorter[1]	1	1884406784	33919322112	37909318872	4	4	183141912	34313952890	ExternalSorter=33961541632;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183141912
+event	11171233	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36038118080	4	4	20971520		ExternalSorter=32252511232;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11176080	refusal	ExternalSorter[0]	1	2224948224	33374223360	39770220776	4	4	2600026664	33709731702	ExternalSorter=33405558784;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600026664
+event	11176449	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37375337544	4	4	2254715272		ExternalSorter=31355986944;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2254715272
+event	11183798	refusal	ExternalSorter[1]	1	1884406784	33919322112	37754358464	4	4	20971520	34354495488	ExternalSorter=33968751616;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11184253	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36042312384	4	4	20971520		ExternalSorter=32256705536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11186933	refusal	ExternalSorter[0]	1	2224948224	33374223360	39920883080	4	4	2772977352	33666494030	ExternalSorter=33383270400;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2772977352
+event	11187259	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37871311240	4	4	2772977352		ExternalSorter=31333698560;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2772977352
+event	11196511	refusal	ExternalSorter[1]	1	1884406784	33919322112	37762747072	4	4	20971520	34354495488	ExternalSorter=33977140224;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11196753	refusal	ExternalSorter[0]	1	2224948224	33374223360	71079152320	4	4	20971520	34354495488	ExternalSorter=67293545472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11196882	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	69367106240	4	4	20971520		ExternalSorter=65581499392;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11197376	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	54286136616	4	4	355797608		ExternalSorter=50165703680;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	11207719	refusal	ExternalSorter[0]	1	2224948224	33374223360	37218306752	4	4	20971520	34354495488	ExternalSorter=33432699904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11208118	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35165719232	4	4	20971520		ExternalSorter=31380112384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11209677	refusal	ExternalSorter[1]	1	1884406784	32034915328	38054560920	4	4	2255010264	33795985802	ExternalSorter=32034915328;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2255010264
+event	11210090	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36687826232	4	4	2600321656		ExternalSorter=30322869248;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11221410	refusal	ExternalSorter[1]	1	1884406784	33919322112	37758552768	4	4	20971520	34354495488	ExternalSorter=33972945920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11221625	refusal	ExternalSorter[0]	1	2224948224	33374223360	71079152320	4	4	20971520	34354495488	ExternalSorter=67293545472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11221817	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	69367106240	4	4	20971520		ExternalSorter=65581499392;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11223608	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	45382069784	4	4	873764696		ExternalSorter=40743669760;FinalHashAggregateStream=3764635328;ExternalSorterMerge=873764696
+event	11233667	refusal	ExternalSorter[0]	1	2224948224	33374223360	37218306752	4	4	20971520	34354495488	ExternalSorter=33432699904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11233958	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35165719232	4	4	20971520		ExternalSorter=31380112384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11236646	refusal	ExternalSorter[1]	1	1884406784	32034915328	38236263656	4	4	2427665960	33752821878	ExternalSorter=32043962368;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427665960
+event	11237093	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36526938264	4	4	2427370968		ExternalSorter=30334931968;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2427370968
+event	11244929	refusal	ExternalSorter[0]	1	2224948224	33374223360	37211096768	4	4	20971520	34354495488	ExternalSorter=33425489920;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11245225	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35158509248	4	4	20971520		ExternalSorter=31372902400;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11248769	refusal	ExternalSorter[1]	1	1884406784	32034915328	38414032184	4	4	2600321656	33709657954	ExternalSorter=32049075200;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11249188	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36705001784	4	4	2600321656		ExternalSorter=30340044800;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11260395	refusal	ExternalSorter[0]	1	2224948224	33374223360	37213193920	4	4	20971520	34354495488	ExternalSorter=33427587072;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11260659	refusal	ExternalSorter[1]	1	1884406784	33919322112	71079152320	4	4	20971520	34354495488	ExternalSorter=67293545472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11260677	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	69026564800	4	4	20971520		ExternalSorter=65240957952;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11260992	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	58577191208	4	4	355797608		ExternalSorter=54456758272;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	11273395	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11273716	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11274382	refusal	ExternalSorter[1]	1	1884406784	33919322112	66964081960	4	4	355797608	34270788966	ExternalSorter=62843649024;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355797608
+event	11274633	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	60974795128	4	4	528453304		ExternalSorter=56681706496;FinalHashAggregateStream=3764635328;ExternalSorterMerge=528453304
+event	11284622	refusal	ExternalSorter[0]	1	2224948224	33374223360	37218306752	4	4	20971520	34354495488	ExternalSorter=33432699904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11284932	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35165719232	4	4	20971520		ExternalSorter=31380112384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11287992	refusal	ExternalSorter[1]	1	1884406784	32034915328	38411935032	4	4	2600321656	33709657954	ExternalSorter=32046978048;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11288391	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36699888952	4	4	2600321656		ExternalSorter=30334931968;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11295796	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11296218	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11300886	refusal	ExternalSorter[1]	1	1884406784	32034915328	37905735672	4	4	2082059576	33839223474	ExternalSorter=32059040768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2082059576
+event	11301302	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36023754584	4	4	1909108888		ExternalSorter=30350010368;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1909108888
+event	11307317	refusal	ExternalSorter[0]	1	2224948224	33374223360	37890904360	4	4	700519016	34184608614	ExternalSorter=33425750016;FinalHashAggregateStream=3764635328;ExternalSorterMerge=700519016
+event	11307714	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35496316120	4	4	355502616		ExternalSorter=31376178176;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355502616
+event	11313227	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11313508	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11317819	refusal	ExternalSorter[0]	1	2224948224	33374223360	40271307304	4	4	3118288744	33580166182	ExternalSorter=33388383232;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	11318120	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38221735464	4	4	3118288744		ExternalSorter=31338811392;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	11326761	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11327075	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11328712	refusal	ExternalSorter[0]	1	2224948224	33374223360	39393868952	4	4	2255010264	33795985802	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2255010264
+event	11329151	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37859248520	4	4	2772977352		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2772977352
+event	11338919	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11339075	refusal	ExternalSorter[1]	1	1884406784	33919322112	71079152320	4	4	20971520	34354495488	ExternalSorter=67293545472;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11339342	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	69026564800	4	4	20971520		ExternalSorter=65240957952;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11339617	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	58404535512	4	4	183141912		ExternalSorter=54456758272;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183141912
+event	11351022	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11351352	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11353433	refusal	ExternalSorter[1]	1	1884406784	32034915328	38402887992	4	4	2600321656	33709657954	ExternalSorter=32037931008;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11353855	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36693857592	4	4	2600321656		ExternalSorter=30328900608;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11361998	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11362359	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11368208	refusal	ExternalSorter[1]	1	1884406784	33919322112	37750164160	4	4	20971520	34354495488	ExternalSorter=33964557312;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11368495	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36038118080	4	4	20971520		ExternalSorter=32252511232;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11372563	refusal	ExternalSorter[0]	1	2224948224	33374223360	40283075032	4	4	3117993752	33580239930	ExternalSorter=33400445952;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3117993752
+event	11372845	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38061142488	4	4	2945633048		ExternalSorter=31350874112;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2945633048
+event	11380753	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11381180	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11383282	refusal	ExternalSorter[0]	1	2224948224	33374223360	40084491736	4	4	2945633048	33623330106	ExternalSorter=33374223360;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2945633048
+event	11383679	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38204559912	4	4	3118288744		ExternalSorter=31321635840;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3118288744
+event	11394001	refusal	ExternalSorter[1]	1	1884406784	32034915328	38420063544	4	4	2600321656	33709657954	ExternalSorter=32055106560;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11394414	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	36713130296	4	4	2600321656		ExternalSorter=30348173312;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600321656
+event	11401221	refusal	ExternalSorter[0]	1	2224948224	33374223360	37217388224	4	4	20971520	34354495488	ExternalSorter=33431781376;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11401519	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11406051	refusal	ExternalSorter[1]	1	1884406784	32034915328	37912650664	4	4	2081764584	33839297222	ExternalSorter=32066250752;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2081764584
+event	11406505	release_after_refusal	ExternalSorter[1]	1	1712046080	30322869248	35858603864	4	4	1736748184		ExternalSorter=30357220352;FinalHashAggregateStream=3764635328;ExternalSorterMerge=1736748184
+event	11412211	refusal	ExternalSorter[0]	1	2224948224	33374223360	37548903640	4	4	355502616	34270862714	ExternalSorter=33428765696;FinalHashAggregateStream=3764635328;ExternalSorterMerge=355502616
+event	11412655	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35164800704	4	4	20971520		ExternalSorter=31379193856;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11418220	refusal	ExternalSorter[1]	1	1884406784	33919322112	37756455616	4	4	20971520	34354495488	ExternalSorter=33970848768;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11418646	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36044409536	4	4	20971520		ExternalSorter=32258802688;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11422921	refusal	ExternalSorter[0]	1	2224948224	33374223360	39773236456	4	4	2600026664	33709731702	ExternalSorter=33408574464;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2600026664
+event	11423328	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	37550418936	4	4	2426780984		ExternalSorter=31359002624;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2426780984
+event	11430623	refusal	ExternalSorter[1]	1	1884406784	33919322112	37752261312	4	4	20971520	34354495488	ExternalSorter=33966654464;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11430957	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	36040215232	4	4	20971520		ExternalSorter=32254608384;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11433947	refusal	ExternalSorter[0]	1	2224948224	33374223360	40259868120	4	4	3117993752	33580239930	ExternalSorter=33377239040;FinalHashAggregateStream=3764635328;ExternalSorterMerge=3117993752
+event	11434382	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	38037935576	4	4	2945633048		ExternalSorter=31327667200;FinalHashAggregateStream=3764635328;ExternalSorterMerge=2945633048
+event	11444151	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11444581	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11444852	refusal	ExternalSorter[1]	1	1884406784	33919322112	55666685144	4	4	183141912	34313952890	ExternalSorter=51718907904;FinalHashAggregateStream=3764635328;ExternalSorterMerge=183141912
+event	11445241	release_after_refusal	ExternalSorter[1]	1	1712046080	32207276032	52075002232	4	4	528453304		ExternalSorter=47781913600;FinalHashAggregateStream=3764635328;ExternalSorterMerge=528453304
+event	11457017	refusal	ExternalSorter[0]	1	2224948224	33374223360	37220403904	4	4	20971520	34354495488	ExternalSorter=33434797056;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11457316	release_after_refusal	ExternalSorter[0]	1	2052587520	31321635840	35167816384	4	4	20971520		ExternalSorter=31382209536;FinalHashAggregateStream=3764635328;ExternalSorterMerge=20971520
+event	11468798	refusal	ExternalSorter[0]	1	2224948224	66748446720	69154548576	2	4	353513472	68542720000	ExternalSorter=66748446720;FinalHashAggregateStream=2052588384;ExternalSorterMerge=353513472
+event	11469840	release_after_refusal	ExternalSorter[0]	1	2052587520	64695859200	67101961056	2	4	353513472		ExternalSorter=64695859200;FinalHashAggregateStream=2052588384;ExternalSorterMerge=353513472
+event	11527765	refusal	ExternalSorter[0]	1	2224948224	66748446720	69156802936	2	4	355767832	68541592820	ExternalSorter=66748446720;FinalHashAggregateStream=2052588384;ExternalSorterMerge=353513472;SortPreservingMergeExec=2254360
+event	11528174	release_after_refusal	ExternalSorter[0]	1	2052587520	64695859200	67104215416	2	4	355767832		ExternalSorter=64695859200;FinalHashAggregateStream=2052588384;ExternalSorterMerge=353513472;SortPreservingMergeExec=2254360

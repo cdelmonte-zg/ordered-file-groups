@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   555           2.6 K      31      
-  abandoned :    28         986          10      
-  reclaima  :    13      
-  reclaimf  :   788      
-  reabandon :    71      
+  pages     :   441           2.6 K      33      
+  abandoned :    38           1.1 K      12      
+  reclaima  :    21      
+  reclaimf  :   882      
+  reabandon :    68      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   718.8 MiB   718.8 MiB   718.8 MiB                          
+  committed :   727.3 MiB   727.3 MiB   727.3 MiB                          
   reset     :     0      
-  purged    :   713.3 MiB
+  purged    :   721.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   319      
+  purges    :   386      
   guarded   :     0      
-  theaps    :    65          65           0      
+  theaps    :    89          89           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    66          66           1      
+  threads   :    90          90           1      
   numa nodes:     1
-  elapsed   :     0.113 s
-  process   : user: 0.538 s, system: 0.189 s, faults: 0, peak rss: 568.1 MiB, peak commit: 718.8 MiB
+  elapsed   :     0.108 s
+  process   : user: 0.509 s, system: 0.198 s, faults: 0, peak rss: 562.8 MiB, peak commit: 727.3 MiB
 
-BENCH wall=0.11 user=0.53 sys=0.19 rss_kb=581800 minor=4841
+BENCH wall=0.11 user=0.50 sys=0.19 rss_kb=576380 minor=4898

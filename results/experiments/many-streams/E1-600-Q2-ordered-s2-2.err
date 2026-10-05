@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.1 K       4.8 K      35      
-  abandoned :   188           1.0 K      14      
-  reclaima  :    71      
-  reclaimf  :   619      
-  reabandon :   351      
+  pages     :     1.3 K       4.7 K      35      
+  abandoned :   315           1.1 K      14      
+  reclaima  :    78      
+  reclaimf  :   666      
+  reabandon :   409      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   705.3 MiB   705.3 MiB   705.3 MiB                          
+  committed :   678.9 MiB   678.9 MiB   678.9 MiB                          
   reset     :     0      
-  purged    :   696.5 MiB
+  purged    :   670.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   945      
+  purges    :   814      
   guarded   :     0      
-  theaps    :   310         310           0      
+  theaps    :   241         241           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   311         311           1      
+  threads   :   242         242           1      
   numa nodes:     1
-  elapsed   :     0.157 s
-  process   : user: 0.527 s, system: 0.298 s, faults: 0, peak rss: 683.8 MiB, peak commit: 705.3 MiB
+  elapsed   :     0.149 s
+  process   : user: 0.562 s, system: 0.224 s, faults: 0, peak rss: 640.7 MiB, peak commit: 678.9 MiB
 
-BENCH wall=0.16 user=0.52 sys=0.29 rss_kb=700308 minor=10361
+BENCH wall=0.15 user=0.56 sys=0.22 rss_kb=656120 minor=9746

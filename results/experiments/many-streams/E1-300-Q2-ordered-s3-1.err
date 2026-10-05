@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   976           2.7 K      33      
-  abandoned :   129         706          12      
-  reclaima  :    17      
-  reclaimf  :   483      
-  reabandon :   134      
+  pages     :   922           2.6 K      33      
+  abandoned :   149         695          12      
+  reclaima  :    20      
+  reclaimf  :   479      
+  reabandon :   124      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   576.3 MiB   576.3 MiB   576.3 MiB                          
+  committed :   569.6 MiB   569.6 MiB   569.6 MiB                          
   reset     :     0      
-  purged    :   570.0 MiB
+  purged    :   563.3 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   689      
+  purges    :   385      
   guarded   :     0      
-  theaps    :   107         107           0      
+  theaps    :    92          92           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   108         108           1      
+  threads   :    93          93           1      
   numa nodes:     1
-  elapsed   :     0.117 s
-  process   : user: 0.487 s, system: 0.175 s, faults: 0, peak rss: 542.9 MiB, peak commit: 576.3 MiB
+  elapsed   :     0.113 s
+  process   : user: 0.460 s, system: 0.187 s, faults: 0, peak rss: 522.6 MiB, peak commit: 569.6 MiB
 
-BENCH wall=0.12 user=0.48 sys=0.17 rss_kb=555948 minor=6354
+BENCH wall=0.11 user=0.46 sys=0.18 rss_kb=535184 minor=6206

@@ -1,0 +1,15 @@
+#pool	name	limit	peak_reserved	refusals	events_dropped
+pool	not fair	2147483648	2147345481	6	0
+#class	class	consumers	can_spill	w_sum_of_peaks	w_largest_peak	w_class_peak	refusals	refused_bytes	w_refusals_then_release	w_consumers_ending_refused
+class	OrderedPartialAggregateStream	32	32	89677014	4609315	21840509	0	0	0	0
+class	RepartitionExec	120	120	1926547350	18137824	1662418351	4	1714119	0	3
+class	RepartitionExec[Merge]	67	0	534318182	17976684	508785547	2	1414899	2	2
+#event	micros	kind	consumer	can_spill	bytes	w_held	reserved	w_registered_spillable	w_registered_unspillable	w_unspillable_bytes	w_fair_quota	w_top_classes
+event	38988	refusal	RepartitionExec[Merge 65]	0	441936	15706876	2147349529	338	76	494325381		RepartitionExec=1647968969;RepartitionExec[Merge]=494325381;OrderedPartialAggregateStream=5051131
+event	39001	refusal	RepartitionExec[79]	1	445880	17517208	2147349529	338	76	494325381		RepartitionExec=1647968969;RepartitionExec[Merge]=494325381;OrderedPartialAggregateStream=5051131
+event	39020	refusal	RepartitionExec[0]	1	492691	17326182	2131681909	338	76	494325381		RepartitionExec=1647968969;RepartitionExec[Merge]=494325381;OrderedPartialAggregateStream=5051131
+event	39039	refusal	RepartitionExec[3]	1	568085	16631892	2131621582	338	76	495300800		RepartitionExec=1646932791;RepartitionExec[Merge]=495300800;OrderedPartialAggregateStream=5051131
+event	39059	refusal	RepartitionExec[0]	1	207463	17326182	2132326378	338	76	495302392		RepartitionExec=1646932791;RepartitionExec[Merge]=495302392;OrderedPartialAggregateStream=5051131
+event	39068	release_after_refusal	RepartitionExec[Merge 65]	0	15667620	39256	2131631004	338	76	481377594		RepartitionExec=1645202279;RepartitionExec[Merge]=481377594;OrderedPartialAggregateStream=5051131
+event	39076	refusal	RepartitionExec[Merge 44]	0	972963	3366946	2131740876	338	76	483109930		RepartitionExec=1643579815;RepartitionExec[Merge]=483109930;OrderedPartialAggregateStream=5051131
+event	39086	release_after_refusal	RepartitionExec[Merge 44]	0	3356526	10420	2129533985	338	76	482416186		RepartitionExec=1642066668;RepartitionExec[Merge]=482416186;OrderedPartialAggregateStream=5051131

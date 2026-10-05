@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.0 K      10.1 K      31      
-  abandoned :   851           9.0 K      10      
-  reclaima  :     1.0 K  
-  reclaimf  :     5.5 K  
-  reabandon :     2.1 K  
+  pages     :   937           8.0 K      27      
+  abandoned :   705           9.3 K       6      
+  reclaima  :     1.5 K  
+  reclaimf  :     5.0 K  
+  reabandon :     2.9 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.7 avg
+  searches  :     2.6 avg
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   595.3 MiB   595.3 MiB   595.3 MiB                          
+  committed :   607.7 MiB   607.7 MiB   607.7 MiB                          
   reset     :     0      
-  purged    :   590.1 MiB
+  purged    :   603.3 MiB
   arenas    :     1      
   rollback  :     0      
   mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   167      
+  purges    :   227      
   guarded   :     0      
-  theaps    :    48          48           0      
+  theaps    :    36          36           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    49          49           1      
+  threads   :    37          37           1      
   numa nodes:     1
-  elapsed   :     0.641 s
-  process   : user: 1.394 s, system: 0.158 s, faults: 0, peak rss: 619.4 MiB, peak commit: 595.3 MiB
+  elapsed   :     0.656 s
+  process   : user: 1.398 s, system: 0.176 s, faults: 0, peak rss: 629.1 MiB, peak commit: 607.7 MiB
 
-BENCH wall=0.64 user=1.39 sys=0.15 rss_kb=634364 minor=10110
+BENCH wall=0.65 user=1.39 sys=0.17 rss_kb=644240 minor=10454

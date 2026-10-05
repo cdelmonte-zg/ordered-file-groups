@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   616           5.0 K      29      
-  abandoned :   355         839           8      
-  reclaima  :   155      
-  reclaimf  :   351      
-  reabandon :   421      
+  pages     :   593           2.7 K      31      
+  abandoned :   339         830          10      
+  reclaima  :   148      
+  reclaimf  :   329      
+  reabandon :   436      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   311.5 MiB   311.5 MiB   311.5 MiB                          
+  committed :   362.7 MiB   362.7 MiB   362.7 MiB                          
   reset     :     0      
-  purged    :   306.9 MiB
+  purged    :   357.6 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   153      
+  purges    :   166      
   guarded   :     0      
-  theaps    :    40          40           0      
+  theaps    :    45          45           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    41          41           1      
+  threads   :    46          46           1      
   numa nodes:     1
-  elapsed   :     0.119 s
-  process   : user: 0.201 s, system: 0.070 s, faults: 0, peak rss: 333.3 MiB, peak commit: 311.5 MiB
+  elapsed   :     0.121 s
+  process   : user: 0.208 s, system: 0.063 s, faults: 0, peak rss: 374.8 MiB, peak commit: 362.7 MiB
 
-BENCH wall=0.12 user=0.20 sys=0.07 rss_kb=341376 minor=8223
+BENCH wall=0.12 user=0.20 sys=0.06 rss_kb=383816 minor=8103

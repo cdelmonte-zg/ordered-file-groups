@@ -1,36 +1,36 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   942           8.9 K      31      
-  abandoned :   159           5.0 K      10      
-  reclaima  :   155      
-  reclaimf  :     4.2 K  
-  reabandon :   178      
+  pages     :     1.0 K      10.3 K      31      
+  abandoned :   230           6.7 K      10      
+  reclaima  :   181      
+  reclaimf  :     5.5 K  
+  reabandon :   262      
   waits     :     0      
   extended  :     0      
   retire    :     0      
-  searches  :     2.3 avg
+  searches  :     2.4 avg
 
  arenas          peak       total     current       block      total#   
-  reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :  1005.8 MiB  1005.8 MiB  1005.8 MiB                          
+  reserved  :     2.0 GiB     2.0 GiB     2.0 GiB                          
+  committed :     1.0 GiB     1.0 GiB     1.0 GiB                          
   reset     :     0      
-  purged    :  1000.3 MiB
-  arenas    :     1      
+  purged    :     1.0 GiB
+  arenas    :     2      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     6      
   commits   :     0      
   resets    :     0      
-  purges    :   347      
+  purges    :   464      
   guarded   :     0      
-  theaps    :    64          64           0      
+  theaps    :    68          68           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    65          65           1      
+  threads   :    69          69           1      
   numa nodes:     1
-  elapsed   :     0.315 s
-  process   : user: 1.247 s, system: 0.405 s, faults: 0, peak rss: 847.9 MiB, peak commit: 1005.8 MiB
+  elapsed   :     0.435 s
+  process   : user: 1.523 s, system: 0.406 s, faults: 0, peak rss: 878.1 MiB, peak commit: 1.0 GiB
 
-BENCH wall=0.31 user=1.24 sys=0.40 rss_kb=868336 minor=4313
+BENCH wall=0.43 user=1.52 sys=0.40 rss_kb=899268 minor=4352

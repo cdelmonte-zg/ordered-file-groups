@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for RepartitionExec[Merge 24] with top memory consumers (across reservations) as:
+  RepartitionExec[Merge 119]#371(can spill: false) consumed 15.5 MB, peak 15.5 MB,
+  RepartitionExec[Merge 109]#471(can spill: false) consumed 14.3 MB, peak 14.3 MB,
+  RepartitionExec[Merge 79]#406(can spill: false) consumed 14.3 MB, peak 14.3 MB.
+Error: Failed to allocate additional 950.2 KB for RepartitionExec[Merge 24] with 5.1 MB already allocated for this reservation - 684.2 KB remain available for the total memory pool: greedy(used: 2047.3 MB, pool_size: 2.0 GB)
+BENCH wall=0.17 user=0.60 sys=0.39 rss_kb=587200 minor=5262

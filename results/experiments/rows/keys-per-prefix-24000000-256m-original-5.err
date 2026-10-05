@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for ExternalSorterMerge[0] with top memory consumers (across reservations) as:
+  ExternalSorterMerge[1]#13(can spill: false) consumed 228.6 MB, peak 228.6 MB,
+  FinalHashAggregateStream[0]#7(can spill: true) consumed 14.8 MB, peak 63.2 MB,
+  ExternalSorterMerge[0]#9(can spill: false) consumed 12.3 MB, peak 34.0 MB.
+Error: Failed to allocate additional 1720.4 KB for ExternalSorterMerge[0] with 12.3 MB already allocated for this reservation - 384.6 KB remain available for the total memory pool: fair(pool_size: 256.0 MB)
+BENCH wall=25.77 user=56.68 sys=6.24 rss_kb=779452 minor=355013

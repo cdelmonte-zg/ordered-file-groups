@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.0 K       9.4 K      31      
-  abandoned :   877           8.9 K      10      
-  reclaima  :   778      
-  reclaimf  :     5.9 K  
-  reabandon :     1.6 K  
+  pages     :   722           9.6 K      31      
+  abandoned :   545           9.0 K      10      
+  reclaima  :   986      
+  reclaimf  :     5.2 K  
+  reabandon :     2.3 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   680.5 MiB   680.5 MiB   680.5 MiB                          
+  committed :   728.6 MiB   728.6 MiB   728.6 MiB                          
   reset     :     0      
-  purged    :   675.2 MiB
+  purged    :   723.4 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   279      
+  purges    :   201      
   guarded   :     0      
-  theaps    :    43          43           0      
+  theaps    :    47          47           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    44          44           1      
+  threads   :    48          48           1      
   numa nodes:     1
-  elapsed   :     0.647 s
-  process   : user: 1.394 s, system: 0.156 s, faults: 0, peak rss: 664.3 MiB, peak commit: 680.5 MiB
+  elapsed   :     0.628 s
+  process   : user: 1.372 s, system: 0.210 s, faults: 0, peak rss: 696.1 MiB, peak commit: 728.6 MiB
 
-BENCH wall=0.65 user=1.39 sys=0.15 rss_kb=680324 minor=6605
+BENCH wall=0.63 user=1.37 sys=0.21 rss_kb=712884 minor=8132

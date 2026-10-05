@@ -1,141 +1,141 @@
-name	case	variant	target	huge_pages	run	ok	wall_s	cpu_s	user_s	sys_s	cores	rss_mb	minor_faults	elapsed_s	scan_groups	error	sort_spills	final_agg_spills	repartition_spills	repartition_out_mb	repartition_send_s
-dedup-150-original	deduplication, 150 files	original	2	off	1	1	0.71	1.69	1.41	0.28	2.38	480	120835	0.674	2		7	10	0	179.8	0.2139
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	1	1	0.41	1.55	1.23	0.32	3.78	799	3810	0.393	150		0	0	216	1137.6	1.92
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	1	1	0.44	1.43	1.12	0.31	3.25	462	112983	0.408	150		0	0	221	1186.6	2.6
-dedup-300-original	deduplication, 300 files	original	2	as set	1	1	0.69	1.58	1.4	0.18	2.29	661	15448	0.676	2		8	10	0	182.7	0.311
-dedup-300-original	deduplication, 300 files	original	2	off	1	1	0.75	1.66	1.41	0.25	2.213	433	112755	0.714	2		7	10	0	186.0	0.2414
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	1	1	0.44	1.51	1.19	0.32	3.432	840	3812	0.418	300		0	0	508	1331.7	3.38
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	1	1	0.49	1.54	1.16	0.38	3.143	493	119107	0.439	300		0	0	493	1278.4	2.06
-dedup-600-original	deduplication, 600 files	original	2	as set	1	1	0.7	1.62	1.41	0.21	2.314	654	20949	0.673	2		8	10	0	186.3	0.1787
-dedup-600-original	deduplication, 600 files	original	2	off	1	1	0.76	1.75	1.45	0.3	2.303	482	135320	0.710	2		7	10	0	188.8	0.2219
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	1	1	0.53	2.13	1.45	0.68	4.019	1715	5535	0.497	599		0	0	1050	1306.4	7.18
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	1	1	0.58	1.75	1.3	0.45	3.017	533	127892	0.514	599		0	0	1100	1390.9	8.56
-dedup-1200-original	deduplication, 1200 files	original	2	as set	1	1	0.76	1.75	1.57	0.18	2.303	612	41071	0.725	2		8	10	0	188.8	0.2623
-dedup-1200-original	deduplication, 1200 files	original	2	off	1	1	0.84	1.88	1.54	0.34	2.238	495	161384	0.772	2		8	10	0	193.2	0.2703
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	1	1	0.63	2.52	1.73	0.79	4.0	1933	6928	0.582	1196		0	0	2170	1431.2	14.07
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	1	1	0.66	2.16	1.55	0.61	3.273	584	141068	0.580	1196		0	0	2180	1427.9	11.27
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	1	1	0.56	2.92	1.94	0.98	5.214	2246	5876	0.505	1196		0	0	4370	832.5	20.01
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	1	1	0.59	2.63	1.78	0.85	4.458	683	170245	0.490	1196		0	0	4360	828.5	17.23
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	1	1	0.74	4.7	2.83	1.87	6.351	3448	6777	0.683	1196		0	33	8540	511.4	23.16
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	1	1	0.77	3.61	2.3	1.31	4.688	818	203403	0.665	1196		0	22	8550	511.0	67.94
-order-1200-original	ORDER BY, 1200 files	original	2	as set	1	1	0.24	0.47	0.33	0.14	1.958	321	52410	0.203	2		0	0	0	0.0	
-order-1200-original	ORDER BY, 1200 files	original	2	off	1	1	0.28	0.51	0.33	0.18	1.821	228	97710	0.226	2		0	0	0	0.0	
-base-original	deduplication, base case (12 files)	original	2	as set	1	1	0.6	1.47	1.35	0.12	2.45	488	2536	0.596	2		7	10	0	212.9	0.2306
-base-original	deduplication, base case (12 files)	original	2	off	1	1	0.68	1.58	1.34	0.24	2.324	435	103476	0.646	2		8	10	0	199.3	0.2748
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	1	1	0.23	0.91	0.4	0.51	3.957	797	54661	0.186	1196		0	0	0	0.0	
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	1	1	0.25	0.74	0.37	0.37	2.96	443	108532	0.185	1196		0	0	0	0.0	
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	1	1	0.35	0.8	0.77	0.03	2.286	335	2509	0.350	4		0	0	0	470.9	0.8105
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	1	1	0.39	0.89	0.8	0.09	2.282	279	63312	0.370	4		0	0	0	470.9	0.842
-dedup-150-original	deduplication, 150 files	original	2	as set	1	1	0.66	1.58	1.4	0.18	2.394	678	7265	0.643	2		8	10	0	184.7	0.2548
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	2	1	0.4	1.49	1.21	0.28	3.725	809	3894	0.383	150		0	0	164	972.0	1.63
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	2	1	0.42	1.36	1.07	0.29	3.238	450	109450	0.379	150		0	0	153	918.2	1.5
-dedup-300-original	deduplication, 300 files	original	2	as set	2	1	0.67	1.57	1.42	0.15	2.343	631	11291	0.652	2		8	10	0	196.2	0.2331
-dedup-300-original	deduplication, 300 files	original	2	off	2	1	0.75	1.67	1.41	0.26	2.227	467	120615	0.708	2		7	10	0	192.9	0.1496
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	2	1	0.45	1.66	1.26	0.4	3.689	968	3967	0.432	300		0	0	517	1291.3	4.64
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	2	1	0.5	1.53	1.16	0.37	3.06	496	119674	0.450	300		0	0	539	1341.9	3.97
-dedup-600-original	deduplication, 600 files	original	2	as set	2	1	0.7	1.63	1.44	0.19	2.329	636	16953	0.673	2		7	10	0	189.5	0.2261
-dedup-600-original	deduplication, 600 files	original	2	off	2	1	0.77	1.74	1.45	0.29	2.26	502	138382	0.716	2		7	10	0	182.9	0.1569
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	2	1	0.52	1.89	1.34	0.55	3.635	1397	4712	0.490	599		0	0	1140	1416.5	8.19
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	2	1	0.54	1.67	1.23	0.44	3.093	514	123683	0.486	599		0	0	1090	1371.8	4.9
-dedup-1200-original	deduplication, 1200 files	original	2	as set	2	1	0.75	1.75	1.53	0.22	2.333	644	48341	0.708	2		8	10	0	194.8	0.2442
-dedup-1200-original	deduplication, 1200 files	original	2	off	2	1	0.85	1.91	1.57	0.34	2.247	501	164267	0.772	2		8	10	0	186.3	0.2971
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	2	1	0.61	2.33	1.63	0.7	3.82	1701	5126	0.562	1196		0	0	2210	1443.3	15.84
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	2	1	0.7	2.23	1.58	0.65	3.186	613	148506	0.604	1196		0	0	2190	1426.4	13.3
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	2	1	0.58	3.04	1.9	1.14	5.241	2496	9268	0.528	1196		0	0	4280	820.6	21.03
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	2	1	0.6	2.6	1.71	0.89	4.333	689	169510	0.504	1196		0	0	4250	813.2	17.95
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	2	1	0.74	4.73	2.9	1.83	6.392	3454	8571	0.688	1196		0	35	8420	510.0	43.17
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	2	1	0.7	4.17	2.83	1.34	5.957	915	229416	0.587	1196		0	48	8130	507.8	23.74
-order-1200-original	ORDER BY, 1200 files	original	2	as set	2	1	0.24	0.48	0.32	0.16	2.0	328	52431	0.203	2		0	0	0	0.0	
-order-1200-original	ORDER BY, 1200 files	original	2	off	2	1	0.28	0.5	0.32	0.18	1.786	226	97092	0.226	2		0	0	0	0.0	
-base-original	deduplication, base case (12 files)	original	2	as set	2	1	0.59	1.44	1.32	0.12	2.441	495	2360	0.588	2		7	10	0	212.9	0.2251
-base-original	deduplication, base case (12 files)	original	2	off	2	1	0.66	1.56	1.33	0.23	2.364	401	94314	0.637	2		7	10	0	211.2	0.224
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	2	1	0.24	0.89	0.42	0.47	3.708	788	55359	0.190	1196		0	0	0	0.0	
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	2	1	0.25	0.78	0.35	0.43	3.12	468	111698	0.182	1196		0	0	0	0.0	
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	2	1	0.35	0.79	0.76	0.03	2.257	359	2555	0.349	4		0	0	0	470.9	0.8248
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	2	1	0.4	0.88	0.78	0.1	2.2	264	59013	0.377	4		0	0	0	470.9	0.8778
-dedup-150-original	deduplication, 150 files	original	2	as set	2	1	0.64	1.59	1.39	0.2	2.484	644	7736	0.625	2		8	10	0	183.0	0.191
-dedup-150-original	deduplication, 150 files	original	2	off	2	1	0.7	1.67	1.39	0.28	2.386	485	121562	0.663	2		8	10	0	181.3	0.1598
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	3	1	0.44	1.46	1.15	0.31	3.318	461	112304	0.400	150		0	0	222	1173.2	2.15
-dedup-300-original	deduplication, 300 files	original	2	as set	3	1	0.66	1.55	1.37	0.18	2.348	627	14107	0.645	2		8	10	0	190.7	0.2351
-dedup-300-original	deduplication, 300 files	original	2	off	3	1	0.74	1.68	1.39	0.29	2.27	485	127128	0.694	2		7	10	0	188.0	0.2619
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	3	1	0.43	1.56	1.22	0.34	3.628	923	3840	0.412	300		0	0	424	1198.2	1.22
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	3	1	0.49	1.52	1.18	0.34	3.102	474	116042	0.443	300		0	0	512	1318.4	3.4
-dedup-600-original	deduplication, 600 files	original	2	as set	3	1	0.7	1.64	1.45	0.19	2.343	651	21806	0.674	2		7	10	0	187.9	0.182
-dedup-600-original	deduplication, 600 files	original	2	off	3	1	0.79	1.75	1.44	0.31	2.215	494	142003	0.735	2		8	10	0	196.3	0.2348
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	3	1	0.52	1.9	1.35	0.55	3.654	1450	4720	0.488	599		0	0	1090	1371.6	7.07
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	3	1	0.55	1.68	1.29	0.39	3.055	514	123453	0.492	599		0	0	1080	1347.2	5.25
-dedup-1200-original	deduplication, 1200 files	original	2	as set	3	1	0.76	1.74	1.52	0.22	2.289	642	37015	0.719	2		7	10	0	194.0	0.2795
-dedup-1200-original	deduplication, 1200 files	original	2	off	3	1	0.85	1.89	1.55	0.34	2.224	488	159640	0.780	2		7	10	0	195.7	0.2441
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	3	1	0.63	2.34	1.61	0.73	3.714	1811	5620	0.582	1196		0	0	2230	1456.2	18.71
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	3	1	0.7	2.2	1.54	0.66	3.143	602	146329	0.615	1196		0	0	2290	1481.9	16.68
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	3	1	0.55	2.78	1.79	0.99	5.055	2179	6791	0.504	1196		0	0	4160	813.0	9.33
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	3	1	0.62	2.62	1.73	0.89	4.226	681	166009	0.525	1196		0	0	4400	832.5	29.58
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	3	1	0.72	4.65	2.94	1.71	6.458	3458	7232	0.663	1196		0	38	8140	506.8	25.57
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	3	1	0.75	3.83	2.53	1.3	5.107	857	212478	0.635	1196		0	31	8410	507.9	28.26
-order-1200-original	ORDER BY, 1200 files	original	2	as set	3	1	0.24	0.48	0.31	0.17	2.0	359	52676	0.203	2		0	0	0	0.0	
-order-1200-original	ORDER BY, 1200 files	original	2	off	3	1	0.28	0.51	0.33	0.18	1.821	228	97787	0.224	2		0	0	0	0.0	
-base-original	deduplication, base case (12 files)	original	2	as set	3	1	0.61	1.45	1.33	0.12	2.377	489	2503	0.609	2		7	10	0	214.5	0.245
-base-original	deduplication, base case (12 files)	original	2	off	3	1	0.69	1.6	1.35	0.25	2.319	447	106299	0.656	2		7	10	0	212.9	0.2534
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	3	1	0.23	0.9	0.45	0.45	3.913	717	44771	0.188	1196		0	0	0	0.0	
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	3	1	0.25	0.69	0.37	0.32	2.76	401	97253	0.180	1196		0	0	0	0.0	
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	3	1	0.35	0.79	0.76	0.03	2.257	348	2465	0.344	4		0	0	0	470.9	0.7946
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	3	1	0.38	0.85	0.76	0.09	2.237	250	55574	0.368	4		0	0	0	470.9	0.8662
-dedup-150-original	deduplication, 150 files	original	2	as set	3	1	0.61	1.52	1.35	0.17	2.492	660	7195	0.602	2		8	10	0	185.5	0.1696
-dedup-150-original	deduplication, 150 files	original	2	off	3	1	0.71	1.66	1.38	0.28	2.338	474	121995	0.671	2		8	10	0	180.5	0.2372
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	3	1	0.4	1.51	1.22	0.29	3.775	838	4359	0.381	150		0	0	155	946.8	1.44
-dedup-300-original	deduplication, 300 files	original	2	as set	4	1	0.66	1.57	1.4	0.17	2.379	616	13319	0.640	2		8	10	0	190.4	0.2274
-dedup-300-original	deduplication, 300 files	original	2	off	4	1	0.73	1.7	1.41	0.29	2.329	485	127833	0.683	2		8	10	0	188.5	0.2427
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	4	1	0.45	1.64	1.26	0.38	3.644	964	3925	0.429	300		0	0	518	1326.4	3.5
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	4	1	0.5	1.54	1.18	0.36	3.08	484	116645	0.450	300		0	0	523	1348.4	2.72
-dedup-600-original	deduplication, 600 files	original	2	as set	4	1	0.7	1.62	1.42	0.2	2.314	640	17002	0.674	2		8	10	0	189.5	0.2317
-dedup-600-original	deduplication, 600 files	original	2	off	4	1	0.78	1.72	1.43	0.29	2.205	485	129837	0.732	2		8	10	0	183.4	0.2621
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	4	1	0.51	1.85	1.33	0.52	3.627	1279	4334	0.478	599		0	0	1110	1363.7	7.53
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	4	1	0.55	1.69	1.25	0.44	3.073	526	127160	0.492	599		0	0	1080	1351.4	7.47
-dedup-1200-original	deduplication, 1200 files	original	2	as set	4	1	0.76	1.75	1.53	0.22	2.303	656	41172	0.721	2		8	10	0	194.2	0.2389
-dedup-1200-original	deduplication, 1200 files	original	2	off	4	1	0.86	1.9	1.55	0.35	2.209	496	163421	0.793	2		8	10	0	194.2	0.2814
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	4	1	0.64	2.59	1.74	0.85	4.047	2096	6219	0.590	1196		0	0	2230	1450.6	18.78
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	4	1	0.69	2.26	1.58	0.68	3.275	606	147003	0.605	1196		0	0	2220	1446.5	15.09
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	4	1	0.55	2.89	1.85	1.04	5.255	2208	5936	0.501	1196		0	0	4250	817.1	17.02
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	4	1	0.61	2.58	1.73	0.85	4.23	680	165728	0.517	1196		0	0	4290	818.6	22.16
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	4	1	0.74	4.73	2.8	1.93	6.392	3458	7221	0.690	1196		0	36	8400	509.1	40.53
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	4	1	0.69	4.22	2.87	1.35	6.116	951	237891	0.581	1196		0	54	8130	506.9	21.59
-order-1200-original	ORDER BY, 1200 files	original	2	as set	4	1	0.24	0.48	0.35	0.13	2.0	374	52607	0.202	2		0	0	0	0.0	
-order-1200-original	ORDER BY, 1200 files	original	2	off	4	1	0.27	0.5	0.33	0.17	1.852	225	97208	0.224	2		0	0	0	0.0	
-base-original	deduplication, base case (12 files)	original	2	as set	4	1	0.6	1.43	1.31	0.12	2.383	501	2595	0.591	2		7	10	0	208.0	0.225
-base-original	deduplication, base case (12 files)	original	2	off	4	1	0.68	1.6	1.35	0.25	2.353	432	102828	0.654	2		8	10	0	208.0	0.2453
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	4	1	0.23	0.91	0.44	0.47	3.957	751	49970	0.181	1196		0	0	0	0.0	
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	4	1	0.24	0.74	0.38	0.36	3.083	448	106728	0.170	1196		0	0	0	0.0	
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	4	1	0.36	0.79	0.76	0.03	2.194	335	2441	0.354	4		0	0	0	470.9	0.8397
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	4	1	0.38	0.86	0.78	0.08	2.263	260	57900	0.366	4		0	0	0	470.9	0.8445
-dedup-150-original	deduplication, 150 files	original	2	as set	4	1	0.62	1.55	1.38	0.17	2.5	633	8100	0.608	2		8	10	0	183.0	0.1788
-dedup-150-original	deduplication, 150 files	original	2	off	4	1	0.69	1.61	1.34	0.27	2.333	463	115053	0.653	2		8	10	0	183.0	0.2042
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	4	1	0.43	1.56	1.22	0.34	3.628	840	4309	0.410	150		0	0	241	1245.5	2.17
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	4	1	0.44	1.42	1.09	0.33	3.227	489	119332	0.397	150		0	0	209	1159.9	1.78
-dedup-300-original	deduplication, 300 files	original	2	off	5	1	0.73	1.68	1.39	0.29	2.301	472	122511	0.693	2		8	10	0	191.2	0.2713
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	5	1	0.46	1.65	1.27	0.38	3.587	1040	4249	0.440	300		0	0	521	1324.9	3.38
-dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	5	1	0.49	1.51	1.16	0.35	3.082	484	116442	0.446	300		0	0	522	1348.9	3.42
-dedup-600-original	deduplication, 600 files	original	2	as set	5	1	0.71	1.65	1.46	0.19	2.324	656	20136	0.680	2		7	10	0	186.8	0.2318
-dedup-600-original	deduplication, 600 files	original	2	off	5	1	0.77	1.74	1.43	0.31	2.26	482	135639	0.718	2		7	10	0	184.9	0.32
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	5	1	0.51	1.88	1.33	0.55	3.686	1348	4619	0.475	599		0	0	1100	1384.3	7.86
-dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	5	1	0.56	1.73	1.29	0.44	3.089	529	127682	0.505	599		0	0	1070	1345.5	4.18
-dedup-1200-original	deduplication, 1200 files	original	2	as set	5	1	0.75	1.74	1.53	0.21	2.32	589	43246	0.712	2		7	10	0	189.7	0.2646
-dedup-1200-original	deduplication, 1200 files	original	2	off	5	1	0.87	1.91	1.56	0.35	2.195	508	165116	0.795	2		8	10	0	194.9	0.2839
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	5	1	0.64	2.5	1.67	0.83	3.906	1836	5630	0.592	1196		0	0	2180	1429.5	13.45
-dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	5	1	0.66	2.22	1.59	0.63	3.364	597	144075	0.574	1196		0	0	2180	1432.0	7.52
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	5	1	0.57	2.99	1.92	1.07	5.246	2456	6385	0.521	1196		0	0	4220	816.2	12.34
-dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	5	1	0.6	2.58	1.72	0.86	4.3	663	161231	0.507	1196		0	0	4270	817.1	16.58
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	5	1	0.74	4.7	2.78	1.92	6.351	3453	8454	0.687	1196		0	32	8290	506.4	29.45
-dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	5	1	0.74	4.09	2.71	1.38	5.527	936	235576	0.623	1196		0	40	8110	503.4	37.61
-order-1200-original	ORDER BY, 1200 files	original	2	as set	5	1	0.24	0.47	0.31	0.16	1.958	335	52433	0.202	2		0	0	0	0.0	
-order-1200-original	ORDER BY, 1200 files	original	2	off	5	1	0.28	0.51	0.32	0.19	1.821	226	97162	0.224	2		0	0	0	0.0	
-base-original	deduplication, base case (12 files)	original	2	as set	5	1	0.59	1.42	1.3	0.12	2.407	468	2545	0.585	2		7	10	0	212.9	0.226
-base-original	deduplication, base case (12 files)	original	2	off	5	1	0.69	1.56	1.35	0.21	2.261	393	92643	0.658	2		7	10	0	211.2	0.253
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	5	1	0.24	0.94	0.4	0.54	3.917	777	53026	0.192	1196		0	0	0	0.0	
-order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	5	1	0.25	0.71	0.38	0.33	2.84	425	101698	0.182	1196		0	0	0	0.0	
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	5	1	0.35	0.79	0.75	0.04	2.257	388	2495	0.349	4		0	0	0	470.9	0.8102
-base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	5	1	0.38	0.85	0.76	0.09	2.237	248	56962	0.363	4		0	0	0	470.9	0.836
-dedup-150-original	deduplication, 150 files	original	2	as set	5	1	0.62	1.55	1.37	0.18	2.5	686	8016	0.611	2		8	10	0	183.0	0.182
-dedup-150-original	deduplication, 150 files	original	2	off	5	1	0.7	1.66	1.38	0.28	2.371	468	118486	0.662	2		7	10	0	187.3	0.2041
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	5	1	0.4	1.47	1.18	0.29	3.675	770	4485	0.385	150		0	0	222	1171.7	1.79
-dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	5	1	0.45	1.4	1.09	0.31	3.111	466	113759	0.407	150		0	0	228	1182.2	2.47
-dedup-300-original	deduplication, 300 files	original	2	as set	5	1	0.67	1.57	1.39	0.18	2.343	646	11909	0.655	2		7	10	0	193.7	0.1605
+name	case	variant	target	huge_pages	run	ok	wall_s	cpu_s	user_s	sys_s	cores	rss_mb	minor_faults	elapsed_s	scan_groups	sort_exec	final_mode	error	sort_spills	final_agg_spills	repartition_spills	repartition_out_mb	partial_agg_spills	sort_spill_mb	final_agg_spill_mb	partial_agg_spill_mb	repartition_spill_mb	repartition_send_s
+dedup-150-original	deduplication, 150 files	original	2	off	1	1	0.71	1.67	1.4	0.27	2.352	496	124994	0.666	2	1	Linear		8	10	0	184.0	0	72.7	73.0	0.0	0.0	0.2733
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	1	1	0.4	1.56	1.2	0.36	3.9	803	4094	0.388	150	0	PartiallySorted([0, 1])		0	0	146	959.8	0	0.0	0.0	0.0	40.1	1.56
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	1	1	0.44	1.42	1.12	0.3	3.227	473	115768	0.403	150	0	PartiallySorted([0, 1])		0	0	204	1102.2	0	0.0	0.0	0.0	48.6	2.16
+dedup-300-original	deduplication, 300 files	original	2	as set	1	1	0.65	1.58	1.39	0.19	2.431	636	13807	0.628	2	1	Linear		8	10	0	191.3	0	72.7	73.0	0.0	0.0	0.2116
+dedup-300-original	deduplication, 300 files	original	2	off	1	1	0.74	1.69	1.41	0.28	2.284	462	119767	0.693	2	1	Linear		7	10	0	189.7	0	72.7	73.0	0.0	0.0	0.2544
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	1	1	0.47	1.66	1.24	0.42	3.532	989	4018	0.449	300	0	PartiallySorted([0, 1])		0	0	519	1319.2	0	0.0	0.0	0.0	63.2	3.85
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	1	1	0.52	1.54	1.16	0.38	2.962	486	117036	0.471	300	0	PartiallySorted([0, 1])		0	0	532	1379.4	0	0.0	0.0	0.0	67.2	3.84
+dedup-600-original	deduplication, 600 files	original	2	as set	1	1	0.72	1.65	1.46	0.19	2.292	622	25479	0.700	2	1	Linear		8	10	0	192.2	0	72.7	73.0	0.0	0.0	0.2216
+dedup-600-original	deduplication, 600 files	original	2	off	1	1	0.77	1.74	1.43	0.31	2.26	449	127460	0.721	2	1	Linear		7	10	0	188.5	0	72.7	73.0	0.0	0.0	0.2795
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	1	1	0.53	2.0	1.42	0.58	3.774	1431	4842	0.498	599	0	PartiallySorted([0, 1])		0	0	1070	1353.1	0	0.0	0.0	0.0	66.7	6.42
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	1	1	0.57	1.74	1.3	0.44	3.053	520	125620	0.512	599	0	PartiallySorted([0, 1])		0	0	1020	1298.7	0	0.0	0.0	0.0	62.8	6.66
+dedup-1200-original	deduplication, 1200 files	original	2	as set	1	1	0.75	1.74	1.53	0.21	2.32	613	36140	0.716	2	1	Linear		8	10	0	190.7	0	72.7	73.0	0.0	0.0	0.2913
+dedup-1200-original	deduplication, 1200 files	original	2	off	1	1	0.87	1.91	1.58	0.33	2.195	489	156799	0.802	2	1	Linear		8	10	0	188.9	0	72.7	73.0	0.0	0.0	0.2781
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	1	1	0.63	2.53	1.71	0.82	4.016	2081	6956	0.578	1196	0	PartiallySorted([0, 1])		0	0	2220	1451.1	0	0.0	0.0	0.0	77.1	9.52
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	1	1	0.68	2.16	1.56	0.6	3.176	573	140993	0.595	1196	0	PartiallySorted([0, 1])		0	0	2240	1461.0	0	0.0	0.0	0.0	78.3	18.06
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	1	1	0.58	2.93	1.87	1.06	5.052	2192	5695	0.533	1196	0	PartiallySorted([0, 1])		0	0	4220	810.9	0	0.0	0.0	0.0	78.6	15.77
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	1	1	0.61	2.54	1.7	0.84	4.164	679	164970	0.517	1196	0	PartiallySorted([0, 1])		0	0	4300	822.2	0	0.0	0.0	0.0	80.6	27.32
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	1	1	0.73	4.74	2.93	1.81	6.493	3424	6920	0.674	1196	0	PartiallySorted([0, 1])		0	43	8210	505.7	0	0.0	100.3	0.0	84.1	26.97
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	1	1	0.79	3.8	2.37	1.43	4.81	873	216685	0.677	1196	0	PartiallySorted([0, 1])		0	29	8700	512.5	0	0.0	71.9	0.0	89.6	43.96
+order-1200-original	ORDER BY, 1200 files	original	2	as set	1	1	0.24	0.49	0.31	0.18	2.042	365	52576	0.202	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-original	ORDER BY, 1200 files	original	2	off	1	1	0.28	0.5	0.34	0.16	1.786	227	97235	0.225	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-original	deduplication, base case (12 files)	original	2	as set	1	1	0.63	1.46	1.32	0.14	2.317	512	2631	0.623	2	1	Linear		8	10	0	216.3	0	72.7	73.0	0.0	0.0	0.2592
+base-original	deduplication, base case (12 files)	original	2	off	1	1	0.68	1.57	1.31	0.26	2.309	410	96513	0.645	2	1	Linear		7	10	0	209.5	0	72.7	73.0	0.0	0.0	0.2235
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	1	1	0.23	0.87	0.43	0.44	3.783	741	47002	0.184	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	1	1	0.26	0.76	0.37	0.39	2.923	424	100920	0.187	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	1	1	0.37	0.81	0.78	0.03	2.189	341	2502	0.366	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8621
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	1	1	0.4	0.89	0.78	0.11	2.225	264	59247	0.378	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8702
+dedup-150-original	deduplication, 150 files	original	2	as set	1	1	0.62	1.56	1.38	0.18	2.516	654	7685	0.608	2	1	Linear		8	10	0	183.8	0	72.7	73.0	0.0	0.0	0.1711
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	2	1	0.41	1.53	1.19	0.34	3.732	838	4005	0.391	150	0	PartiallySorted([0, 1])		0	0	194	1097.5	0	0.0	0.0	0.0	48.1	1.65
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	2	1	0.47	1.45	1.1	0.35	3.085	482	118711	0.433	150	0	PartiallySorted([0, 1])		0	0	234	1174.1	0	0.0	0.0	0.0	54.7	3.78
+dedup-300-original	deduplication, 300 files	original	2	as set	2	1	0.67	1.6	1.42	0.18	2.388	662	12379	0.656	2	1	Linear		8	10	0	189.8	0	72.7	73.0	0.0	0.0	0.2117
+dedup-300-original	deduplication, 300 files	original	2	off	2	1	0.77	1.7	1.42	0.28	2.208	467	120753	0.723	2	1	Linear		8	10	0	186.9	0	72.7	73.0	0.0	0.0	0.2933
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	2	1	0.45	1.54	1.26	0.28	3.422	777	3627	0.432	300	0	PartiallySorted([0, 1])		0	0	457	1244.6	0	0.0	0.0	0.0	58.0	1.81
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	2	1	0.51	1.51	1.13	0.38	2.961	483	116398	0.467	300	0	PartiallySorted([0, 1])		0	0	519	1312.8	0	0.0	0.0	0.0	62.6	3.76
+dedup-600-original	deduplication, 600 files	original	2	as set	2	1	0.7	1.63	1.44	0.19	2.329	620	21235	0.678	2	1	Linear		7	10	0	187.9	0	72.7	73.0	0.0	0.0	0.1793
+dedup-600-original	deduplication, 600 files	original	2	off	2	1	0.79	1.74	1.45	0.29	2.203	489	133134	0.737	2	1	Linear		8	10	0	188.5	0	72.7	73.0	0.0	0.0	0.2467
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	2	1	0.54	1.9	1.35	0.55	3.519	1285	4469	0.505	599	0	PartiallySorted([0, 1])		0	0	1080	1363.1	0	0.0	0.0	0.0	67.3	7.68
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	2	1	0.55	1.66	1.21	0.45	3.018	510	122339	0.496	599	0	PartiallySorted([0, 1])		0	0	1060	1351.1	0	0.0	0.0	0.0	66.4	6.36
+dedup-1200-original	deduplication, 1200 files	original	2	as set	2	1	0.76	1.75	1.51	0.24	2.303	589	39762	0.723	2	1	Linear		7	10	0	191.4	0	72.7	73.0	0.0	0.0	0.2454
+dedup-1200-original	deduplication, 1200 files	original	2	off	2	1	0.85	1.89	1.55	0.34	2.224	472	155909	0.780	2	1	Linear		8	10	0	191.4	0	72.7	73.0	0.0	0.0	0.2292
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	2	1	0.65	2.63	1.71	0.92	4.046	2080	6942	0.604	1196	0	PartiallySorted([0, 1])		0	0	2290	1486.8	0	0.0	0.0	0.0	79.8	22.72
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	2	1	0.71	2.17	1.56	0.61	3.056	593	143064	0.626	1196	0	PartiallySorted([0, 1])		0	0	2230	1453.0	0	0.0	0.0	0.0	77.7	21.2
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	2	1	0.57	3.08	1.92	1.16	5.404	2396	11585	0.518	1196	0	PartiallySorted([0, 1])		0	0	4140	807.8	0	0.0	0.0	0.0	77.7	16.15
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	2	1	0.6	2.61	1.75	0.86	4.35	679	165661	0.503	1196	0	PartiallySorted([0, 1])		0	0	4250	816.0	0	0.0	0.0	0.0	79.2	18.53
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	2	1	0.73	4.83	2.96	1.87	6.616	3400	7133	0.673	1196	0	PartiallySorted([0, 1])		0	40	8200	507.6	0	0.0	97.5	0.0	85.3	26.16
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	2	1	0.75	3.8	2.53	1.27	5.067	870	215430	0.641	1196	0	PartiallySorted([0, 1])		0	34	8350	505.5	0	0.0	78.2	0.0	86.5	38.42
+order-1200-original	ORDER BY, 1200 files	original	2	as set	2	1	0.24	0.49	0.32	0.17	2.042	366	52534	0.203	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-original	ORDER BY, 1200 files	original	2	off	2	1	0.28	0.52	0.35	0.17	1.857	227	97724	0.228	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-original	deduplication, base case (12 files)	original	2	as set	2	1	0.62	1.46	1.33	0.13	2.355	504	2395	0.612	2	1	Linear		7	10	0	214.5	0	72.7	73.0	0.0	0.0	0.2427
+base-original	deduplication, base case (12 files)	original	2	off	2	1	0.71	1.55	1.34	0.21	2.183	396	93033	0.685	2	1	Linear		8	10	0	206.0	0	72.7	73.0	0.0	0.0	0.3145
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	2	1	0.24	0.94	0.45	0.49	3.917	814	57559	0.196	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	2	1	0.26	0.75	0.37	0.38	2.885	442	107002	0.190	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	2	1	0.36	0.8	0.76	0.04	2.222	339	2386	0.360	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8327
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	2	1	0.4	0.88	0.78	0.1	2.2	249	54753	0.382	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8768
+dedup-150-original	deduplication, 150 files	original	2	as set	2	1	0.62	1.55	1.35	0.2	2.5	654	8384	0.608	2	1	Linear		8	10	0	183.0	0	72.7	73.0	0.0	0.0	0.1795
+dedup-150-original	deduplication, 150 files	original	2	off	2	1	0.71	1.65	1.36	0.29	2.324	486	122596	0.668	2	1	Linear		8	10	0	194.3	0	72.7	73.0	0.0	0.0	0.271
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	3	1	0.43	1.42	1.14	0.28	3.302	450	109000	0.389	150	0	PartiallySorted([0, 1])		0	0	182	1003.0	0	0.0	0.0	0.0	43.1	1.73
+dedup-300-original	deduplication, 300 files	original	2	as set	3	1	0.65	1.57	1.38	0.19	2.415	621	12765	0.635	2	1	Linear		7	10	0	191.8	0	72.7	73.0	0.0	0.0	0.1548
+dedup-300-original	deduplication, 300 files	original	2	off	3	1	0.76	1.71	1.44	0.27	2.25	481	124098	0.716	2	1	Linear		8	10	0	187.0	0	72.7	73.0	0.0	0.0	0.2129
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	3	1	0.44	1.58	1.24	0.34	3.591	909	3804	0.426	300	0	PartiallySorted([0, 1])		0	0	442	1198.4	0	0.0	0.0	0.0	54.7	1.26
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	3	1	0.5	1.54	1.15	0.39	3.08	495	119250	0.456	300	0	PartiallySorted([0, 1])		0	0	529	1374.4	0	0.0	0.0	0.0	66.8	3.3
+dedup-600-original	deduplication, 600 files	original	2	as set	3	1	0.71	1.63	1.43	0.2	2.296	636	15612	0.685	2	1	Linear		7	10	0	189.5	0	72.7	73.0	0.0	0.0	0.2285
+dedup-600-original	deduplication, 600 files	original	2	off	3	1	0.77	1.75	1.45	0.3	2.273	454	126574	0.714	2	1	Linear		7	10	0	192.8	0	72.7	73.0	0.0	0.0	0.2212
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	3	1	0.56	2.07	1.38	0.69	3.696	1589	5470	0.532	599	0	PartiallySorted([0, 1])		0	0	1170	1442.7	0	0.0	0.0	0.0	72.8	14.69
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	3	1	0.57	1.73	1.28	0.45	3.035	532	128273	0.515	599	0	PartiallySorted([0, 1])		0	0	1130	1407.9	0	0.0	0.0	0.0	70.5	9.28
+dedup-1200-original	deduplication, 1200 files	original	2	as set	3	1	0.78	1.78	1.56	0.22	2.282	635	43504	0.740	2	1	Linear		7	10	0	194.2	0	72.7	73.0	0.0	0.0	0.26
+dedup-1200-original	deduplication, 1200 files	original	2	off	3	1	0.84	1.88	1.54	0.34	2.238	469	153689	0.766	2	1	Linear		8	10	0	191.7	0	72.7	73.0	0.0	0.0	0.3509
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	3	1	0.63	2.6	1.73	0.87	4.127	2101	7100	0.582	1196	0	PartiallySorted([0, 1])		0	0	2170	1436.4	0	0.0	0.0	0.0	75.9	9.42
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	3	1	0.69	2.25	1.61	0.64	3.261	600	144864	0.603	1196	0	PartiallySorted([0, 1])		0	0	2280	1478.4	0	0.0	0.0	0.0	79.5	15.32
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	3	1	0.56	2.93	1.89	1.04	5.232	2284	5929	0.506	1196	0	PartiallySorted([0, 1])		0	0	4330	828.0	0	0.0	0.0	0.0	81.2	19.04
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	3	1	0.6	2.57	1.74	0.83	4.283	679	165482	0.511	1196	0	PartiallySorted([0, 1])		0	0	4290	816.1	0	0.0	0.0	0.0	79.4	14.85
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	3	1	0.72	4.45	2.73	1.72	6.181	3349	6455	0.666	1196	0	PartiallySorted([0, 1])		0	26	8280	509.7	0	0.0	58.6	0.0	86.0	15.98
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	3	1	0.75	3.78	2.43	1.35	5.04	879	218032	0.635	1196	0	PartiallySorted([0, 1])		0	32	8110	504.2	0	0.0	78.2	0.0	84.3	27.61
+order-1200-original	ORDER BY, 1200 files	original	2	as set	3	1	0.25	0.52	0.34	0.18	2.08	399	52824	0.208	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-original	ORDER BY, 1200 files	original	2	off	3	1	0.28	0.51	0.33	0.18	1.821	227	97491	0.228	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-original	deduplication, base case (12 files)	original	2	as set	3	1	0.62	1.43	1.3	0.13	2.306	493	2515	0.617	2	1	Linear		8	10	0	210.3	0	72.7	73.0	0.0	0.0	0.2621
+base-original	deduplication, base case (12 files)	original	2	off	3	1	0.7	1.59	1.34	0.25	2.271	435	103084	0.668	2	1	Linear		7	10	0	198.3	0	72.7	73.0	0.0	0.0	0.212
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	3	1	0.24	0.94	0.45	0.49	3.917	763	52894	0.191	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	3	1	0.27	0.76	0.37	0.39	2.815	456	110053	0.197	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	3	1	0.37	0.81	0.77	0.04	2.189	342	2526	0.365	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8509
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	3	1	0.39	0.88	0.78	0.1	2.256	275	61342	0.371	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8411
+dedup-150-original	deduplication, 150 files	original	2	as set	3	1	0.62	1.54	1.37	0.17	2.484	641	7665	0.604	2	1	Linear		8	10	0	185.5	0	72.7	73.0	0.0	0.0	0.1713
+dedup-150-original	deduplication, 150 files	original	2	off	3	1	0.75	1.66	1.37	0.29	2.213	489	122933	0.706	2	1	Linear		8	10	0	189.9	0	72.7	73.0	0.0	0.0	0.2434
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	3	1	0.44	1.62	1.21	0.41	3.682	944	5042	0.421	150	0	PartiallySorted([0, 1])		0	0	247	1255.1	0	0.0	0.0	0.0	60.3	3.59
+dedup-300-original	deduplication, 300 files	original	2	as set	4	1	0.66	1.58	1.42	0.16	2.394	609	13675	0.648	2	1	Linear		8	10	0	187.2	0	72.7	73.0	0.0	0.0	0.2481
+dedup-300-original	deduplication, 300 files	original	2	off	4	1	0.75	1.72	1.42	0.3	2.293	478	124713	0.708	2	1	Linear		7	10	0	191.2	0	72.7	73.0	0.0	0.0	0.2579
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	4	1	0.44	1.59	1.23	0.36	3.614	913	3884	0.421	300	0	PartiallySorted([0, 1])		0	0	497	1298.6	0	0.0	0.0	0.0	61.7	2.46
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	4	1	0.49	1.53	1.19	0.34	3.122	480	115212	0.445	300	0	PartiallySorted([0, 1])		0	0	504	1276.0	0	0.0	0.0	0.0	60.4	3.39
+dedup-600-original	deduplication, 600 files	original	2	as set	4	1	0.7	1.63	1.44	0.19	2.329	648	19975	0.676	2	1	Linear		8	10	0	186.3	0	72.7	73.0	0.0	0.0	0.2261
+dedup-600-original	deduplication, 600 files	original	2	off	4	1	0.82	1.76	1.47	0.29	2.146	481	132488	0.771	2	1	Linear		8	10	0	188.8	0	72.7	73.0	0.0	0.0	0.3206
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	4	1	0.53	2.05	1.44	0.61	3.868	1581	5198	0.500	599	0	PartiallySorted([0, 1])		0	0	1070	1357.8	0	0.0	0.0	0.0	66.9	6.55
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	4	1	0.55	1.71	1.25	0.46	3.109	526	126559	0.493	599	0	PartiallySorted([0, 1])		0	0	1090	1369.6	0	0.0	0.0	0.0	67.9	6.58
+dedup-1200-original	deduplication, 1200 files	original	2	as set	4	1	0.77	1.76	1.53	0.23	2.286	639	48231	0.733	2	1	Linear		8	10	0	193.3	0	72.7	73.0	0.0	0.0	0.2214
+dedup-1200-original	deduplication, 1200 files	original	2	off	4	1	0.84	1.92	1.55	0.37	2.286	501	163524	0.769	2	1	Linear		8	10	0	194.0	0	72.7	73.0	0.0	0.0	0.3222
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	4	1	0.65	2.67	1.72	0.95	4.108	2126	6251	0.597	1196	0	PartiallySorted([0, 1])		0	0	2240	1447.9	0	0.0	0.0	0.0	77.4	23.98
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	4	1	0.69	2.27	1.57	0.7	3.29	602	145310	0.597	1196	0	PartiallySorted([0, 1])		0	0	2170	1430.9	0	0.0	0.0	0.0	75.7	10.77
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	4	1	0.56	2.9	1.89	1.01	5.179	2120	5509	0.509	1196	0	PartiallySorted([0, 1])		0	0	4120	804.1	0	0.0	0.0	0.0	77.3	18.51
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	4	1	0.59	2.58	1.7	0.88	4.373	662	161017	0.501	1196	0	PartiallySorted([0, 1])		0	0	4120	804.4	0	0.0	0.0	0.0	77.2	17.76
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	4	1	0.76	4.6	2.75	1.85	6.053	3496	7213	0.703	1196	0	PartiallySorted([0, 1])		0	26	8220	506.9	0	0.0	60.9	0.0	85.4	26.03
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	4	1	0.73	3.81	2.45	1.36	5.219	882	218914	0.619	1196	0	PartiallySorted([0, 1])		0	37	8140	504.3	0	0.0	87.3	0.0	83.9	26.44
+order-1200-original	ORDER BY, 1200 files	original	2	as set	4	1	0.24	0.49	0.35	0.14	2.042	362	52533	0.204	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-original	ORDER BY, 1200 files	original	2	off	4	1	0.28	0.51	0.33	0.18	1.821	225	96906	0.223	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-original	deduplication, base case (12 files)	original	2	as set	4	1	0.62	1.48	1.36	0.12	2.387	522	2495	0.611	2	1	Linear		8	10	0	197.7	0	72.7	73.0	0.0	0.0	0.2516
+base-original	deduplication, base case (12 files)	original	2	off	4	1	0.7	1.55	1.33	0.22	2.214	401	94141	0.675	2	1	Linear		8	10	0	201.0	0	72.7	73.0	0.0	0.0	0.2009
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	4	1	0.24	0.93	0.41	0.52	3.875	772	49729	0.196	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	4	1	0.24	0.73	0.37	0.36	3.042	375	96340	0.176	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	4	1	0.37	0.81	0.77	0.04	2.189	336	2488	0.364	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8606
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	4	1	0.39	0.86	0.75	0.11	2.205	257	57742	0.377	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.859
+dedup-150-original	deduplication, 150 files	original	2	as set	4	1	0.65	1.51	1.34	0.17	2.323	635	6006	0.635	2	1	Linear		8	10	0	188.0	0	72.7	73.0	0.0	0.0	0.2868
+dedup-150-original	deduplication, 150 files	original	2	off	4	1	0.72	1.66	1.39	0.27	2.306	491	124751	0.685	2	1	Linear		8	10	0	191.8	0	72.7	73.0	0.0	0.0	0.2762
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	4	1	0.4	1.47	1.19	0.28	3.675	817	4101	0.383	150	0	PartiallySorted([0, 1])		0	0	172	1006.1	0	0.0	0.0	0.0	43.3	1.5
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	4	1	0.44	1.46	1.16	0.3	3.318	453	110271	0.404	150	0	PartiallySorted([0, 1])		0	0	189	1070.1	0	0.0	0.0	0.0	47.5	1.82
+dedup-300-original	deduplication, 300 files	original	2	off	5	1	0.75	1.69	1.4	0.29	2.253	478	121338	0.704	2	1	Linear		8	10	0	185.3	0	72.7	73.0	0.0	0.0	0.1901
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	as set	5	1	0.45	1.7	1.28	0.42	3.778	922	3832	0.428	300	0	PartiallySorted([0, 1])		0	0	485	1276.8	0	0.0	0.0	0.0	60.0	1.96
+dedup-300-accept-groups	deduplication, 300 files	accept-groups	2	off	5	1	0.51	1.54	1.21	0.33	3.02	485	116932	0.459	300	0	PartiallySorted([0, 1])		0	0	505	1319.4	0	0.0	0.0	0.0	63.2	2.96
+dedup-600-original	deduplication, 600 files	original	2	as set	5	1	0.7	1.63	1.43	0.2	2.329	598	20239	0.681	2	1	Linear		7	10	0	188.8	0	72.7	73.0	0.0	0.0	0.2173
+dedup-600-original	deduplication, 600 files	original	2	off	5	1	0.79	1.76	1.46	0.3	2.228	485	130525	0.735	2	1	Linear		8	10	0	190.5	0	72.7	73.0	0.0	0.0	0.2638
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	as set	5	1	0.5	1.88	1.38	0.5	3.76	1343	4484	0.473	599	0	PartiallySorted([0, 1])		0	0	1080	1373.6	0	0.0	0.0	0.0	68.0	5.42
+dedup-600-accept-groups	deduplication, 600 files	accept-groups	2	off	5	1	0.57	1.71	1.28	0.43	3.0	530	127720	0.515	599	0	PartiallySorted([0, 1])		0	0	1130	1410.2	0	0.0	0.0	0.0	70.5	7.21
+dedup-1200-original	deduplication, 1200 files	original	2	as set	5	1	0.73	1.74	1.5	0.24	2.384	643	45173	0.696	2	1	Linear		8	10	0	194.2	0	72.7	73.0	0.0	0.0	0.2946
+dedup-1200-original	deduplication, 1200 files	original	2	off	5	1	0.87	1.91	1.55	0.36	2.195	488	165584	0.796	2	1	Linear		8	10	0	193.0	0	72.7	73.0	0.0	0.0	0.2388
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	as set	5	1	0.62	2.34	1.62	0.72	3.774	1559	5914	0.576	1196	0	PartiallySorted([0, 1])		0	0	2210	1449.3	0	0.0	0.0	0.0	77.2	15.14
+dedup-1200-accept-groups	deduplication, 1200 files	accept-groups	2	off	5	1	0.7	2.21	1.57	0.64	3.157	596	145407	0.609	1196	0	PartiallySorted([0, 1])		0	0	2230	1453.7	0	0.0	0.0	0.0	77.8	19.44
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	as set	5	1	0.58	2.99	1.9	1.09	5.155	2428	6445	0.524	1196	0	PartiallySorted([0, 1])		0	0	4200	816.2	0	0.0	0.0	0.0	79.3	17.21
+dedup-1200-accept-groups-t4	deduplication, 1200 files, 4 outputs	accept-groups	4	off	5	1	0.61	2.55	1.72	0.83	4.18	669	163026	0.515	1196	0	PartiallySorted([0, 1])		0	0	4260	817.2	0	0.0	0.0	0.0	79.3	19.1
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	as set	5	1	0.73	5.01	3.15	1.86	6.863	3436	7062	0.676	1196	0	PartiallySorted([0, 1])		0	57	8290	509.6	0	0.0	119.5	0.0	84.5	31.39
+dedup-1200-accept-groups-t8	deduplication, 1200 files, 8 outputs	accept-groups	8	off	5	1	0.74	3.95	2.59	1.36	5.338	922	229273	0.629	1196	0	PartiallySorted([0, 1])		0	40	8090	503.4	0	0.0	97.5	0.0	83.7	23.1
+order-1200-original	ORDER BY, 1200 files	original	2	as set	5	1	0.24	0.47	0.32	0.15	1.958	335	52455	0.203	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-original	ORDER BY, 1200 files	original	2	off	5	1	0.28	0.51	0.32	0.19	1.821	231	98571	0.227	2	1			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-original	deduplication, base case (12 files)	original	2	as set	5	1	0.61	1.46	1.35	0.11	2.393	483	2557	0.602	2	1	Linear		7	10	0	212.9	0	72.7	73.0	0.0	0.0	0.228
+base-original	deduplication, base case (12 files)	original	2	off	5	1	0.71	1.57	1.31	0.26	2.211	436	103385	0.677	2	1	Linear		8	10	0	215.4	0	72.7	73.0	0.0	0.0	0.2104
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	as set	5	1	0.25	0.99	0.42	0.57	3.96	796	58466	0.203	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+order-1200-accept-groups	ORDER BY, 1200 files	accept-groups	2	off	5	1	0.27	0.74	0.37	0.37	2.741	438	105036	0.200	1196	0			0	0	0	0.0	0	0.0	0.0	0.0	0.0	
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	as set	5	1	0.36	0.82	0.79	0.03	2.278	391	2537	0.355	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.8168
+base-accept-groups	deduplication, base case (12 files)	accept-groups	2	off	5	1	0.4	0.89	0.8	0.09	2.225	280	63018	0.384	4	0	PartiallySorted([0, 1])		0	0	0	470.9	0	0.0	0.0	0.0	0.0	0.882
+dedup-150-original	deduplication, 150 files	original	2	as set	5	1	0.63	1.55	1.39	0.16	2.46	662	7903	0.617	2	1	Linear		7	10	0	183.0	0	72.7	73.0	0.0	0.0	0.1673
+dedup-150-original	deduplication, 150 files	original	2	off	5	1	0.7	1.66	1.39	0.27	2.371	482	121148	0.660	2	1	Linear		8	10	0	183.9	0	72.7	73.0	0.0	0.0	0.2149
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	as set	5	1	0.4	1.58	1.23	0.35	3.95	805	3960	0.382	150	0	PartiallySorted([0, 1])		0	0	169	993.5	0	0.0	0.0	0.0	41.4	1.52
+dedup-150-accept-groups	deduplication, 150 files	accept-groups	2	off	5	1	0.44	1.44	1.1	0.34	3.273	479	116781	0.397	150	0	PartiallySorted([0, 1])		0	0	231	1186.0	0	0.0	0.0	0.0	55.2	2.07
+dedup-300-original	deduplication, 300 files	original	2	as set	5	1	0.67	1.54	1.39	0.15	2.299	596	10531	0.656	2	1	Linear		7	10	0	194.4	0	72.7	73.0	0.0	0.0	0.2157

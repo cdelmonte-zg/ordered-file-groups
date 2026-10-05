@@ -1,0 +1,261 @@
+part	change	files	pool	binary	target_partitions	pool_type	strings	run	ok	wall_s	cpu_s	user_s	sys_s	cores	rss_mb	minor_faults	elapsed_s	scan_groups	sort_exec	final_mode	error	sort_spills	final_agg_spills	repartition_spills	repartition_out_mb	partial_agg_spills	sort_spill_mb	final_agg_spill_mb	partial_agg_spill_mb	repartition_spill_mb	repartition_send_s
+W	pool	120	256m	original	120	greedy	views	1	0	0.32	1.39	0.62	0.77	4.344	525	4324					Resources exhausted: Additional allocation failed for OrderedPartialAggregateStream[4] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	1	0	0.65	5.25	2.11	3.14	8.077	4473	7344					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[38] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	1	1	0.39	1.52	1.19	0.33	3.897	807	4372	0.377	120	0	PartiallySorted([0, 1])		0	0	124	893.5	0	0.0	0.0	0.0	36.3	2.73
+W	outputs	120	256m	accept-groups	8	fair	views	1	1	0.33	2.77	2.15	0.62	8.394	1053	5281	0.317	120	0	PartiallySorted([0, 1])		0	66	739	452.4	0	0.0	120.2	0.0	59.1	2.12
+W	outputs	120	256m	accept-groups	30	fair	views	1	0	0.26	2.12	1.0	1.12	8.154	1676	5366					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 23] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	60	fair	views	1	0	0.34	2.45	1.06	1.39	7.206	2076	4863					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 25] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	1	1	0.67	4.96	2.82	2.14	7.403	3561	6829	0.639	120	0	PartiallySorted([0, 1])		0	23	11390	378.6	0	0.0	14.1	0.0	74.6	9.12
+W	pool	120	2g	original	120	greedy	views	1	0	0.05	0.59	0.37	0.22	11.8	525	5360					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 56] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	1	0	0.51	3.98	1.85	2.13	7.804	3092	5956					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[6] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	1	1	0.38	1.48	1.23	0.25	3.895	763	5361	0.363	120	0	PartiallySorted([0, 1])		0	0	37	533.6	0	0.0	0.0	0.0	10.4	2.78
+W	outputs	120	2g	accept-groups	8	fair	views	1	1	0.25	1.6	1.3	0.3	6.4	877	4824	0.233	120	0	PartiallySorted([0, 1])		0	0	121	432.6	0	0.0	0.0	0.0	9.5	1.64
+W	outputs	120	2g	accept-groups	30	fair	views	1	1	0.27	2.28	1.71	0.57	8.444	1340	5818	0.250	120	0	PartiallySorted([0, 1])		0	0	1030	502.2	0	0.0	0.0	0.0	22.5	1.73
+W	outputs	120	2g	accept-groups	60	fair	views	1	1	0.39	3.1	2.16	0.94	7.949	1779	4863	0.373	120	0	PartiallySorted([0, 1])		0	25	3910	446.2	0	0.0	15.6	0.0	45.5	3.1
+S	none	150	128m	accept-groups	2	fair	views	1	1	0.65	2.23	1.78	0.45	3.431	830	3757	0.638	150	0	PartiallySorted([0, 1])		0	52	240	1258.1	0	0.0	162.0	0.0	59.7	1.18
+S	reference	150	128m	original	2	fair	views	1	1	0.67	1.61	1.43	0.18	2.403	630	6811	0.660	2	1	Linear		15	24	0	164.7	0	72.7	154.6	0.0	0.0	0.2024
+S	none	300	128m	accept-groups	2	fair	views	1	1	0.65	2.17	1.78	0.39	3.338	957	3743	0.629	300	0	PartiallySorted([0, 1])		0	28	538	1351.1	0	0.0	96.9	0.0	65.0	1.58
+S	reference	300	128m	original	2	fair	views	1	1	0.66	1.64	1.48	0.16	2.485	536	10159	0.645	2	1	Linear		15	22	0	165.9	0	72.7	137.3	0.0	0.0	0.2079
+S	none	600	128m	accept-groups	2	fair	views	1	1	0.69	2.35	1.8	0.55	3.406	1312	4377	0.664	599	0	PartiallySorted([0, 1])		0	24	1140	1420.7	0	0.0	88.0	0.0	71.1	3.83
+S	reference	600	128m	original	2	fair	views	1	1	0.67	1.68	1.47	0.21	2.507	581	21684	0.644	2	1	Linear		16	22	0	158.2	0	72.7	138.9	0.0	0.0	0.1296
+S	none	1200	128m	accept-groups	2	fair	views	1	1	0.82	3.07	2.23	0.84	3.744	1877	5669	0.771	1196	0	PartiallySorted([0, 1])		0	28	2230	1446.1	0	0.0	96.9	0.0	75.3	2.87
+S	reference	1200	128m	original	2	fair	views	1	1	0.75	1.8	1.59	0.21	2.4	542	33861	0.710	2	1	Linear		15	22	0	161.0	0	72.7	137.8	0.0	0.0	0.1563
+S	pool	1200	128m	accept-groups	2	greedy	views	1	0	0.16	1.14	0.79	0.35	7.125	640	34501					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	1	1	0.61	2.21	1.64	0.57	3.623	1435	4502	0.572	1196	0	PartiallySorted([0, 1])		0	0	2170	48.8	0	0.0	0.0	0.0	47.6	4.21
+S	pool	1200	128m	original	2	greedy	views	1	0	0.53	1.26	1.1	0.16	2.377	510	47625					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	1	1	0.77	1.85	1.64	0.21	2.403	586	37760	0.731	2	1	Linear		6	20	0	61.7	0	49.2	78.5	0.0	0.0	0.0764
+W	none	120	256m	original	120	fair	views	1	0	0.67	5.18	2.1	3.08	7.731	4476	7476					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[99] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	2	0	0.6	4.64	1.81	2.83	7.733	3957	6336					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 77] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	2	1	0.4	1.58	1.23	0.35	3.95	782	4242	0.384	120	0	PartiallySorted([0, 1])		0	0	140	1006.6	0	0.0	0.0	0.0	44.9	2.64
+W	outputs	120	256m	accept-groups	8	fair	views	2	1	0.32	2.68	2.15	0.53	8.375	994	5042	0.308	120	0	PartiallySorted([0, 1])		0	63	712	462.0	0	0.0	111.0	0.0	55.1	1.63
+W	outputs	120	256m	accept-groups	30	fair	views	2	1	0.41	4.05	2.87	1.18	9.878	1779	6442	0.386	120	0	PartiallySorted([0, 1])		0	124	3290	255.8	0	0.0	120.0	0.0	72.4	2.73
+W	outputs	120	256m	accept-groups	60	fair	views	2	0	0.37	2.9	1.2	1.7	7.838	2208	5221					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 10] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	2	0	0.53	4.13	1.93	2.2	7.792	3305	6522					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[3] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	2	0	0.17	0.98	0.55	0.43	5.765	552	5315					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 47] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	2	0	0.5	3.99	1.75	2.24	7.98	3110	5986					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[5] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	2	1	0.38	1.47	1.21	0.26	3.868	761	6256	0.353	120	0	PartiallySorted([0, 1])		0	0	22	486.8	0	0.0	0.0	0.0	7.4	2.48
+W	outputs	120	2g	accept-groups	8	fair	views	2	1	0.26	1.76	1.32	0.44	6.769	1002	5544	0.248	120	0	PartiallySorted([0, 1])		0	0	513	447.0	0	0.0	0.0	0.0	38.8	3.25
+W	outputs	120	2g	accept-groups	30	fair	views	2	1	0.28	2.46	1.8	0.66	8.786	1397	6640	0.261	120	0	PartiallySorted([0, 1])		0	0	1290	486.5	0	0.0	0.0	0.0	27.5	2.94
+W	outputs	120	2g	accept-groups	60	fair	views	2	1	0.44	3.63	2.46	1.17	8.25	2105	6098	0.420	120	0	PartiallySorted([0, 1])		0	32	4200	431.0	0	0.0	19.4	0.0	48.6	3.53
+S	none	150	128m	accept-groups	2	fair	views	2	1	0.62	2.22	1.8	0.42	3.581	878	4328	0.607	150	0	PartiallySorted([0, 1])		0	56	225	1194.0	0	0.0	138.8	0.0	55.2	1.27
+S	reference	150	128m	original	2	fair	views	2	1	0.63	1.61	1.42	0.19	2.556	643	6770	0.614	2	1	Linear		16	22	0	158.6	0	72.7	140.3	0.0	0.0	0.1625
+S	none	300	128m	accept-groups	2	fair	views	2	1	0.66	2.16	1.74	0.42	3.273	923	3682	0.640	300	0	PartiallySorted([0, 1])		0	26	556	1404.0	0	0.0	94.0	0.0	68.8	1.59
+S	reference	300	128m	original	2	fair	views	2	1	0.66	1.63	1.41	0.22	2.47	562	10041	0.640	2	1	Linear		15	22	0	165.2	0	72.7	139.3	0.0	0.0	0.1539
+S	none	600	128m	accept-groups	2	fair	views	2	1	0.74	2.59	1.92	0.67	3.5	1734	5476	0.711	599	0	PartiallySorted([0, 1])		0	26	1120	1404.7	0	0.0	94.0	0.0	69.9	2.89
+S	reference	600	128m	original	2	fair	views	2	1	0.7	1.75	1.5	0.25	2.5	597	21070	0.678	2	1	Linear		15	22	0	156.3	0	72.7	139.9	0.0	0.0	0.1281
+S	none	1200	128m	accept-groups	2	fair	views	2	1	0.81	3.09	2.22	0.87	3.815	2022	7913	0.764	1196	0	PartiallySorted([0, 1])		0	26	2290	1474.8	0	0.0	94.0	0.0	77.1	2.98
+S	reference	1200	128m	original	2	fair	views	2	1	0.73	1.8	1.56	0.24	2.466	543	36073	0.698	2	1	Linear		16	22	0	160.4	0	72.7	140.6	0.0	0.0	0.145
+S	pool	1200	128m	accept-groups	2	greedy	views	2	0	0.17	1.16	0.87	0.29	6.824	604	39360					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	2	1	0.64	2.5	1.74	0.76	3.906	2020	6812	0.586	1196	0	PartiallySorted([0, 1])		0	0	2120	48.8	0	0.0	0.0	0.0	47.5	3.33
+S	pool	1200	128m	original	2	greedy	views	2	0	0.52	1.25	1.11	0.14	2.404	503	38983					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	2	1	0.79	1.86	1.63	0.23	2.354	591	26928	0.755	2	1	Linear		6	20	0	63.8	0	49.2	78.5	0.0	0.0	0.1284
+W	none	120	256m	original	120	fair	views	2	0	0.62	4.49	1.72	2.77	7.242	3864	6105					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 41] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	2	0	0.15	0.58	0.23	0.35	3.867	422	3626					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 104] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	3	1	0.4	1.52	1.19	0.33	3.8	772	4323	0.391	120	0	PartiallySorted([0, 1])		0	0	178	1144.4	0	0.0	0.0	0.0	53.9	3.28
+W	outputs	120	256m	accept-groups	8	fair	views	3	1	0.33	2.87	2.2	0.67	8.697	1227	4933	0.317	120	0	PartiallySorted([0, 1])		0	71	709	458.2	0	0.0	134.7	0.0	56.6	1.57
+W	outputs	120	256m	accept-groups	30	fair	views	3	0	0.24	2.06	0.99	1.07	8.583	1558	4998					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 10] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	60	fair	views	3	0	0.37	2.86	1.17	1.69	7.73	2415	5951					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 33] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	3	1	0.65	4.91	2.81	2.1	7.554	3416	6730	0.619	120	0	PartiallySorted([0, 1])		0	32	10980	350.9	0	0.0	19.5	0.0	73.7	6.22
+W	pool	120	2g	original	120	greedy	views	3	0	0.17	0.99	0.6	0.39	5.824	573	5262					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 24] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	3	1	0.58	4.26	2.49	1.77	7.345	3060	6645	0.556	120	0	PartiallySorted([0, 1])		0	24	8970	48.8	0	0.0	10.0	0.0	46.0	5.03
+W	outputs	120	2g	accept-groups	2	fair	views	3	1	0.37	1.51	1.23	0.28	4.081	753	5421	0.357	120	0	PartiallySorted([0, 1])		0	0	30	495.9	0	0.0	0.0	0.0	8.6	2.73
+W	outputs	120	2g	accept-groups	8	fair	views	3	1	0.2	1.57	1.31	0.26	7.85	762	8721	0.192	120	0	PartiallySorted([0, 1])		0	0	0	431.4	0	0.0	0.0	0.0	0.0	0.9242
+W	outputs	120	2g	accept-groups	30	fair	views	3	1	0.26	2.31	1.72	0.59	8.885	1323	5938	0.244	120	0	PartiallySorted([0, 1])		0	0	1120	494.5	0	0.0	0.0	0.0	23.8	2.06
+W	outputs	120	2g	accept-groups	60	fair	views	3	1	0.42	3.13	2.14	0.99	7.452	1874	5905	0.398	120	0	PartiallySorted([0, 1])		0	31	3700	446.4	0	0.0	19.2	0.0	45.7	3.23
+S	none	150	128m	accept-groups	2	fair	views	3	1	0.64	2.3	1.86	0.44	3.594	850	4060	0.630	150	0	PartiallySorted([0, 1])		0	54	252	1252.8	0	0.0	146.0	0.0	59.7	1.62
+S	reference	150	128m	original	2	fair	views	3	1	0.63	1.63	1.4	0.23	2.587	612	6644	0.621	2	1	Linear		16	22	0	161.8	0	72.7	140.4	0.0	0.0	0.1509
+S	none	300	128m	accept-groups	2	fair	views	3	1	0.67	2.19	1.76	0.43	3.269	995	3863	0.646	300	0	PartiallySorted([0, 1])		0	28	504	1327.6	0	0.0	96.9	0.0	63.1	1.12
+S	reference	300	128m	original	2	fair	views	3	1	0.67	1.68	1.48	0.2	2.507	596	9693	0.653	2	1	Linear		16	22	0	165.2	0	72.7	140.6	0.0	0.0	0.1466
+S	none	600	128m	accept-groups	2	fair	views	3	1	0.79	2.18	1.6	0.58	2.759	1275	4276	0.759	599	0	PartiallySorted([0, 1])		0	20	1110	1387.2	0	0.0	95.0	0.0	68.5	1.68
+S	reference	600	128m	original	2	fair	views	3	1	0.67	1.69	1.49	0.2	2.522	566	19080	0.647	2	1	Linear		15	22	0	158.2	0	72.7	138.9	0.0	0.0	0.121
+S	none	1200	128m	accept-groups	2	fair	views	3	1	0.84	3.1	2.14	0.96	3.69	2117	6365	0.792	1196	0	PartiallySorted([0, 1])		0	24	2330	1495.1	0	0.0	88.0	0.0	79.1	8.04
+S	reference	1200	128m	original	2	fair	views	3	1	0.75	1.78	1.57	0.21	2.373	521	29174	0.716	2	1	Linear		16	22	0	168.5	0	72.7	140.6	0.0	0.0	0.1254
+S	pool	1200	128m	accept-groups	2	greedy	views	3	0	0.15	1.12	0.78	0.34	7.467	599	40277					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	3	1	0.61	2.25	1.66	0.59	3.689	1530	4676	0.567	1196	0	PartiallySorted([0, 1])		0	0	2080	48.8	0	0.0	0.0	0.0	46.0	2.42
+S	pool	1200	128m	original	2	greedy	views	3	0	0.52	1.26	1.11	0.15	2.423	543	52496					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	3	1	0.81	1.83	1.64	0.19	2.259	536	30787	0.772	2	1	Linear		6	20	0	61.9	0	49.2	79.2	0.0	0.0	0.1305
+W	none	120	256m	original	120	fair	views	3	0	0.71	5.82	2.03	3.79	8.197	4451	7873					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 25] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	3	0	0.35	1.77	0.81	0.96	5.057	561	4256					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 1] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	3	0	0.64	4.87	2.0	2.87	7.609	4175	6143					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[91] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	8	fair	views	4	1	0.33	2.81	2.13	0.68	8.515	1226	5671	0.313	120	0	PartiallySorted([0, 1])		0	63	759	446.4	0	0.0	113.1	0.0	60.1	2.12
+W	outputs	120	256m	accept-groups	30	fair	views	4	1	0.39	3.81	2.72	1.09	9.769	1738	5036	0.371	120	0	PartiallySorted([0, 1])		0	118	3290	252.0	0	0.0	115.1	0.0	72.3	2.17
+W	outputs	120	256m	accept-groups	60	fair	views	4	0	0.37	2.98	1.26	1.72	8.054	2471	6029					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 7] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	4	0	0.57	4.47	1.99	2.48	7.842	3631	6560					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[33] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	4	0	0.14	0.93	0.61	0.32	6.643	543	5145					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 44] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	4	0	0.49	4.23	2.01	2.22	8.633	3030	6517					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[54] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	4	1	0.39	1.54	1.24	0.3	3.949	777	4905	0.375	120	0	PartiallySorted([0, 1])		0	0	86	714.9	0	0.0	0.0	0.0	23.2	3.53
+W	outputs	120	2g	accept-groups	8	fair	views	4	1	0.24	1.68	1.35	0.33	7.0	858	5270	0.222	120	0	PartiallySorted([0, 1])		0	0	202	438.5	0	0.0	0.0	0.0	15.1	1.77
+W	outputs	120	2g	accept-groups	30	fair	views	4	1	0.26	2.29	1.82	0.47	8.808	1123	5926	0.244	120	0	PartiallySorted([0, 1])		0	0	801	525.0	0	0.0	0.0	0.0	18.7	1.55
+W	outputs	120	2g	accept-groups	60	fair	views	4	1	0.44	3.57	2.15	1.42	8.114	2169	6016	0.424	120	0	PartiallySorted([0, 1])		0	0	4990	387.8	0	0.0	0.0	0.0	56.5	4.71
+S	none	150	128m	accept-groups	2	fair	views	4	1	0.63	2.28	1.81	0.47	3.619	977	5100	0.617	150	0	PartiallySorted([0, 1])		0	48	257	1304.0	0	0.0	104.9	0.0	63.5	1.54
+S	reference	150	128m	original	2	fair	views	4	1	0.64	1.62	1.4	0.22	2.531	598	7152	0.625	2	1	Linear		16	22	0	160.8	0	72.7	140.0	0.0	0.0	0.2089
+S	none	300	128m	accept-groups	2	fair	views	4	1	0.66	2.2	1.75	0.45	3.333	1055	3975	0.644	300	0	PartiallySorted([0, 1])		0	26	547	1396.5	0	0.0	94.0	0.0	68.3	1.47
+S	reference	300	128m	original	2	fair	views	4	1	0.67	1.61	1.42	0.19	2.403	538	11183	0.656	2	1	Linear		15	22	0	164.3	0	72.7	139.3	0.0	0.0	0.1513
+S	none	600	128m	accept-groups	2	fair	views	4	1	0.72	2.54	1.93	0.61	3.528	1507	4790	0.686	599	0	PartiallySorted([0, 1])		0	28	1100	1383.0	0	0.0	94.0	0.0	68.4	2.02
+S	reference	600	128m	original	2	fair	views	4	1	0.68	1.7	1.48	0.22	2.5	622	24580	0.654	2	1	Linear		16	22	0	158.3	0	72.7	139.9	0.0	0.0	0.1222
+S	none	1200	128m	accept-groups	2	fair	views	4	1	0.81	2.8	2.15	0.65	3.457	1419	4234	0.770	1196	0	PartiallySorted([0, 1])		0	26	2260	1457.2	0	0.0	94.0	0.0	75.7	2.69
+S	reference	1200	128m	original	2	fair	views	4	1	0.73	1.82	1.59	0.23	2.493	551	26857	0.692	2	1	Linear		16	22	0	165.3	0	72.7	138.8	0.0	0.0	0.131
+S	pool	1200	128m	accept-groups	2	greedy	views	4	0	0.18	1.27	0.87	0.4	7.056	614	40502					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	4	1	0.64	2.46	1.72	0.74	3.844	1802	6023	0.593	1196	0	PartiallySorted([0, 1])		0	0	2250	48.8	0	0.0	0.0	0.0	50.0	4.68
+S	pool	1200	128m	original	2	greedy	views	4	0	0.57	1.32	1.14	0.18	2.316	579	52564					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	4	1	0.81	1.78	1.61	0.17	2.198	568	23806	0.774	2	1	Linear		6	20	0	61.4	0	49.2	79.2	0.0	0.0	0.1256
+W	none	120	256m	original	120	fair	views	4	0	0.66	5.13	2.02	3.11	7.773	4145	6132					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[56] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	4	0	0.04	0.29	0.11	0.18	7.25	407	3203					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 15] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	4	0	0.67	5.2	2.11	3.09	7.761	4329	6695					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[83] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	4	1	0.41	1.49	1.22	0.27	3.634	790	3959	0.397	120	0	PartiallySorted([0, 1])		0	0	133	962.9	0	0.0	0.0	0.0	42.1	2.55
+W	outputs	120	256m	accept-groups	30	fair	views	5	1	0.42	3.96	2.82	1.14	9.429	1771	5850	0.405	120	0	PartiallySorted([0, 1])		0	114	3330	251.8	0	0.0	106.0	0.0	72.8	3.24
+W	outputs	120	256m	accept-groups	60	fair	views	5	0	0.36	2.51	1.08	1.43	6.972	2306	5700					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 14] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	5	0	0.56	4.45	1.92	2.53	7.946	3588	6482					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[110] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	5	0	0.24	1.29	0.65	0.64	5.375	626	4984					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 119] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	5	0	0.51	4.17	1.91	2.26	8.176	3315	6807					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[3] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	5	1	0.38	1.51	1.24	0.27	3.974	785	5762	0.372	120	0	PartiallySorted([0, 1])		0	0	64	634.0	0	0.0	0.0	0.0	17.8	3.67
+W	outputs	120	2g	accept-groups	8	fair	views	5	1	0.23	1.66	1.36	0.3	7.217	896	6256	0.220	120	0	PartiallySorted([0, 1])		0	0	84	434.5	0	0.0	0.0	0.0	6.9	1.22
+W	outputs	120	2g	accept-groups	30	fair	views	5	1	0.28	2.42	1.86	0.56	8.643	1341	6005	0.265	120	0	PartiallySorted([0, 1])		0	0	1170	493.5	0	0.0	0.0	0.0	25.5	2.27
+W	outputs	120	2g	accept-groups	60	fair	views	5	1	0.42	3.38	2.3	1.08	8.048	1862	5658	0.398	120	0	PartiallySorted([0, 1])		0	32	3880	440.6	0	0.0	19.4	0.0	46.1	4.21
+S	none	150	128m	accept-groups	2	fair	views	5	1	0.65	2.28	1.82	0.46	3.508	812	4161	0.635	150	0	PartiallySorted([0, 1])		0	54	248	1284.7	0	0.0	146.0	0.0	61.5	1.59
+S	reference	150	128m	original	2	fair	views	5	1	0.66	1.65	1.46	0.19	2.5	577	8025	0.643	2	1	Linear		16	22	0	158.9	0	72.7	139.8	0.0	0.0	0.1793
+S	none	300	128m	accept-groups	2	fair	views	5	1	0.63	2.12	1.74	0.38	3.365	813	3444	0.614	300	0	PartiallySorted([0, 1])		0	28	499	1330.6	0	0.0	96.9	0.0	63.4	0.738
+S	reference	300	128m	original	2	fair	views	5	1	0.66	1.63	1.41	0.22	2.47	576	7489	0.646	2	1	Linear		15	22	0	165.7	0	72.7	142.0	0.0	0.0	0.1767
+S	none	600	128m	accept-groups	2	fair	views	5	1	0.74	2.5	1.88	0.62	3.378	1505	4855	0.708	599	0	PartiallySorted([0, 1])		0	26	1110	1396.6	0	0.0	94.0	0.0	69.3	3.1
+S	reference	600	128m	original	2	fair	views	5	1	0.71	1.75	1.53	0.22	2.465	589	15126	0.683	2	1	Linear		16	22	0	163.3	0	72.7	140.2	0.0	0.0	0.1612
+S	none	1200	128m	accept-groups	2	fair	views	5	1	0.82	3.01	2.16	0.85	3.671	1968	5955	0.770	1196	0	PartiallySorted([0, 1])		0	26	2260	1458.7	0	0.0	94.0	0.0	76.2	4.08
+S	reference	1200	128m	original	2	fair	views	5	1	0.78	1.81	1.58	0.23	2.321	616	27925	0.739	2	1	Linear		15	22	0	166.0	0	72.7	140.6	0.0	0.0	0.1507
+S	pool	1200	128m	accept-groups	2	greedy	views	5	0	0.15	1.18	0.79	0.39	7.867	602	41742					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	5	1	0.63	2.41	1.74	0.67	3.825	1901	5757	0.580	1196	0	PartiallySorted([0, 1])		0	0	2100	48.8	0	0.0	0.0	0.0	46.9	3.07
+S	pool	1200	128m	original	2	greedy	views	5	0	0.53	1.26	1.09	0.17	2.377	533	43831					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	5	1	0.79	1.8	1.6	0.2	2.278	548	21591	0.756	2	1	Linear		6	20	0	60.9	0	49.2	79.2	0.0	0.0	0.1312
+W	none	120	256m	original	120	fair	views	5	0	0.64	5.05	2.02	3.03	7.891	4126	5987					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[21] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	5	0	0.16	0.65	0.28	0.37	4.062	465	3511					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 4] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	5	0	0.67	5.35	1.99	3.36	7.985	4405	6944					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[76] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	5	1	0.4	1.58	1.23	0.35	3.95	809	4536	0.386	120	0	PartiallySorted([0, 1])		0	0	160	1080.9	0	0.0	0.0	0.0	49.6	2.98
+W	outputs	120	256m	accept-groups	8	fair	views	5	1	0.32	2.64	2.09	0.55	8.25	1060	4358	0.307	120	0	PartiallySorted([0, 1])		0	67	703	460.7	0	0.0	117.3	0.0	54.8	1.56
+W	outputs	120	256m	accept-groups	60	fair	views	6	0	0.37	2.93	1.19	1.74	7.919	2335	4825					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 35] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	6	0	0.53	4.06	1.86	2.2	7.66	3316	6424					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[70] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	6	0	0.14	0.88	0.47	0.41	6.286	599	5158					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 119] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	6	0	0.51	4.36	1.94	2.42	8.549	3222	6995					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[39] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	6	1	0.37	1.5	1.23	0.27	4.054	728	7949	0.358	120	0	PartiallySorted([0, 1])		0	0	5	402.1	0	0.0	0.0	0.0	1.3	2.29
+W	outputs	120	2g	accept-groups	8	fair	views	6	1	0.27	1.87	1.45	0.42	6.926	1069	6370	0.254	120	0	PartiallySorted([0, 1])		0	0	281	443.5	0	0.0	0.0	0.0	21.8	3.49
+W	outputs	120	2g	accept-groups	30	fair	views	6	1	0.25	2.12	1.6	0.52	8.48	1226	5500	0.237	120	0	PartiallySorted([0, 1])		0	0	1030	501.9	0	0.0	0.0	0.0	22.9	1.72
+W	outputs	120	2g	accept-groups	60	fair	views	6	1	0.39	3.06	2.01	1.05	7.846	1885	6035	0.374	120	0	PartiallySorted([0, 1])		0	4	3870	438.3	0	0.0	2.4	0.0	47.8	2.89
+S	none	150	128m	accept-groups	2	fair	views	6	1	0.66	2.25	1.79	0.46	3.409	858	4370	0.646	150	0	PartiallySorted([0, 1])		0	53	241	1237.1	0	0.0	152.0	0.0	58.6	1.43
+S	reference	150	128m	original	2	fair	views	6	1	0.63	1.6	1.41	0.19	2.54	591	8647	0.615	2	1	Linear		15	22	0	160.1	0	72.7	140.2	0.0	0.0	0.2136
+S	none	300	128m	accept-groups	2	fair	views	6	1	0.65	2.21	1.79	0.42	3.4	1059	4137	0.625	300	0	PartiallySorted([0, 1])		0	28	519	1350.0	0	0.0	96.9	0.0	65.0	0.8471
+S	reference	300	128m	original	2	fair	views	6	1	0.68	1.7	1.47	0.23	2.5	571	12575	0.662	2	1	Linear		16	22	0	164.3	0	72.7	139.8	0.0	0.0	0.1511
+S	none	600	128m	accept-groups	2	fair	views	6	1	0.69	2.43	1.86	0.57	3.522	1381	4422	0.664	599	0	PartiallySorted([0, 1])		0	26	1100	1389.9	0	0.0	94.0	0.0	68.9	1.93
+S	reference	600	128m	original	2	fair	views	6	1	0.67	1.71	1.48	0.23	2.552	609	22155	0.648	2	1	Linear		15	22	0	160.4	0	72.7	139.9	0.0	0.0	0.1533
+S	none	1200	128m	accept-groups	2	fair	views	6	1	0.84	3.07	2.2	0.87	3.655	2096	6150	0.792	1196	0	PartiallySorted([0, 1])		0	28	2330	1492.3	0	0.0	96.9	0.0	78.7	7.63
+S	reference	1200	128m	original	2	fair	views	6	1	0.75	1.8	1.58	0.22	2.4	593	21660	0.710	2	1	Linear		16	22	0	157.2	0	72.7	141.2	0.0	0.0	0.1482
+S	pool	1200	128m	accept-groups	2	greedy	views	6	0	0.14	1.06	0.71	0.35	7.571	625	43138					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	6	1	0.63	2.32	1.63	0.69	3.683	1648	6319	0.586	1196	0	PartiallySorted([0, 1])		0	0	2160	48.8	0	0.0	0.0	0.0	47.6	3.34
+S	pool	1200	128m	original	2	greedy	views	6	0	0.56	1.26	1.09	0.17	2.25	577	40720					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	6	1	0.82	1.82	1.6	0.22	2.22	590	16130	0.781	2	1	Linear		6	20	0	61.4	0	49.2	79.2	0.0	0.0	0.1274
+W	none	120	256m	original	120	fair	views	6	0	0.63	4.89	1.77	3.12	7.762	4332	7363					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 11] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	6	0	0.34	1.72	0.75	0.97	5.059	539	3870					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 119] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	6	0	0.59	4.44	1.67	2.77	7.525	3698	6335					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 95] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	6	1	0.4	1.54	1.2	0.34	3.85	874	4858	0.390	120	0	PartiallySorted([0, 1])		0	0	203	1226.5	0	0.0	0.0	0.0	59.7	3.99
+W	outputs	120	256m	accept-groups	8	fair	views	6	1	0.32	2.73	2.16	0.57	8.531	993	4656	0.308	120	0	PartiallySorted([0, 1])		0	64	796	448.3	0	0.0	123.4	0.0	62.3	2.22
+W	outputs	120	256m	accept-groups	30	fair	views	6	0	0.25	1.99	1.08	0.91	7.96	1630	4630					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 29] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	7	0	0.57	4.62	2.07	2.55	8.105	3758	6884					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[16] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	7	0	0.33	1.79	0.82	0.97	5.424	614	5701					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	7	0	0.5	4.04	1.92	2.12	8.08	3169	6863					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[116] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	7	1	0.36	1.4	1.13	0.27	3.889	744	8856	0.346	120	0	PartiallySorted([0, 1])		0	0	0	382.3	0	0.0	0.0	0.0	0.0	2.09
+W	outputs	120	2g	accept-groups	8	fair	views	7	1	0.21	1.59	1.33	0.26	7.571	790	7916	0.194	120	0	PartiallySorted([0, 1])		0	0	14	432.1	0	0.0	0.0	0.0	1.0	0.9183
+W	outputs	120	2g	accept-groups	30	fair	views	7	1	0.26	2.13	1.71	0.42	8.192	1068	5644	0.242	120	0	PartiallySorted([0, 1])		0	0	736	546.9	0	0.0	0.0	0.0	14.6	1.57
+W	outputs	120	2g	accept-groups	60	fair	views	7	1	0.43	3.25	2.11	1.14	7.558	2161	6457	0.402	120	0	PartiallySorted([0, 1])		0	0	4700	390.0	0	0.0	0.0	0.0	54.1	5.67
+S	none	150	128m	accept-groups	2	fair	views	7	1	0.63	2.21	1.78	0.43	3.508	812	3895	0.621	150	0	PartiallySorted([0, 1])		0	52	210	1164.6	0	0.0	162.0	0.0	53.2	1.08
+S	reference	150	128m	original	2	fair	views	7	1	0.63	1.59	1.4	0.19	2.524	588	8643	0.619	2	1	Linear		15	22	0	164.3	0	72.7	141.0	0.0	0.0	0.1238
+S	none	300	128m	accept-groups	2	fair	views	7	1	0.65	2.26	1.8	0.46	3.477	1051	4104	0.632	300	0	PartiallySorted([0, 1])		0	28	512	1313.9	0	0.0	96.9	0.0	62.3	0.903
+S	reference	300	128m	original	2	fair	views	7	1	0.66	1.67	1.45	0.22	2.53	544	12078	0.648	2	1	Linear		16	22	0	165.2	0	72.7	139.3	0.0	0.0	0.1541
+S	none	600	128m	accept-groups	2	fair	views	7	1	0.71	2.44	1.83	0.61	3.437	1384	4596	0.678	599	0	PartiallySorted([0, 1])		0	26	1120	1407.8	0	0.0	94.0	0.0	70.2	2.55
+S	reference	600	128m	original	2	fair	views	7	1	0.71	1.71	1.47	0.24	2.408	598	17981	0.688	2	1	Linear		15	22	0	164.1	0	72.7	140.2	0.0	0.0	0.1605
+S	none	1200	128m	accept-groups	2	fair	views	7	1	0.85	3.19	2.21	0.98	3.753	2152	7446	0.803	1196	0	PartiallySorted([0, 1])		0	26	2310	1481.8	0	0.0	94.0	0.0	78.1	9.3
+S	reference	1200	128m	original	2	fair	views	7	1	0.74	1.83	1.58	0.25	2.473	561	42739	0.700	2	1	Linear		15	22	0	160.3	0	72.7	138.0	0.0	0.0	0.1268
+S	pool	1200	128m	accept-groups	2	greedy	views	7	0	0.15	1.05	0.76	0.29	7.0	632	29061					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	7	1	0.61	2.23	1.69	0.54	3.656	1372	4381	0.567	1196	0	PartiallySorted([0, 1])		0	0	2150	48.8	0	0.0	0.0	0.0	47.0	4.12
+S	pool	1200	128m	original	2	greedy	views	7	0	0.5	1.25	1.09	0.16	2.5	451	52437					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	7	1	0.77	1.84	1.6	0.24	2.39	612	27821	0.729	2	1	Linear		6	20	0	63.4	0	49.2	78.5	0.0	0.0	0.0985
+W	none	120	256m	original	120	fair	views	7	0	0.65	5.08	2.1	2.98	7.815	4438	7339					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[62] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	7	0	0.16	0.72	0.31	0.41	4.5	508	3506					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 5] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	7	0	0.61	4.52	1.76	2.76	7.41	3885	6605					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 114] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	7	1	0.4	1.61	1.24	0.37	4.025	873	4930	0.383	120	0	PartiallySorted([0, 1])		0	0	167	1102.1	0	0.0	0.0	0.0	51.5	2.81
+W	outputs	120	256m	accept-groups	8	fair	views	7	1	0.33	2.74	2.12	0.62	8.303	1218	4577	0.309	120	0	PartiallySorted([0, 1])		0	67	698	459.2	0	0.0	115.0	0.0	55.8	1.62
+W	outputs	120	256m	accept-groups	30	fair	views	7	1	0.43	4.21	2.94	1.27	9.791	1957	5998	0.408	120	0	PartiallySorted([0, 1])		0	118	3350	247.9	0	0.0	123.0	0.0	72.7	2.85
+W	outputs	120	256m	accept-groups	60	fair	views	7	0	0.41	3.39	1.27	2.12	8.268	2734	6662					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 30] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	8	0	0.06	0.54	0.34	0.2	9.0	570	4772					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 9] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	8	0	0.52	4.44	1.91	2.53	8.538	3382	7426					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[11] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	8	1	0.36	1.39	1.17	0.22	3.861	733	5668	0.350	120	0	PartiallySorted([0, 1])		0	0	28	489.8	0	0.0	0.0	0.0	7.6	2.35
+W	outputs	120	2g	accept-groups	8	fair	views	8	1	0.25	1.76	1.42	0.34	7.04	922	4771	0.232	120	0	PartiallySorted([0, 1])		0	0	221	436.6	0	0.0	0.0	0.0	18.0	1.59
+W	outputs	120	2g	accept-groups	30	fair	views	8	1	0.26	2.41	1.9	0.51	9.269	1261	5974	0.239	120	0	PartiallySorted([0, 1])		0	0	810	537.9	0	0.0	0.0	0.0	16.5	1.53
+W	outputs	120	2g	accept-groups	60	fair	views	8	1	0.42	3.42	2.21	1.21	8.143	2244	6455	0.399	120	0	PartiallySorted([0, 1])		0	28	4400	440.2	0	0.0	17.0	0.0	48.8	3.76
+S	none	150	128m	accept-groups	2	fair	views	8	1	0.63	2.21	1.78	0.43	3.508	846	4200	0.615	150	0	PartiallySorted([0, 1])		0	55	227	1191.0	0	0.0	142.4	0.0	54.9	1.26
+S	reference	150	128m	original	2	fair	views	8	1	0.62	1.6	1.38	0.22	2.581	583	8862	0.613	2	1	Linear		15	22	0	161.3	0	72.7	136.2	0.0	0.0	0.1749
+S	none	300	128m	accept-groups	2	fair	views	8	1	0.64	2.17	1.73	0.44	3.391	940	3726	0.621	300	0	PartiallySorted([0, 1])		0	28	530	1336.5	0	0.0	96.9	0.0	63.9	1.13
+S	reference	300	128m	original	2	fair	views	8	1	0.69	1.65	1.45	0.2	2.391	577	10429	0.674	2	1	Linear		15	22	0	168.6	0	72.7	141.2	0.0	0.0	0.1678
+S	none	600	128m	accept-groups	2	fair	views	8	1	0.72	2.58	1.9	0.68	3.583	1568	5107	0.692	599	0	PartiallySorted([0, 1])		0	26	1120	1407.1	0	0.0	94.0	0.0	70.1	2.39
+S	reference	600	128m	original	2	fair	views	8	1	0.68	1.71	1.5	0.21	2.515	582	21270	0.658	2	1	Linear		15	22	0	158.2	0	72.7	138.9	0.0	0.0	0.1302
+S	none	1200	128m	accept-groups	2	fair	views	8	1	0.83	2.89	2.21	0.68	3.482	1645	5245	0.780	1196	0	PartiallySorted([0, 1])		0	26	2300	1470.6	0	0.0	94.0	0.0	76.7	6.99
+S	reference	1200	128m	original	2	fair	views	8	1	0.74	1.8	1.58	0.22	2.432	599	31538	0.708	2	1	Linear		15	22	0	165.0	0	72.7	138.6	0.0	0.0	0.1278
+S	pool	1200	128m	accept-groups	2	greedy	views	8	0	0.15	1.07	0.76	0.31	7.133	619	39204					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	8	1	0.64	2.52	1.74	0.78	3.938	2018	6228	0.592	1196	0	PartiallySorted([0, 1])		0	0	2170	48.8	0	0.0	0.0	0.0	48.3	4.14
+S	pool	1200	128m	original	2	greedy	views	8	0	0.56	1.26	1.1	0.16	2.25	476	46183					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	8	1	0.83	1.8	1.6	0.2	2.169	578	26131	0.788	2	1	Linear		6	20	0	61.4	0	49.2	79.2	0.0	0.0	0.1233
+W	none	120	256m	original	120	fair	views	8	0	0.65	4.87	2.02	2.85	7.492	4126	5897					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[66] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	8	0	0.05	0.37	0.15	0.22	7.4	445	3243					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 27] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	8	0	0.63	5.03	2.06	2.97	7.984	4081	6073					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[96] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	8	1	0.38	1.49	1.21	0.28	3.921	795	3838	0.365	120	0	PartiallySorted([0, 1])		0	0	128	921.5	0	0.0	0.0	0.0	37.7	2.28
+W	outputs	120	256m	accept-groups	8	fair	views	8	1	0.34	2.68	2.12	0.56	7.882	990	5288	0.321	120	0	PartiallySorted([0, 1])		0	67	731	456.4	0	0.0	122.1	0.0	58.2	2.12
+W	outputs	120	256m	accept-groups	30	fair	views	8	0	0.23	1.81	0.9	0.91	7.87	1388	4852					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 4] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	60	fair	views	8	0	0.35	2.85	1.11	1.74	8.143	2357	5823					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	8	0	0.54	4.31	1.89	2.42	7.981	3529	6816					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[75] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	9	1	0.6	4.54	2.6	1.94	7.567	3258	7008	0.568	120	0	PartiallySorted([0, 1])		0	29	9410	48.8	0	0.0	12.0	0.0	46.7	5.2
+W	outputs	120	2g	accept-groups	2	fair	views	9	1	0.36	1.37	1.14	0.23	3.806	694	8752	0.349	120	0	PartiallySorted([0, 1])		0	0	0	382.3	0	0.0	0.0	0.0	0.0	2.15
+W	outputs	120	2g	accept-groups	8	fair	views	9	1	0.23	1.7	1.41	0.29	7.391	875	6111	0.214	120	0	PartiallySorted([0, 1])		0	0	137	435.4	0	0.0	0.0	0.0	10.3	1.26
+W	outputs	120	2g	accept-groups	30	fair	views	9	1	0.32	2.91	2.05	0.86	9.094	1803	6726	0.297	120	0	PartiallySorted([0, 1])		0	0	1610	447.5	0	0.0	0.0	0.0	37.0	3.85
+W	outputs	120	2g	accept-groups	60	fair	views	9	1	0.4	3.0	1.99	1.01	7.5	2047	6396	0.375	120	0	PartiallySorted([0, 1])		0	2	3990	409.4	0	0.0	1.2	0.0	47.7	2.84
+S	none	150	128m	accept-groups	2	fair	views	9	1	0.64	2.21	1.78	0.43	3.453	956	4531	0.620	150	0	PartiallySorted([0, 1])		0	48	255	1299.2	0	0.0	103.9	0.0	63.0	1.33
+S	reference	150	128m	original	2	fair	views	9	1	0.64	1.62	1.41	0.21	2.531	607	8901	0.625	2	1	Linear		16	22	0	158.2	0	72.7	140.9	0.0	0.0	0.2162
+S	none	300	128m	accept-groups	2	fair	views	9	1	0.64	2.17	1.78	0.39	3.391	905	3667	0.619	300	0	PartiallySorted([0, 1])		0	28	503	1305.1	0	0.0	96.9	0.0	61.7	0.7569
+S	reference	300	128m	original	2	fair	views	9	1	0.65	1.63	1.43	0.2	2.508	562	12295	0.631	2	1	Linear		16	22	0	161.5	0	72.7	140.2	0.0	0.0	0.1615
+S	none	600	128m	accept-groups	2	fair	views	9	1	0.71	2.46	1.86	0.6	3.465	1444	4648	0.677	599	0	PartiallySorted([0, 1])		0	26	1120	1400.8	0	0.0	94.0	0.0	69.7	2.95
+S	reference	600	128m	original	2	fair	views	9	1	0.71	1.75	1.48	0.27	2.465	603	20153	0.684	2	1	Linear		16	22	0	160.5	0	72.7	139.6	0.0	0.0	0.1291
+S	none	1200	128m	accept-groups	2	fair	views	9	1	0.84	3.17	2.21	0.96	3.774	2110	7312	0.791	1196	0	PartiallySorted([0, 1])		0	26	2270	1458.8	0	0.0	94.0	0.0	76.3	5.23
+S	reference	1200	128m	original	2	fair	views	9	1	0.74	1.76	1.55	0.21	2.378	553	32216	0.709	2	1	Linear		15	23	0	159.6	0	72.7	134.1	0.0	0.0	0.1374
+S	pool	1200	128m	accept-groups	2	greedy	views	9	0	0.16	1.18	0.83	0.35	7.375	635	38489					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	9	1	0.64	2.43	1.71	0.72	3.797	1870	5615	0.588	1196	0	PartiallySorted([0, 1])		0	0	2180	48.8	0	0.0	0.0	0.0	48.2	5.13
+S	pool	1200	128m	original	2	greedy	views	9	0	0.55	1.28	1.13	0.15	2.327	550	52576					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[0] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	9	1	0.81	1.83	1.61	0.22	2.259	548	30383	0.770	2	1	Linear		6	20	0	61.9	0	49.2	79.2	0.0	0.0	0.1349
+W	none	120	256m	original	120	fair	views	9	0	0.67	5.23	2.16	3.07	7.806	4275	6657					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[105] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	9	0	0.05	0.35	0.15	0.2	7.0	466	3548					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 80] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	9	0	0.68	5.62	2.31	3.31	8.265	4505	7805					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[78] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	9	1	0.41	1.51	1.17	0.34	3.683	795	4505	0.396	120	0	PartiallySorted([0, 1])		0	0	159	1052.5	0	0.0	0.0	0.0	46.9	2.86
+W	outputs	120	256m	accept-groups	8	fair	views	9	1	0.33	2.74	2.16	0.58	8.303	1044	4744	0.318	120	0	PartiallySorted([0, 1])		0	75	701	462.4	0	0.0	142.6	0.0	55.5	1.61
+W	outputs	120	256m	accept-groups	30	fair	views	9	0	0.22	1.73	0.83	0.9	7.864	1316	4317					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 21] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	60	fair	views	9	0	0.41	3.45	1.83	1.62	8.415	2682	6931					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[46] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	9	1	0.67	4.9	2.7	2.2	7.313	3722	7268	0.635	120	0	PartiallySorted([0, 1])		0	31	10760	353.3	0	0.0	18.9	0.0	73.2	6.39
+W	pool	120	2g	original	120	greedy	views	9	0	0.17	0.9	0.49	0.41	5.294	554	4782					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 22] with top memory consumers (across reservations) as:										
+W	outputs	120	2g	accept-groups	2	fair	views	10	1	0.37	1.49	1.23	0.26	4.027	762	5670	0.361	120	0	PartiallySorted([0, 1])		0	0	32	515.4	0	0.0	0.0	0.0	9.1	2.62
+W	outputs	120	2g	accept-groups	8	fair	views	10	1	0.23	1.64	1.34	0.3	7.13	864	5457	0.221	120	0	PartiallySorted([0, 1])		0	0	143	434.4	0	0.0	0.0	0.0	10.4	1.72
+W	outputs	120	2g	accept-groups	30	fair	views	10	1	0.26	2.22	1.77	0.45	8.538	1113	5461	0.241	120	0	PartiallySorted([0, 1])		0	0	882	517.4	0	0.0	0.0	0.0	19.3	1.47
+W	outputs	120	2g	accept-groups	60	fair	views	10	1	0.39	3.04	2.0	1.04	7.795	1907	5438	0.371	120	0	PartiallySorted([0, 1])		0	0	4070	426.1	0	0.0	0.0	0.0	48.2	3.0
+S	none	150	128m	accept-groups	2	fair	views	10	1	0.65	2.2	1.78	0.42	3.385	840	4394	0.634	150	0	PartiallySorted([0, 1])		0	54	235	1208.1	0	0.0	146.0	0.0	56.6	1.59
+S	reference	150	128m	original	2	fair	views	10	1	0.64	1.58	1.39	0.19	2.469	589	6876	0.628	2	1	Linear		16	22	0	157.5	0	72.7	141.2	0.0	0.0	0.1612
+S	none	300	128m	accept-groups	2	fair	views	10	1	0.66	2.23	1.77	0.46	3.379	990	3992	0.640	300	0	PartiallySorted([0, 1])		0	28	515	1340.2	0	0.0	96.9	0.0	64.1	1.02
+S	reference	300	128m	original	2	fair	views	10	1	0.66	1.64	1.43	0.21	2.485	562	11365	0.644	2	1	Linear		15	22	0	163.0	0	72.7	141.2	0.0	0.0	0.1348
+S	none	600	128m	accept-groups	2	fair	views	10	1	0.8	2.26	1.65	0.61	2.825	1495	5219	0.771	599	0	PartiallySorted([0, 1])		0	20	1100	1383.8	0	0.0	95.0	0.0	68.4	3.12
+S	reference	600	128m	original	2	fair	views	10	1	0.67	1.68	1.46	0.22	2.507	558	21284	0.650	2	1	Linear		15	22	0	158.0	0	72.7	139.3	0.0	0.0	0.1156
+S	none	1200	128m	accept-groups	2	fair	views	10	1	0.83	3.24	2.28	0.96	3.904	2092	6270	0.786	1196	0	PartiallySorted([0, 1])		0	28	2260	1454.9	0	0.0	96.9	0.0	75.9	3.81
+S	reference	1200	128m	original	2	fair	views	10	1	0.76	1.8	1.57	0.23	2.368	560	40149	0.729	2	1	Linear		15	22	0	165.7	0	72.7	139.4	0.0	0.0	0.1202
+S	pool	1200	128m	accept-groups	2	greedy	views	10	0	0.15	1.1	0.79	0.31	7.333	611	43045					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	accept-groups	2	fair	utf8	10	1	0.65	2.41	1.68	0.73	3.708	1907	5707	0.605	1196	0	PartiallySorted([0, 1])		0	0	2210	48.8	0	0.0	0.0	0.0	49.2	6.85
+S	pool	1200	128m	original	2	greedy	views	10	0	0.52	1.23	1.07	0.16	2.365	433	45756					Resources exhausted: Additional allocation failed for FinalHashAggregateStream[1] with top memory consumers (across reservations) as:										
+S	strings	1200	128m	original	2	fair	utf8	10	1	0.78	1.81	1.61	0.2	2.321	594	26404	0.744	2	1	Linear		6	20	0	62.5	0	49.2	79.1	0.0	0.0	0.1389
+W	none	120	256m	original	120	fair	views	10	0	0.66	5.25	2.14	3.11	7.955	4226	7178					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[27] with top memory consumers (across reservations) as:										
+W	pool	120	256m	original	120	greedy	views	10	0	0.05	0.33	0.13	0.2	6.6	445	3332					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 11] with top memory consumers (across reservations) as:										
+W	strings	120	256m	original	120	fair	utf8	10	0	0.6	4.41	1.67	2.74	7.35	3549	5594					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 29] with top memory consumers (across reservations) as:										
+W	outputs	120	256m	accept-groups	2	fair	views	10	1	0.4	1.53	1.22	0.31	3.825	768	3990	0.389	120	0	PartiallySorted([0, 1])		0	0	143	975.2	0	0.0	0.0	0.0	41.9	2.81
+W	outputs	120	256m	accept-groups	8	fair	views	10	1	0.35	2.91	2.23	0.68	8.314	1178	5775	0.336	120	0	PartiallySorted([0, 1])		0	72	726	456.0	0	0.0	133.6	0.0	56.7	2.02
+W	outputs	120	256m	accept-groups	30	fair	views	10	1	0.43	4.03	2.9	1.13	9.372	1759	5256	0.409	120	0	PartiallySorted([0, 1])		0	110	3330	248.9	0	0.0	116.4	0.0	72.9	2.91
+W	outputs	120	256m	accept-groups	60	fair	views	10	0	0.37	2.58	1.08	1.5	6.973	2186	4872					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 3] with top memory consumers (across reservations) as:										
+W	none	120	2g	original	120	fair	views	10	0	0.54	4.42	1.93	2.49	8.185	3473	6313					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[118] with top memory consumers (across reservations) as:										
+W	pool	120	2g	original	120	greedy	views	10	0	0.1	0.61	0.35	0.26	6.1	533	4556					Resources exhausted: Additional allocation failed for RepartitionExec[Merge 36] with top memory consumers (across reservations) as:										
+W	strings	120	2g	original	120	fair	utf8	10	0	0.49	4.08	1.82	2.26	8.327	3118	6403					Resources exhausted: Additional allocation failed for OrderedFinalAggregateStream[113] with top memory consumers (across reservations) as:										

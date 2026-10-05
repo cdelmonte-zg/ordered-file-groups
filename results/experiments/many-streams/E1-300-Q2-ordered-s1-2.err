@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   893           2.6 K      33      
-  abandoned :   150         730          12      
-  reclaima  :    23      
-  reclaimf  :   504      
-  reabandon :   136      
+  pages     :   975           3.1 K      33      
+  abandoned :   173         768          12      
+  reclaima  :    10      
+  reclaimf  :   574      
+  reabandon :   114      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   595.6 MiB   595.6 MiB   595.6 MiB                          
+  committed :   651.1 MiB   651.1 MiB   651.1 MiB                          
   reset     :     0      
-  purged    :   589.3 MiB
+  purged    :   644.3 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   396      
+  purges    :   431      
   guarded   :     0      
-  theaps    :   108         108           0      
+  theaps    :   164         164           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   109         109           1      
+  threads   :   165         165           1      
   numa nodes:     1
-  elapsed   :     0.116 s
-  process   : user: 0.451 s, system: 0.182 s, faults: 0, peak rss: 544.0 MiB, peak commit: 595.6 MiB
+  elapsed   :     0.125 s
+  process   : user: 0.472 s, system: 0.182 s, faults: 0, peak rss: 597.7 MiB, peak commit: 651.1 MiB
 
-BENCH wall=0.11 user=0.45 sys=0.18 rss_kb=557100 minor=6217
+BENCH wall=0.12 user=0.47 sys=0.18 rss_kb=612084 minor=6673

@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.3 K       4.9 K      33      
-  abandoned :   309           1.1 K      12      
-  reclaima  :    86      
-  reclaimf  :   674      
-  reabandon :   385      
+  pages     :     1.0 K       4.8 K      35      
+  abandoned :   255           1.1 K      14      
+  reclaima  :    83      
+  reclaimf  :   715      
+  reabandon :   345      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   747.6 MiB   747.6 MiB   747.6 MiB                          
+  committed :   688.2 MiB   688.2 MiB   688.2 MiB                          
   reset     :     0      
-  purged    :   739.0 MiB
+  purged    :   679.6 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     5      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   718      
+  purges    :   791      
   guarded   :     0      
-  theaps    :   314         314           0      
+  theaps    :   303         303           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   315         315           1      
+  threads   :   304         304           1      
   numa nodes:     1
-  elapsed   :     0.156 s
-  process   : user: 0.624 s, system: 0.243 s, faults: 0, peak rss: 706.8 MiB, peak commit: 747.6 MiB
+  elapsed   :     0.154 s
+  process   : user: 0.565 s, system: 0.239 s, faults: 0, peak rss: 667.4 MiB, peak commit: 688.2 MiB
 
-BENCH wall=0.15 user=0.62 sys=0.24 rss_kb=723832 minor=10162
+BENCH wall=0.15 user=0.56 sys=0.24 rss_kb=683436 minor=9959

@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   833           3.8 K      31      
-  abandoned :   553           1.1 K      10      
-  reclaima  :   100      
-  reclaimf  :   750      
-  reabandon :   333      
+  pages     :   844           3.6 K      31      
+  abandoned :   556           1.1 K      10      
+  reclaima  :   179      
+  reclaimf  :   524      
+  reabandon :   546      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   349.8 MiB   349.8 MiB   349.8 MiB                          
+  committed :   315.3 MiB   315.3 MiB   315.3 MiB                          
   reset     :     0      
-  purged    :   344.5 MiB
+  purged    :   310.2 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   179      
+  purges    :   201      
   guarded   :     0      
-  theaps    :    65          65           0      
+  theaps    :    42          42           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    66          66           1      
+  threads   :    43          43           1      
   numa nodes:     1
-  elapsed   :     0.164 s
-  process   : user: 0.267 s, system: 0.093 s, faults: 0, peak rss: 375.4 MiB, peak commit: 349.8 MiB
+  elapsed   :     0.163 s
+  process   : user: 0.267 s, system: 0.076 s, faults: 0, peak rss: 335.0 MiB, peak commit: 315.3 MiB
 
-BENCH wall=0.16 user=0.26 sys=0.09 rss_kb=384496 minor=13157
+BENCH wall=0.16 user=0.26 sys=0.07 rss_kb=343076 minor=12998

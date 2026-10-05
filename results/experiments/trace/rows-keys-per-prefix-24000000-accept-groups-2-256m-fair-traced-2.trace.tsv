@@ -1,0 +1,10 @@
+#pool	name	limit	peak_reserved	refusals	events_dropped
+pool	fair	268435456	103788750	0	0
+#class	class	consumers	can_spill	w_sum_of_peaks	w_largest_peak	w_class_peak	refusals	refused_bytes	w_refusals_then_release	w_consumers_ending_refused
+class	DataFusion-Cli	1	0	5890	5890	5890	0	0	0	0
+class	OrderedFinalAggregateStream	2	2	22148472	11672094	19999935	0	0	0	0
+class	OrderedPartialAggregateStream	4	4	42098605	11134728	30181488	0	0	0	0
+class	RepartitionExec	2	2	45391090	26303391	36864833	0	0	0	0
+class	RepartitionExec[Merge]	2	0	50019223	25986239	43243414	0	0	0	0
+class	SortPreservingMergeExec	1	0	22883814	22883814	22883814	0	0	0	0
+#event	micros	kind	consumer	can_spill	bytes	w_held	reserved	w_registered_spillable	w_registered_unspillable	w_unspillable_bytes	w_fair_quota	w_top_classes

@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.1 K       5.0 K      37      
-  abandoned :   301           1.2 K      16      
-  reclaima  :   101      
-  reclaimf  :   794      
-  reabandon :   354      
+  pages     :     1.2 K       5.1 K      37      
+  abandoned :   261           1.0 K      16      
+  reclaima  :    56      
+  reclaimf  :   641      
+  reabandon :   361      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   714.6 MiB   714.6 MiB   714.6 MiB                          
+  committed :   725.5 MiB   725.5 MiB   725.5 MiB                          
   reset     :     0      
-  purged    :   701.5 MiB
+  purged    :   712.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   947      
+  purges    :   863      
   guarded   :     0      
-  theaps    :   361         361           0      
+  theaps    :   383         383           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :   362         362           1      
+  threads   :   384         384           1      
   numa nodes:     1
-  elapsed   :     0.161 s
-  process   : user: 0.564 s, system: 0.253 s, faults: 0, peak rss: 691.7 MiB, peak commit: 714.6 MiB
+  elapsed   :     0.166 s
+  process   : user: 0.538 s, system: 0.291 s, faults: 0, peak rss: 709.4 MiB, peak commit: 725.5 MiB
 
-BENCH wall=0.16 user=0.56 sys=0.25 rss_kb=708396 minor=10234
+BENCH wall=0.16 user=0.53 sys=0.29 rss_kb=726452 minor=10404

@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :     1.1 K       7.9 K      29      
-  abandoned :   723           9.7 K       8      
-  reclaima  :     1.9 K  
-  reclaimf  :     5.5 K  
-  reabandon :     2.8 K  
+  pages     :   929           9.6 K      29      
+  abandoned :   618           9.8 K       8      
+  reclaima  :     2.0 K  
+  reclaimf  :     5.7 K  
+  reabandon :     2.7 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   597.1 MiB   597.1 MiB   597.1 MiB                          
+  committed :   569.7 MiB   569.7 MiB   569.7 MiB                          
   reset     :     0      
-  purged    :   592.6 MiB
+  purged    :   565.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   221      
+  purges    :   178      
   guarded   :     0      
-  theaps    :    36          36           0      
+  theaps    :    34          34           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    37          37           1      
+  threads   :    35          35           1      
   numa nodes:     1
-  elapsed   :     0.706 s
-  process   : user: 1.423 s, system: 0.212 s, faults: 0, peak rss: 627.5 MiB, peak commit: 597.1 MiB
+  elapsed   :     0.713 s
+  process   : user: 1.433 s, system: 0.174 s, faults: 0, peak rss: 593.0 MiB, peak commit: 569.7 MiB
 
-BENCH wall=0.70 user=1.42 sys=0.21 rss_kb=642572 minor=22856
+BENCH wall=0.71 user=1.43 sys=0.17 rss_kb=607312 minor=25898

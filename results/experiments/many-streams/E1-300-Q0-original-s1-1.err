@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   158           1.0 K      31      
-  abandoned :    45         248          10      
-  reclaima  :    66      
-  reclaimf  :   139      
-  reabandon :    32      
+  pages     :   180           1.1 K      31      
+  abandoned :    45         251          10      
+  reclaima  :    64      
+  reclaimf  :   145      
+  reabandon :    34      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   202.3 MiB   202.3 MiB   202.3 MiB                          
+  committed :   183.2 MiB   183.2 MiB   183.2 MiB                          
   reset     :     0      
-  purged    :   197.1 MiB
+  purged    :   178.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :    69      
+  purges    :    66      
   guarded   :     0      
-  theaps    :    50          50           0      
+  theaps    :    46          46           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    51          51           1      
+  threads   :    47          47           1      
   numa nodes:     1
-  elapsed   :     0.050 s
-  process   : user: 0.067 s, system: 0.067 s, faults: 0, peak rss: 227.9 MiB, peak commit: 202.3 MiB
+  elapsed   :     0.049 s
+  process   : user: 0.049 s, system: 0.079 s, faults: 0, peak rss: 212.0 MiB, peak commit: 183.2 MiB
 
-BENCH wall=0.05 user=0.06 sys=0.06 rss_kb=233392 minor=15269
+BENCH wall=0.05 user=0.04 sys=0.08 rss_kb=217152 minor=15240

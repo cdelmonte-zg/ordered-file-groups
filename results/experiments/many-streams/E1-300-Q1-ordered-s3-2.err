@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   190           2.1 K      33      
-  abandoned :    80         470          12      
-  reclaima  :    62      
-  reclaimf  :   217      
-  reabandon :   197      
+  pages     :   203           2.2 K      33      
+  abandoned :    95         426          12      
+  reclaima  :    20      
+  reclaimf  :   162      
+  reabandon :   194      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   410.3 MiB   410.3 MiB   410.3 MiB                          
+  committed :   453.1 MiB   453.1 MiB   453.1 MiB                          
   reset     :     0      
-  purged    :   404.1 MiB
+  purged    :   446.5 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   185      
+  purges    :   349      
   guarded   :     0      
-  theaps    :    94          94           0      
+  theaps    :   148         148           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    95          95           1      
+  threads   :   149         149           1      
   numa nodes:     1
-  elapsed   :     0.113 s
-  process   : user: 0.218 s, system: 0.213 s, faults: 0, peak rss: 451.2 MiB, peak commit: 410.3 MiB
+  elapsed   :     0.135 s
+  process   : user: 0.218 s, system: 0.259 s, faults: 0, peak rss: 488.3 MiB, peak commit: 453.1 MiB
 
-BENCH wall=0.11 user=0.21 sys=0.21 rss_kb=462116 minor=13129
+BENCH wall=0.13 user=0.21 sys=0.26 rss_kb=500056 minor=15084

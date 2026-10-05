@@ -1,0 +1,23 @@
+#pool	name	limit	peak_reserved	refusals	events_dropped
+pool	fair	536870912	291847467	6	0
+#class	class	consumers	can_spill	w_sum_of_peaks	w_largest_peak	w_class_peak	refusals	refused_bytes	w_refusals_then_release	w_consumers_ending_refused
+class	DataFusion-Cli	1	0	5946	5946	5946	0	0	0	0
+class	ExternalSorter	2	2	255241980	127981760	233605340	2	10030940	2	0
+class	ExternalSorterMerge	2	0	126478858	63239636	73725396	0	0	0	0
+class	FinalHashAggregateStream	2	2	138083967	69793815	138083967	4	83839666	4	0
+class	PartialHashAggregateStream	2	2	107586444	54233798	107586444	0	0	0	0
+class	RepartitionExec	2	2	21266560	13783120	15626352	0	0	0	0
+class	SortPreservingMergeExec	1	0	9588328	9588328	9588328	0	0	0	0
+#event	micros	kind	consumer	can_spill	bytes	w_held	reserved	w_registered_spillable	w_registered_unspillable	w_unspillable_bytes	w_fair_quota	w_top_classes
+event	123491	refusal	FinalHashAggregateStream[0]	1	26252766	64704889	131033156	8	4	0	67108864	FinalHashAggregateStream=129187989;RepartitionExec=1845167
+event	129930	refusal	FinalHashAggregateStream[1]	1	26186224	64483100	131955619	8	4	0	67108864	FinalHashAggregateStream=129187989;RepartitionExec=2767630
+event	170642	release_after_refusal	FinalHashAggregateStream[0]	1	64704209	680	67251410	8	4	0		FinalHashAggregateStream=64483780;RepartitionExec=2767630
+event	179994	release_after_refusal	FinalHashAggregateStream[1]	1	64482420	680	6319561	8	4	0		FinalHashAggregateStream=3550204;RepartitionExec=2769357
+event	276564	refusal	FinalHashAggregateStream[0]	1	15700176	68290152	138083967	7	4	0	76695844	FinalHashAggregateStream=138083967
+event	322935	release_after_refusal	FinalHashAggregateStream[0]	1	68289472	680	69794495	7	4	0		FinalHashAggregateStream=69794495
+event	333832	refusal	FinalHashAggregateStream[1]	1	15700500	69793815	72676724	7	4	0	76695844	FinalHashAggregateStream=72676724
+event	381953	release_after_refusal	FinalHashAggregateStream[1]	1	69793135	680	33653764	5	4	10485760		FinalHashAggregateStream=13473432;ExternalSorterMerge=10485760;ExternalSorter=5082968;RepartitionExec=4611604
+event	528271	refusal	ExternalSorter[0]	1	5015484	127981760	286796960	4	4	20971520	128974848	ExternalSorter=229966140;FinalHashAggregateStream=35859300;ExternalSorterMerge=20971520
+event	528595	release_after_refusal	ExternalSorter[0]	1	2098162	125883598	283287356	4	4	20971520		ExternalSorter=231507178;FinalHashAggregateStream=30808658;ExternalSorterMerge=20971520
+event	564156	refusal	ExternalSorter[1]	1	5015456	127260220	200602901	4	4	20971520	128974848	ExternalSorter=148698412;FinalHashAggregateStream=30932969;ExternalSorterMerge=20971520
+event	564596	release_after_refusal	ExternalSorter[1]	1	1033202	126227018	199569699	4	4	20971520		ExternalSorter=147665210;FinalHashAggregateStream=30932969;ExternalSorterMerge=20971520

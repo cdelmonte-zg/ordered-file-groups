@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   173           1.8 K      31      
-  abandoned :    51         715          10      
-  reclaima  :   158      
-  reclaimf  :   401      
-  reabandon :   255      
+  pages     :   163           1.8 K      31      
+  abandoned :    44         669          10      
+  reclaima  :   161      
+  reclaimf  :   386      
+  reabandon :   244      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   398.3 MiB   398.3 MiB   398.3 MiB                          
+  committed :   394.1 MiB   394.1 MiB   394.1 MiB                          
   reset     :     0      
-  purged    :   393.1 MiB
+  purged    :   389.0 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     3      
+  mmaps     :     4      
   commits   :     0      
   resets    :     0      
-  purges    :   117      
+  purges    :   116      
   guarded   :     0      
-  theaps    :    45          45           0      
+  theaps    :    42          42           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    46          46           1      
+  threads   :    43          43           1      
   numa nodes:     1
-  elapsed   :     0.126 s
-  process   : user: 0.195 s, system: 0.140 s, faults: 0, peak rss: 400.1 MiB, peak commit: 398.3 MiB
+  elapsed   :     0.129 s
+  process   : user: 0.193 s, system: 0.151 s, faults: 0, peak rss: 390.4 MiB, peak commit: 394.1 MiB
 
-BENCH wall=0.12 user=0.19 sys=0.14 rss_kb=409724 minor=15577
+BENCH wall=0.13 user=0.19 sys=0.15 rss_kb=399856 minor=15543

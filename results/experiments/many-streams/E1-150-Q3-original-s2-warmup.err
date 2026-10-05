@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :   844          10.2 K      29      
-  abandoned :   664           8.9 K       8      
-  reclaima  :   836      
-  reclaimf  :     5.5 K  
-  reabandon :     2.0 K  
+  pages     :   837           9.0 K      31      
+  abandoned :   632           9.1 K      10      
+  reclaima  :     1.0 K  
+  reclaimf  :     5.4 K  
+  reabandon :     2.2 K  
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   635.4 MiB   635.4 MiB   635.4 MiB                          
+  committed :   666.3 MiB   666.3 MiB   666.3 MiB                          
   reset     :     0      
-  purged    :   630.9 MiB
+  purged    :   661.1 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     5      
   commits   :     0      
   resets    :     0      
-  purges    :   173      
+  purges    :   185      
   guarded   :     0      
-  theaps    :    34          34           0      
+  theaps    :    49          49           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    35          35           1      
+  threads   :    50          50           1      
   numa nodes:     1
-  elapsed   :     0.622 s
-  process   : user: 1.397 s, system: 0.141 s, faults: 0, peak rss: 605.4 MiB, peak commit: 635.4 MiB
+  elapsed   :     0.658 s
+  process   : user: 1.392 s, system: 0.181 s, faults: 0, peak rss: 647.3 MiB, peak commit: 666.3 MiB
 
-BENCH wall=0.62 user=1.39 sys=0.14 rss_kb=619956 minor=8009
+BENCH wall=0.66 user=1.39 sys=0.18 rss_kb=662932 minor=9505

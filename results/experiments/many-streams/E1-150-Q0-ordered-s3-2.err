@@ -1,11 +1,11 @@
 subproc 0
  pages           peak       total     current       block      total#   
   touched   :     0           0           0                                ok
-  pages     :    78           1.2 K      30      
-  abandoned :    29         228           8      
-  reclaima  :    52      
-  reclaimf  :   116      
-  reabandon :    53      
+  pages     :    79           1.2 K      31      
+  abandoned :    23         218          10      
+  reclaima  :    50      
+  reclaimf  :   118      
+  reabandon :    76      
   waits     :     0      
   extended  :     0      
   retire    :     0      
@@ -13,24 +13,24 @@ subproc 0
 
  arenas          peak       total     current       block      total#   
   reserved  :     1.0 GiB     1.0 GiB     1.0 GiB                          
-  committed :   420.6 MiB   420.6 MiB   420.6 MiB                          
+  committed :   406.0 MiB   406.0 MiB   406.0 MiB                          
   reset     :     0      
-  purged    :   415.3 MiB
+  purged    :   400.8 MiB
   arenas    :     1      
   rollback  :     0      
-  mmaps     :     4      
+  mmaps     :     3      
   commits   :     0      
   resets    :     0      
-  purges    :   240      
+  purges    :   180      
   guarded   :     0      
-  theaps    :    65          65           0      
+  theaps    :    54          54           0      
   heaps     :     1           1           1      
   heap waits:     0      
 
  process         peak       total     current       block      total#   
-  threads   :    66          66           1      
+  threads   :    55          55           1      
   numa nodes:     1
-  elapsed   :     0.032 s
-  process   : user: 0.055 s, system: 0.176 s, faults: 0, peak rss: 358.7 MiB, peak commit: 420.6 MiB
+  elapsed   :     0.031 s
+  process   : user: 0.057 s, system: 0.162 s, faults: 0, peak rss: 342.0 MiB, peak commit: 406.0 MiB
 
-BENCH wall=0.03 user=0.05 sys=0.17 rss_kb=367308 minor=9585
+BENCH wall=0.03 user=0.05 sys=0.16 rss_kb=350232 minor=9551

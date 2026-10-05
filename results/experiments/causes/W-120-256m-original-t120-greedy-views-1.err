@@ -1,0 +1,6 @@
+Resources exhausted: Additional allocation failed for OrderedPartialAggregateStream[4] with top memory consumers (across reservations) as:
+  RepartitionExec[2]#205(can spill: true) consumed 3.7 MB, peak 3.7 MB,
+  RepartitionExec[1]#203(can spill: true) consumed 3.7 MB, peak 3.7 MB,
+  RepartitionExec[3]#207(can spill: true) consumed 3.2 MB, peak 3.2 MB.
+Error: Failed to allocate additional 824.0 B for OrderedPartialAggregateStream[4] with 0.0 B already allocated for this reservation - 38.0 B remain available for the total memory pool: greedy(used: 256.0 MB, pool_size: 256.0 MB)
+BENCH wall=0.32 user=0.62 sys=0.77 rss_kb=538060 minor=4324

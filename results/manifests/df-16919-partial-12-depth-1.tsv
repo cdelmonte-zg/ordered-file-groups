@@ -8,6 +8,11 @@
 # duplicate_rows	24
 # duplicate_share	0.000040
 # groups_by_bounds	2	[[0, 2, 4, 6, 8, 10], [1, 3, 5, 7, 9, 11]]
+# cluster_ms	500
+# distinct_prefixes	114345
+# grouping_keys_per_prefix	5.25
+# grouping_keys_per_prefix_median	5
+# grouping_keys_per_prefix_max	21
 file	rows	bytes	row_groups	min_col_1	min_col_2	max_col_1	max_col_2
 0	60020	831432	1	ENTITY-0000000	1790084091589	ENTITY-0000002	1790633008751
 1	39910	549617	1	ENTITY-0000003	1790062995193	ENTITY-0000004	1790633008751
