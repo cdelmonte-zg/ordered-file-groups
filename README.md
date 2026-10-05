@@ -1,9 +1,8 @@
 # ordered-file-groups
 
-Companion lab for the article *Il costo dell'ordine in DataFusion*
-(cdelmonte.dev, in preparation). It measures what Apache DataFusion gains and
-what it pays when the scan of a table made of sorted Parquet files keeps the
-file order by opening more ordered file groups than `target_partitions`.
+A lab that measures what Apache DataFusion gains and what it pays when the
+scan of a table made of sorted Parquet files keeps the file order by opening
+more ordered file groups than `target_partitions`.
 
 Starting point: apache/datafusion issue
 [#16919](https://github.com/apache/datafusion/issues/16919). With
@@ -35,7 +34,7 @@ and nothing else.
   `summary.tsv`, `machine.txt`), `result-check/` (the rows the variants
   return, compared), `experiments/<name>/`, `metrics.tsv` (every metric the
   engine printed, for every operator of every run) and `figures.tsv`, the
-  figures the article quotes.
+  headline figures of the report, by name.
 - `provenance/`: how the binaries were built, written by
   `scripts/build_binaries.sh`: commit, toolchain, build command, the patch as
   applied, build logs, SHA-256. The binaries themselves are not in the
