@@ -746,7 +746,14 @@ def trace(out, figures):
                      f"{lm(lambda e, lim: e['quota'] / mb if e['quota'] is not None else None)} | "
                      f"{lm(lambda e, lim: e['reserved'] / mb)} | "
                      f"{lm(lambda e, lim: lim / mb if lim else None)} | {holders or 'n/a'} |")
-        figures.append((f"trace_{'_'.join(k)}_error_class", classes))
+        tag = f"trace_{'_'.join(k)}_error"
+        figures += [(f"{tag}_class", classes),
+                    (f"{tag}_asked_mb", lm(lambda e, lim: e["bytes"] / mb)),
+                    (f"{tag}_held_mb", lm(lambda e, lim: e["held"] / mb)),
+                    (f"{tag}_quota_mb",
+                     lm(lambda e, lim: e["quota"] / mb if e["quota"] is not None else None)),
+                    (f"{tag}_pool_reserved_mb", lm(lambda e, lim: e["reserved"] / mb)),
+                    (f"{tag}_holders", holders or "n/a")]
     lines.append("")
     return "\n".join(lines)
 
