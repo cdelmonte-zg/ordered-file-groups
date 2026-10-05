@@ -9,7 +9,7 @@ import statistics as st
 from math import sqrt, isnan
 from pathlib import Path
 
-from common import read_tsv
+from common import read_tsv, rm
 
 # t quantiles 0.975 by degrees of freedom; beyond 30 the normal value
 T975 = dict(zip(range(1, 31), (
@@ -73,6 +73,143 @@ def select(rows, **where):
 
 def missing(name, out):
     return f"### {name}\n\nNot run: `{out}` has no results.tsv, or an empty one.\n"
+
+
+def stands(a, b):
+    """How the runs `a` stand to the runs `b` on elapsed_s, by the quartile rule of the matrix."""
+    qa, qb = (rm.quartiles(values(completed(x), "elapsed_s")) for x in (a, b))
+    if qa[0] == "" or qb[0] == "":
+        return "not comparable"
+    if float(qa[2]) < float(qb[0]):
+        return "faster"
+    if float(qa[0]) > float(qb[2]):
+        return "slower"
+    return "within the quartiles"
+
+
+def timed(sel):
+    """'median [q1..q3]' of elapsed_s over the completed runs; 'n/a' without one."""
+    q = rm.quartiles(values(completed(sel), "elapsed_s"))
+    return "n/a" if q[0] == "" else f"{q[1]} [{q[0]}..{q[2]}]"
+
+
+PLANS = {"original": "original", "accept-groups": "ordered",
+         "original-target": "original, target raised"}
+
+
+# ---------------------------------------------------------------- large pools
+
+def large_pools(out, figures):
+    title = "The base case with larger pools"
+    path = Path(out) / "results.tsv"
+    if not path.is_file() or not path.stat().st_size:
+        return missing(title, out)
+    rows = read_tsv(path)
+    pools = list(dict.fromkeys(r["pool"] for r in rows))
+
+    def cell(pool, variant):
+        return select(rows, pool=pool, variant=variant)
+
+    def med(pool, variant, key):
+        return median(completed(cell(pool, variant)), key)
+
+    lines = [f"### {title}", "",
+             "`experiments/large-pools/run.py`: the deduplication of the base case with pools "
+             "beyond those of the matrix, to reach a pool at which the final aggregate of the "
+             "original plan does not spill. Medians of the completed runs, elapsed seconds with "
+             "the quartiles.", "",
+             "| pool | plan | completed | elapsed, s | peak RSS, MB | sort spills | "
+             "final-aggregate spills | repartition spills |", "|" + "---|" * 8]
+    for pool in pools:
+        for variant, label in PLANS.items():
+            sel = cell(pool, variant)
+            lines.append(f"| {pool} | {label} | {n_of(sel)} | {timed(sel)} | "
+                         f"{num(med(pool, variant, 'rss_mb'), 0)} | "
+                         f"{num(med(pool, variant, 'sort_spills'), 0)} | "
+                         f"{num(med(pool, variant, 'final_agg_spills'), 0)} | "
+                         f"{num(med(pool, variant, 'repartition_spills'), 0)} |")
+    lines.append("")
+    spill_free = None
+    for pool in pools:
+        o, a = med(pool, "original", "elapsed_s"), med(pool, "accept-groups", "elapsed_s")
+        gain = 100 * (1 - a / o)
+        spills = med(pool, "original", "final_agg_spills")
+        word = stands(cell(pool, "accept-groups"), cell(pool, "original"))
+        lines.append(f"- {pool}: the ordered plan takes {num(a)} against {num(o)} s, "
+                     f"{pct(gain)} percent less, {word}; the final aggregate of the original "
+                     f"spills {num(spills, 0)} times, that of the ordered plan "
+                     f"{num(med(pool, 'accept-groups', 'final_agg_spills'), 0)}.")
+        figures += [(f"large_pools_{pool}_original_s", num(o)),
+                    (f"large_pools_{pool}_ordered_s", num(a)),
+                    (f"large_pools_{pool}_gain_pct", pct(gain)),
+                    (f"large_pools_{pool}_ordered_against_original", word),
+                    (f"large_pools_{pool}_original_final_spills", num(spills, 0)),
+                    (f"large_pools_{pool}_target_s", num(med(pool, "original-target", "elapsed_s")))]
+        if spill_free is None and spills == 0:
+            spill_free = pool
+    if spill_free is None:
+        lines.append("- The final aggregate of the original plan spills at every pool run: the "
+                     "gain and the spills avoided are still not told apart.")
+    else:
+        word = stands(cell(spill_free, "accept-groups"), cell(spill_free, "original"))
+        lines.append(f"- From {spill_free} the final aggregate of the original plan does not "
+                     f"spill. There the ordered plan is {word} "
+                     + ("of" if word.startswith("within") else "than" if word != "not comparable" else "with")
+                     + f" the original ({num(med(spill_free, 'accept-groups', 'elapsed_s'))} against "
+                     f"{num(med(spill_free, 'original', 'elapsed_s'))} s).")
+    figures.append(("large_pools_original_final_spill_free_from", spill_free or "none"))
+    lines.append("")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------- target partitions
+
+def target_partitions(out, figures):
+    title = "Raising target_partitions when the groups are many"
+    path = Path(out) / "results.tsv"
+    if not path.is_file() or not path.stat().st_size:
+        return missing(title, out)
+    rows = read_tsv(path)
+    cells = list(dict.fromkeys((r["files"], r["pool"]) for r in rows))
+
+    def cell(files, pool, variant):
+        return select(rows, files=files, pool=pool, variant=variant)
+
+    lines = [f"### {title}", "",
+             "`experiments/target-partitions/run.py`: the files with total overlap, which need "
+             "120 and about 1200 ordered groups. The original plan and the ordered plan run with "
+             "the target at two; the third row is the original binary with `target_partitions` "
+             "raised to the groups needed. Medians of the completed runs.", "",
+             "| files | pool | plan | target | completed | file groups | elapsed, s | "
+             "peak RSS, MB | final-aggregate spills | repartition spills | errors |",
+             "|" + "---|" * 11]
+    for files, pool in cells:
+        for variant, label in PLANS.items():
+            sel = cell(files, pool, variant)
+            ok = completed(sel)
+            groups = sorted({int(g) for g in ((r.get("scan_groups") or "") for r in ok) if g.isdigit()})
+            lines.append(f"| {files} | {pool} | {label} | {sel[0]['target_partitions'] if sel else ''} | "
+                         f"{n_of(sel)} | {', '.join(map(str, groups)) or 'n/a'} | {timed(sel)} | "
+                         f"{num(median(ok, 'rss_mb'), 0)} | {num(median(ok, 'final_agg_spills'), 0)} | "
+                         f"{num(median(ok, 'repartition_spills'), 0)} | {error_kinds(sel)} |")
+    lines.append("")
+    for files, pool in cells:
+        t, a = cell(files, pool, "original-target"), cell(files, pool, "accept-groups")
+        done = len(completed(t))
+        text = f"- {files} files, {pool}: with the target raised {n_of(t)} runs complete"
+        if done:
+            word = stands(t, a)
+            text += (f"; {num(median(completed(t), 'elapsed_s'))} s and "
+                     f"{num(median(completed(t), 'rss_mb'), 0)} MB of RSS, against "
+                     f"{num(median(completed(a), 'elapsed_s'))} s and "
+                     f"{num(median(completed(a), 'rss_mb'), 0)} MB for the ordered plan ({word})")
+        lines.append(text + ".")
+        figures += [(f"target_{files}_{pool}_completed", n_of(t)),
+                    (f"target_{files}_{pool}_s", num(median(completed(t), "elapsed_s"))),
+                    (f"target_{files}_{pool}_rss_mb", num(median(completed(t), "rss_mb"), 0)),
+                    (f"target_{files}_{pool}_ordered_completed", n_of(a))]
+    lines.append("")
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------- string views

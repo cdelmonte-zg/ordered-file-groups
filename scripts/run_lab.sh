@@ -46,7 +46,7 @@ $py scripts/run_matrix.py --runs 10 --out results/matrix
 set +e
 
 step $py scripts/check_results.py --out results/result-check
-for name in string-views many-streams depth open-files huge-pages process; do
+for name in string-views many-streams depth open-files huge-pages process large-pools target-partitions; do
   step $py experiments/$name/run.py
 done
 step $py scripts/collect_metrics.py

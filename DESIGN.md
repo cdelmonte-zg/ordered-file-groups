@@ -255,11 +255,31 @@ process alone (`prctl(PR_SET_THP_DISABLE)`, which needs no privilege and
 changes nothing on the machine): if the excess memory of the ordered plan is
 memory in use, it stays; if it is page rounding, it goes.
 
+**Larger pools (`experiments/large-pools/`).** In the matrix the final
+aggregate of the original plan spills at every pool and that of the ordered
+plan at none, so the gain of the ordered plan and the spills it avoids are
+not told apart. The base case runs again at 512 MB, 1, 2 and 4 GB, with the
+original plan, the ordered plan and the original with the target raised. The
+criterion is read at the first pool at which the median spills of the
+original's final aggregate are zero. If the gain belongs to finishing groups
+early, the ordered plan is still faster there beyond the quartiles; if it
+belongs to the spills avoided, the two plans are within the quartiles or the
+original is faster. If the original's final aggregate spills at every pool
+run, the experiment decides nothing and says so.
+
+**Raising the target with many groups (`experiments/target-partitions/`).**
+The matrix runs the workaround, the original binary with `target_partitions`
+raised to the groups needed, up to twelve groups. Here it runs where the
+files need 120 and about 1200 groups, at 256 MB and at 2 GB, beside the
+original plan and the ordered plan with the target at two. Reported: how many
+runs complete, and for those that do, time and peak RSS against the ordered
+plan. No explanation of a failure is tested here.
+
 ## Limits
 
 One machine, one DataFusion commit, synthetic data, sub-second queries on a
 few MB of Parquet, the fair pool only. Ten runs per cell of the matrix and of the experiments on
-string views and on depth; five per cell and series for the ordered plan in
+string views, on depth, on the larger pools and on the raised target; five per cell and series for the ordered plan in
 the memory of the many streams, three for its baselines and probes; five per
 arm for the huge pages; three for the open-file limit and for the process
 seen from outside: the separation of the quartiles used in the report is a descriptive

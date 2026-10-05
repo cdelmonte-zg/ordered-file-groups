@@ -48,8 +48,8 @@ and nothing else.
   (`collect_metrics.py`), the report (`make_report.py`), the configuration of
   the machine (`machine_setup.sh`) and the driver (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
-  `depth`, `open-files`, `huge-pages`), the view of the process from outside
-  (`process`), their shared runner (`common.py`) and the code of
+  `depth`, `open-files`, `huge-pages`, `large-pools`, `target-partitions`),
+  the view of the process from outside (`process`), their shared runner (`common.py`) and the code of
   their report sections (`report.py`).
 
 The repository holds one run. Nothing in it was collected by hand, and no

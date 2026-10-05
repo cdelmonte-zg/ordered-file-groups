@@ -716,6 +716,8 @@ One-variable tests on the costs the matrix shows, each in
 {experiments.open_files(exp / "open-files", figures)}
 {experiments.huge_pages(exp / "huge-pages", figures)}
 {experiments.process(exp / "process", figures)}
+{experiments.large_pools(exp / "large-pools", figures)}
+{experiments.target_partitions(exp / "target-partitions", figures)}
 ## Not measured
 
 {NOT_MEASURED}
