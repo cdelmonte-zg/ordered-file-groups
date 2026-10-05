@@ -27,6 +27,15 @@ def without_huge_pages():
         raise OSError(ctypes.get_errno(), "prctl(PR_SET_THP_DISABLE) failed")
 
 
+def groups_by_bounds(dataset):
+    """The ordered groups the bounds of a dataset give, from its manifest."""
+    path = ROOT / "results" / "manifests" / f"{dataset}.tsv"
+    for line in path.read_text().splitlines():
+        if line.startswith("# groups_by_bounds\t"):
+            return int(line.split("\t")[1])
+    raise SystemExit(f"{path}: no groups_by_bounds line")
+
+
 def output_dir(name):
     """The directory an experiment writes to: --out, or results/experiments/<name>.
 

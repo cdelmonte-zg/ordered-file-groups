@@ -5,7 +5,7 @@ Run from the repository root:
 
 The matrix runs the original binary with `target_partitions` raised to the
 ordered groups the files need (`original-target`) up to twelve groups. This
-experiment runs it where the files need 120 and about 1200 groups, at 256 MB
+experiment runs it on the files with total overlap, 120 and 1200, at 256 MB
 and at 2 GB, beside the original plan and the ordered plan with the target
 left at two. One unrecorded warm-up per configuration, ten recorded runs,
 configurations interleaved in rotating order. Writes every output and
@@ -15,16 +15,17 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from common import interleaved, output_dir, sql_for, timed_run, write_tsv  # noqa: E402
+from common import groups_by_bounds, interleaved, output_dir, sql_for, timed_run, write_tsv  # noqa: E402
 
 OUT = output_dir("target-partitions")
 RUNS = 10
-# files -> (dataset, ordered groups the bounds give)
-CASES = {120: ("df-16919-partial-120-depth-120-rank", 120),
-         1200: ("df-16919-partial-1200-depth-1200-rank", 1196)}
+# files -> dataset; the raised target is the ordered groups its manifest gives
+CASES = {120: "df-16919-partial-120-depth-120-rank",
+         1200: "df-16919-partial-1200-depth-1200-rank"}
 
 configs = []
-for files, (dataset, groups) in CASES.items():
+for files, dataset in CASES.items():
+    groups = groups_by_bounds(dataset)
     for pool in ("256m", "2g"):
         for variant, binary, target in (("original", "original", 2),
                                         ("accept-groups", "accept-groups", 2),

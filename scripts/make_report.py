@@ -55,8 +55,7 @@ NOT_MEASURED = """\
 - The occupancy of the repartition's channels; `send_time` is the time the
   inputs spend sending, summed over the inputs, not a trace of who waits for
   whom.
-- A pool at which the original plan does not spill, the greedy pool, and
-  larger data: every query here runs under a second on a few MB of Parquet.
+- The greedy pool and larger data: every query here runs under a second on a few MB of Parquet.
 - The per-file overhead of small files is inside the elapsed time and the
   `CREATE` time, not broken down into opens, footer reads and metadata.
 - The `GROUP BY` on the whole sort key at a size where the hash aggregate
@@ -101,20 +100,12 @@ class Matrix:
 
         'not comparable' when either has no completed run.
         """
-        if any(isnan(self.get(*x, k)) for x in (a, b) for k in ("elapsed_q1", "elapsed_q3")):
-            return "not comparable"
-        if self.get(*a, "elapsed_q3") < self.get(*b, "elapsed_q1"):
-            return "faster"
-        if self.get(*a, "elapsed_q1") > self.get(*b, "elapsed_q3"):
-            return "slower"
-        return "within the quartiles"
+        return experiments.quartile_word(self.get(*a, "elapsed_q1"), self.get(*a, "elapsed_q3"),
+                                         self.get(*b, "elapsed_q1"), self.get(*b, "elapsed_q3"))
 
     def versus(self, a, b, name):
         """'faster than <name>', 'slower than <name>' or 'within the quartiles of <name>'."""
-        word = self.compare(a, b)
-        if word == "not comparable":
-            return f"not comparable with {name} (no completed run)"
-        return f"{word} of {name}" if word.startswith("within") else f"{word} than {name}"
+        return experiments.versus(self.compare(a, b), name)
 
     def pair(self, case, pool, variant="accept-groups", against="original"):
         """'0.377 against 0.660 s' for a variant and its reference."""
@@ -383,7 +374,8 @@ def findings(m, manifests, figures):
             "plan " + ", ".join(f"{s:g}" for s in ord_spills) + ". ")
     if all(s > 0 for s in orig_spills) and all(s == 0 for s in ord_spills):
         text += ("One plan spills there at every pool and the other at none, so this series does "
-                 "not separate the benefit of early emission from that of the spills avoided.")
+                 "not separate the benefit of early emission from that of the spills avoided. The "
+                 "experiment on larger pools below reaches pools at which the original does not spill there.")
     out.append(text)
     figures += [("gain_pct_128_256_512", " / ".join(f"{g:.0f}" for g in gains))]
     for (c, p) in pools:
