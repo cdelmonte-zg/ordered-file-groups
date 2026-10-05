@@ -2,9 +2,9 @@
 
 *Why each experiment exists, what it establishes, and where the explanation stops.*
 
-This document explains the reasoning behind the lab, and how its explanations changed as the experiments were added. [DESIGN.md](DESIGN.md) records the experimental design; [RESULTS.md](RESULTS.md) contains the generated tables and comparisons; the [recorded outputs](results/) support both. The numbers come from the results recorded at lab commit `14b9c0a9`, on DataFusion commit `e1aa7d956`.
+This document explains the reasoning behind the lab, and how its explanations changed as the experiments were added. [DESIGN.md](DESIGN.md) records the experimental design; [RESULTS.md](RESULTS.md) contains the generated tables and comparisons; the [recorded outputs](results/) support both. The numbers come from the results recorded at lab commit `8157b06d`, on DataFusion commit `e1aa7d956`.
 
-The numbers below are generated from the lab's recorded results rather than copied by hand. Regenerating them is a consistency check, not an editorial review: when an experiment changes its outcome, the interpretation must be read again.
+The numbers below are those of `results/figures.tsv` and of the result tables at the commit named above. When the lab is run again they must be checked against the new ones, and where an experiment changes its outcome the interpretation must be read again.
 
 ## 1. The question and the intervention
 
@@ -47,9 +47,9 @@ RSS is the process's resident memory, not its memory-pool reservation. `output_b
 
 The report calls one variant faster when its third quartile lies below the other's first. This is a declared descriptive rule, not a hypothesis test or a guarantee of statistical significance. For configurations with failures, completion frequency and time conditional on completion must both be considered.
 
-`DESIGN.md` states a prediction for each axis of the matrix before the run, and `RESULTS.md` checks each one against a declared rule in its table of predictions. Several do not hold. The experiments added last were first run as a pilot, and their hypotheses were written after it: `DESIGN.md` keeps the earlier explanations as they were and marks the later ones as such. This narrative follows the results, not the predictions.
+`DESIGN.md` states predictions for the axes of the matrix before the run, and `RESULTS.md` checks each one against a declared rule in its table of predictions; not all of them hold. The experiments added last were first run as a pilot. Their explanations and predictions stand in `DESIGN.md` as they were written before it; the hypothesis on the quotas of the pool, the readings of the traces and the two series on rows were written after it, and are marked as such. This narrative follows the results, not the predictions.
 
-Two of the five binaries are traced. They wrap the memory pool and record what each consumer reserves, what it is refused and what held at that moment, forwarding every call unchanged. The lock they take can change how tasks interleave, so every traced configuration also runs with the plain binary: the two complete the same number of runs in 39 of 39 configurations, and their spills by operator agree or differ by a unit. That makes them comparable on what was recorded; it does not show that the wrapper perturbs nothing. No time of a traced run is used.
+The lab builds five binaries: the two primary builds, a third with a changed accounting used by one experiment, and a traced copy of each primary build. The traced ones wrap the memory pool and record what each consumer reserves, what it is refused and what held at that moment, forwarding every call unchanged. The lock they take can change how tasks interleave, so every traced configuration also runs with the plain binary: the two complete the same number of runs in 39 of 39 configurations. Their spills are not identical: the median spills of an operator are equal in 119 of 136 cells of that comparison, and elsewhere differ by a few units or a few percent. That makes the two comparable on what was recorded; it does not show that the wrapper perturbs nothing, and what the traces attribute describes the traced runs. No time of a traced run is used.
 
 Three readings of the traces are fixed. The peak of a class of consumers is the largest sum of what they held at one moment: a reservation, not the sum of separate peaks and not resident memory. A refusal is read against the limit as reserved plus request. A release after a refusal is what the wrapper sees; it is consistent with a spill and is set beside the spills the operator reports, not observed as one.
 
@@ -59,7 +59,7 @@ Q3 groups by six columns, including the two-column sort prefix, and orders its o
 
 At 256 MB, Q3 changes from 0.603 seconds to 0.351, a reduction of 42 percent. The original spills in its sort and final aggregate; the ordered base case does not spill. This establishes a useful effect for the dataset and configuration. It does not yet explain how much comes from removing the sort, completing prefixes early, or avoiding final-aggregate spills.
 
-The original build with statistics grouping disabled (`original-split-off`) takes 0.603 seconds, within the quartiles of the original. The setting alone does not move the original plan.
+The original build with statistics grouping disabled (`original-split-off`) takes 0.603 seconds, within the quartiles of the original. The setting alone does not move the original plan beyond the quartiles.
 
 The operator measurements make the next question more precise:
 
@@ -97,9 +97,9 @@ Up to 512 MB, the largest pool of the matrix, the final aggregate of the origina
 | 2 GB | 0.362 | 0.357 | 0 |
 | 4 GB | 0.346 | 0.357 | 0 |
 
-From the pool `2g` up, the final aggregate of the original no longer spills, and the advantage of the ordered plan shrinks until the two are not clearly distinguishable in the runs collected. The ordered plan takes the same time at every pool.
+From the pool `2g` up, the final aggregate of the original no longer spills in any run, and the advantage of the ordered plan shrinks until the two are not clearly distinguishable in the runs collected. The ordered plan takes about the same time at every pool.
 
-With more rows the original goes further. The base layout was generated at 6 and 24 million rows, and each size ran under 256 MB and under a pool large enough for the final aggregate of the original not to spill.
+With more rows the original goes further. The base layout was generated at 6 and 24 million rows, and each size ran under 256 MB and under a pool large enough for the final aggregate of the original not to spill: 4 GB for the base case, 32 GB at 6 million rows, 128 GB at 24 million. These are limits of the pool, not memory the process holds.
 
 | Dataset | Ordered against original, 256 MB | Ordered against original, large pool |
 |---|---|---|
@@ -110,7 +110,7 @@ With more rows the original goes further. The base layout was generated at 6 and
 | 24 million rows, more prefixes | 49 percent less | 9 percent more |
 | 6 million rows, keys concentrated under few prefixes | 49 percent less | 8 percent more |
 
-Under 256 MB the ordered plan keeps its advantage at every size. Under the large pool the original is the faster plan at every size above the base case. The benefit of keeping the order therefore belongs to a regime of memory: it is large where the original aggregation spills, and it is not guaranteed where the hash aggregation has room.
+Under 256 MB the ordered plan keeps its advantage at every size; at 24 million rows the original also fails some of its runs there, completing 4 of 5 and 3 of 5, and its times are those of the runs that complete. Under the large pool the original is the faster plan at every size above the base case. The concentrated dataset differs from the others in more than its prefixes, as the next section says. The benefit of keeping the order therefore belongs to a regime of memory: it is large where the original aggregation spills, and it is not guaranteed where the hash aggregation has room.
 
 ### Memory budgets and duplicates inside the matrix
 
@@ -128,17 +128,17 @@ The duplicate experiment keeps the total row count and changes the number of dis
 
 ## 4. What the plans reserve
 
-The fair pool gives every consumer that can spill a quota: the limit, less what the consumers that cannot spill hold, divided by the number of those that can. The traced runs show how the two plans meet it.
+The fair pool gives every consumer that can spill a quota: the limit, less what the consumers that cannot spill hold, divided by the number of those that can and are registered at that moment. The traced runs show how the two plans meet it.
 
 In the base case at 256 MB the original plan is refused 21 times in median. Of the refusals kept, 106 of 106 are above the quota computed for that moment, and in 106 of 106 the request fitted the pool. The pool itself peaks at 181 MB of 256. An operator is refused at its own quota while the pool as a whole still has capacity.
 
-The final aggregate is the class that grows with the pool: its peak reservation is 62.9 MB at 256 MB, 127.3 MB at 512 MB and 361.2 MB at 2 GB, where it is no longer refused. The final aggregate of the ordered plan peaks at 21.6 MB at 256 MB, and the ordered plan records 0 refusals.
+The reservations grow with the pool, that of the sort most of all. For the final aggregate the peak is 62.9 MB at 256 MB, 127.3 MB at 512 MB and 361.2 MB at 2 GB, where it is no longer refused while the sort still is. The final aggregate of the ordered plan peaks at 21.6 MB at 256 MB, and the ordered plan records 0 refusals.
 
-After a refusal the final aggregate and the sort release memory, and the counts of those releases follow the spills these operators report. The partial aggregate is refused and releases too, and reports no spill: a release is not always one.
+After a refusal the final aggregate and the sort release memory. In the base case the counts of those releases follow the spills these operators report, a little short of them; with many streams they do not, and the table of `RESULTS.md` sets the two side by side. The partial aggregate is refused and releases too, and reports no spill: a release is not always one.
 
 This does not show that the original plan would complete without spills inside the same limit if its aggregate were allowed more. The reservations and the peaks of the other operators can change when it holds more, and the reservations seen here are not the need of the query.
 
-The series on rows shows how differently the two aggregations grow. The first column is the ordered plan under 256 MB, the second the original under the large pool, where it is not refused.
+The series on rows shows how differently the two aggregations grow. The first column of peaks is the ordered plan under 256 MB, the second the original under the large pool, where its final aggregate is not refused and its sort still is.
 
 | Dataset | Prefixes | Keys per prefix, mean (largest) | Ordered final aggregate, peak MB | Original final aggregate, peak MB |
 |---|---:|---|---:|---:|
@@ -149,9 +149,9 @@ The series on rows shows how differently the two aggregations grow. The first co
 | 24 million, more prefixes | 4,573,880 | 5.25 (largest 24) | 19.5 | 12,340.0 |
 | 6 million, concentrated | 231 | 21633.38 (largest 31151) | 30.7 | 2,885.6 |
 
-The reservation of the original's final aggregate grows with the rows. That of the ordered one stays level when the prefixes grow, as predicted. For the keys under a prefix the comparison that holds the other factors is between the two datasets of 6 million rows: with the keys concentrated under few prefixes the ordered final aggregate reserves more than with the keys spread, a result compatible with the prediction and small beside the reservation of the original. Prefixes and keys per prefix are counted on the source table, not on what reaches each partition of the final aggregate.
+The reservation of the original's final aggregate grows with the rows. That of the ordered one stays level when the prefixes grow, as the prediction written after the first pilot said. With the prefixes fixed and ten to forty times the keys under each it stays level too, and that is against the prediction: in the range tried, more keys under a prefix did not raise it. Only the concentrated dataset reserves more. It does not isolate the keys per prefix: a sixth of its rows are duplicates and it has fewer distinct keys than the other datasets of 6 million rows. Prefixes and keys per prefix are counted on the source table, not on what reaches each partition of the final aggregate.
 
-The ordered plan reserves far less for its aggregation, and in these runs it is not refused where the original is. That is what the traces connect; they do not suppose that the two plans have the same quotas, which change during a run and depend on the other consumers.
+The ordered plan reserves far less for its aggregation, and in the same configurations its aggregation is not refused where that of the original is; its repartition is refused a few times at the larger sizes. That is what the traces connect; they do not suppose that the two plans have the same quotas, which change during a run and depend on the other consumers.
 
 ## 5. The cost of keeping the order
 
@@ -179,13 +179,13 @@ The two 1,200-file layouts are a useful comparison of few versus many streams wi
 
 ### The workaround with many groups
 
-Raising `target_partitions` to the number of groups makes the original binary accept them. The matrix runs this up to twelve groups, where it is faster than the ordered plan and holds more memory. With more groups it stops completing: with 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB, and with about 1,200 groups 0 of 10 at 2 GB.
+Raising `target_partitions` to the number of groups makes the original binary accept them. The matrix runs this up to twelve groups, where it is faster than the ordered plan and holds more memory. With more groups it stops completing: with 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB (3 of 10 in another experiment with the same configuration), and with about 1,200 groups 0 of 10 at 2 GB.
 
-The traces say what holds at the request that ends the query. Under the fair pool the error names the ordered final aggregate: it asks 3.3 MB holding nothing, against a quota of 0.3 MB at 256 MB and of 2.4 MB at 2 GB. The pool then reports 188 and 1,558 MB reserved, most of it held by the inputs of the repartition's merge, which cannot spill and so narrow every quota. Under the greedy pool, which has no quotas, the error names those merge inputs, and the pool is full: 256 MB of 256, most of it held by the repartition. The two pools fail under different conditions, quotas too small in one and overall capacity nearly exhausted in the other.
+The traces say what holds at the request that ends the query. Under the fair pool the error names the ordered final aggregate: it asks 3.3 MB holding nothing, against a quota of 0.3 MB at 256 MB and of 2.4 MB at 2 GB. The pool then reports 188 and 1,558 MB reserved, most of it held by the merges of the repartition's outputs, which cannot spill and so narrow every quota. Under the greedy pool, which has no quotas, the error names those merges, and the pool is nearly full: 256 MB of 256, most of it held by the repartition. At the refusals the two pools show different conditions: quotas too small in one, overall capacity nearly exhausted in the other.
 
 The error the query returns is the reference here. A consumer that merely ends with a refused request can have been cancelled after the error of another.
 
-Two changes of one thing bound the failure without isolating its cause. With the grouping by statistics off and the same target, the 1,200 files are spread over the partitions without regard to their bounds, the plan is no longer ordered, and at 2 GB it completes 10 of 10 runs; that points at the ordered path, and it changes several operators at once. With the 120 ordered inputs kept and the outputs of the repartition varied, the ordered plan completes all its runs up to 8 outputs at 256 MB and up to 60 at 2 GB; the outputs change the partitions of the operators downstream with them.
+Two changes of one thing bound the failure without isolating its cause. With the grouping by statistics off and the same target, the 1,200 files are spread over the partitions without regard to their bounds and the plan is no longer ordered: at 2 GB it completes 10 of 10 runs, and at 256 MB 0 of 10. With 120 files every partition holds one file, the scan stays ordered, and the configuration is the workaround again. At 2 GB the contrast points at the ordered path, changing several operators at once; at 256 MB the number of partitions is enough for the query to fail. With the 120 ordered inputs kept and the outputs of the repartition varied, the ordered plan completes all its runs up to 8 outputs at 256 MB and at every number tried, up to 60, at 2 GB; the outputs change the partitions of the operators downstream with them.
 
 ### Many streams under a small pool
 
@@ -198,7 +198,13 @@ In the matrix the ordered plan with about 1,200 streams loses at 128 MB. A serie
 | 599 | 0.656 | 0.689 | within the quartiles | 85.9 |
 | 1,196 | 0.710 | 0.783 | slower | 85.9 |
 
-The advantage of the base case is already gone at 150 streams, where the final aggregate of the ordered plan spills. Its refusals are of the same kind as those of the original in the base case: of those kept with about 1,200 streams, 10729 of 10762 are above quota, and in 10762 of 10762 the request fitted the pool. With many consumers that can spill the quota is small, and here the ordered final aggregate also reserves several times what it reserves in the base case.
+The advantage of the base case is already gone at 150 streams, where the final aggregate of the ordered plan spills. The peaks of the table are medians.
+
+The refusals of the ordered plan are above quota with the request fitting the pool, as in the base case: of those kept with about 1,200 streams, 10729 of 10762 are above quota, and in 10762 of 10762 the request fitted the pool. Most of them belong to the repartition and to the partial aggregates, which are refused while hundreds of consumers that can spill are registered and each quota is small.
+
+The final aggregate is refused under another condition. At its refusals 2 to 5 consumers that can spill are registered, and the consumers that cannot hold 2 to 105 MB of the 128. The formula of the quota is the same; the term that weighs is the other one. Where the merges of the repartition, which cannot spill, keep most of the limit, little is left to divide among the few that can. In the base case, at the refusals of the original's final aggregate, the consumers that cannot spill hold nothing.
+
+A larger reservation of the final aggregate is not needed for those refusals. Its peak by run with about 1,200 streams is 24.7, 82.9, 85.9, 85.9, 85.9 MB: in one run it stays near the base case, and the final aggregate is refused in that run too.
 
 ### Resident memory of many streams, without assigning it to operators
 
@@ -285,19 +291,15 @@ Some explanations that seemed plausible while the lab was built are not carried 
 
 ### The sort as what raises the pool the original needs
 
-If the sort of the original were what separates the two plans under the smaller pools, the query without `ORDER BY`, in which no plan sorts, would reach a pool free of final-aggregate spills sooner. It reaches it at the same pool, `2g`. The sort is not necessary for the slowdown; that does not clear it where there is one.
+The query without `ORDER BY`, in which no plan sorts, slows down under the smaller pools as the deduplication does: the sort is not necessary for the slowdown. That does not clear it. By the median the original reaches a pool free of final-aggregate spills at `2g` in both queries, and the median hides the transition. At 1 GB the final aggregate of the original does not spill in 5 of 10 completed runs of the query without a sort, and in 0 of 10 of the query with one. That is compatible with a contribution of the sort in the zone of transition, for instance by competing for the pool, and does not isolate how.
 
 ### A final aggregation that needs more as the streams grow
 
-With about 1,200 streams the ordered final aggregate reserves several times what it reserves in the base case, and the hypothesis was that this grows with the streams. In the series above it does not: from 150 to about 1,200 streams the peak of that class stays within a narrow band. Where it rises between the four groups of the base case and 150 streams is not known, and the two ends of that comparison also differ in pool. The wrapper does not say what those bytes are: resident groups, retained buffers or the capacity of the structures.
+With about 1,200 streams the ordered final aggregate reserves several times what it reserves in the base case, and the hypothesis was that this grows with the streams. In the series above it does not: from 150 to about 1,200 streams the median peak of that class does not rise, and in single runs it falls back near the base case. Where it rises between the four groups of the base case and 150 streams is not known, and the two ends of that comparison also differ in pool. The wrapper does not say what those bytes are: resident groups, retained buffers or the capacity of the structures.
 
 ### The greedy pool as a way out
 
 The prediction was that passing from the fair pool to the greedy one would be enough for the workaround to complete. It completes 0 of 10 runs at 256 MB and 0 of 10 at 2 GB. The prediction fails; the hypothesis behind it, that the quotas of the fair pool contribute to the refusals, is supported by the traces.
-
-### Plain strings as an identification
-
-Reading the strings as `Utf8` changes outcomes. With about 1,200 streams at 128 MB the final aggregate of the ordered plan spills 0 times and the plan is faster than the original (0.586 against 0.763 seconds). For the workaround it changes little: 0 of 10 runs complete at 256 MB and 2 of 10 at 2 GB. The change moves representation, copying and retained buffers together with the accounting, so it shows that string views are involved and not which of these produces the pressure.
 
 ### String representation and the accounting of slices
 
@@ -332,15 +334,19 @@ SET datafusion.sql_parser.map_string_types_to_utf8view = false;
 
 The second prevents declared SQL string types from being mapped back to views. The original plan is affected by representation too: with views on wide strings at 128 MB it completes 8 of its 10 runs. The report includes it, while the accounting-only intervention is applied to the ordered plan.
 
+### Plain strings as an identification
+
+Reading the strings as `Utf8` changes outcomes. With about 1,200 streams at 128 MB the final aggregate of the ordered plan spills 0 times and the plan is faster than the original (0.586 against 0.763 seconds). For the workaround it changes little: 0 of 10 runs complete at 256 MB and 2 of 10 at 2 GB. The change moves representation, copying and retained buffers together with the accounting, so it shows that string views are involved and not which of these produces the pressure.
+
 ## 7. How the explanations changed
 
-The first reading of the base case was that the ordered plan is faster. The larger pools replaced it: the ordered plan is faster where the original spills, and the two are not clearly distinguishable, or the original is faster, where it does not.
+The first reading of the base case was that the ordered plan is faster. The larger pools replaced it: the ordered plan is faster where the final aggregate of the original spills in every run, and the two are not clearly distinguishable, or the original is faster, where it spills in none.
 
-The second reading was that the ordered plan uses less memory. The traces made it specific. Under the fair pool an operator is refused at its own quota while the pool still has capacity; the original's final aggregate reaches that quota and the ordered one, which reserves far less, is not refused in the same runs.
+The second reading was that the ordered plan uses less memory. The traces made it specific. Under the fair pool an operator is refused at its own quota while the pool still has capacity; the original's final aggregate reaches that quota and the ordered one, which reserves far less, is not refused in the same configuration.
 
-The third was that raising `target_partitions` is a way out. It is one with few groups. With many, the quotas shrink below a first allocation, and under the greedy pool the repartition fills the limit.
+The third was that raising `target_partitions` is a way out. It is one with few groups. With many, under the fair pool the error comes at a first request above a quota that the reservations of the merges have narrowed, and under the greedy pool with the limit nearly reached, most of it held by the repartition.
 
-Each step came from an experiment that could have gone the other way, and the predictions that failed are kept beside those that held.
+The first step came from an experiment that could have gone the other way. The hypothesis on the quotas was written after a pilot that had already shown them, and `DESIGN.md` marks it as such; the run that followed is a repetition of that observation under a fixed design, not a test of a prediction made blind. The predictions that failed are kept beside those that held.
 
 ## 8. What the diagnosis supports upstream
 
@@ -352,7 +358,7 @@ A more informed selection policy could consider the downstream consumer, effecti
 
 ## 9. Boundaries of the evidence
 
-This is a synthetic study on one machine and one engine commit. Outside the experiment on rows, query durations are below a second and per-stream fixed costs are prominent. The greedy pool appears only where an experiment changes the pool, and no data is of production scale.
+This is a synthetic study on one machine and one engine commit. Outside the experiment on rows, query durations are about a second or less and per-stream fixed costs are prominent. The greedy pool appears only where an experiment changes the pool, and no data is of production scale.
 
 The interventions on THP and accounting sharpen two explanations, and the traced runs a third. The traces keep the first and the last events of a run, with complete counters by class; the quota in them is computed by the wrapper, after the pool has decided. The batch experiment remains broader. Neither the memory model nor the external sampler measures ownership of live allocations by operator. The cost of merge comparisons is not isolated from how a merge drives its upstream streams. Small-sample bootstrap intervals do not capture every source of experimental uncertainty.
 
@@ -362,6 +368,6 @@ The useful stopping point is a bounded answer: preserving order improves executi
 
 The executable workflow and prerequisites remain in the repository's README and `scripts/run_lab.sh`. This narrative does not duplicate those commands or change the run protocol. The script rebuilds datasets, checks plans and results, runs the experiments and generates the numerical report using recorded binary provenance.
 
-The numbers in this narrative come from `results/figures.tsv`, selected cells of the result tables and `results/metrics.tsv`. When the lab is run again they are generated again, and a changed value is a reason to reread the sentence around it, not only to replace the number.
+Every number in this narrative is in `results/figures.tsv`, in the result tables or in `RESULTS.md`; none is measured apart from them. A new run changes them, and a changed value is a reason to reread the sentence around it, not only to replace the number.
 
 Keep one authoritative location for each kind of information: the lab data for measurements, the source and patch for implementation facts, and this narrative for experimental interpretation.
