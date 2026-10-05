@@ -26,6 +26,8 @@ and nothing else.
 ## Where things are
 
 - `DESIGN.md`: what is measured, how, and what was predicted. No results.
+- `NARRATIVE.md`: why each experiment exists, what it establishes and where
+  the explanation stops. The place to start reading.
 - `RESULTS.md`: the report, generated from `results/` by
   `scripts/make_report.py`. Every table, number and comparison in it is
   computed from the recorded runs.
