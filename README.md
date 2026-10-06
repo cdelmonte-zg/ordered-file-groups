@@ -62,9 +62,9 @@ attribute memory; no time of a traced run is used.
   the machine (`machine_setup.sh`) and the driver (`run_lab.sh`).
 - `experiments/`: the one-variable tests (`string-views`, `many-streams`,
   `depth`, `open-files`, `huge-pages`, `large-pools`, `target-partitions`,
-  `rows`, `causes`, `trace`),
-  the view of the process from outside (`process`), their shared runner (`common.py`) and the code of
-  their report sections (`report.py`).
+  `rows`, `causes`, `trace`), the view of the process from outside
+  (`process`), their shared runner (`common.py`) and the code of their report
+  sections (`report.py`).
 
 The repository holds one run, and nothing in it is collected by hand.
 
@@ -80,12 +80,13 @@ DataFusion checkout, and a machine doing nothing else.
     sudo scripts/machine_setup.sh restore                 # the machine as it was
 
 `machine_setup.sh` sets the frequency governor and the energy preference to
-performance and switches the swap off; `status` prints the settings without root, and the report records
-them. `run_lab.sh` refuses to measure on a machine that is not configured,
-unless `ALLOW_UNCONFIGURED=1` is set. The runners pin themselves and the
-processes they start to the CPUs that share the largest last-level cache, so
-that on a processor with unlike cores the work does not move between them
-from run to run; `LAB_CPUS=<list>` chooses other CPUs, `LAB_CPUS=all` none.
+performance and switches the swap off; `status` prints the settings without
+root, and the report records them. `run_lab.sh` refuses to measure on a
+machine that is not configured, unless `ALLOW_UNCONFIGURED=1` is set. The
+runners pin themselves and the processes they start to the CPUs that share the
+largest last-level cache, so that on a processor with unlike cores the work
+does not move between them from run to run; `LAB_CPUS=<list>` chooses other
+CPUs, `LAB_CPUS=all` none.
 
 `run_lab.sh` checks the binaries against `provenance/`, generates the
 datasets in `/tmp/df-16919-*`, validates the plans, measures the matrix,
@@ -98,14 +99,13 @@ somewhere else.
 Datasets are written from fixed seeds and a fixed time origin
 (2026-09-29T00:00:00Z). Most datasets hold the same 600,000 rows,
 redistributed across files; the experiment on rows adds datasets of 6 and 24
-million rows. The files are sorted by `(col_1, col_2)`; `--depth d` makes
-file *i* overlap files *i+1* to
-*i+d-1*, so *d* is the intended minimum number of ordered groups, and the
-groups the statistics produce are in the manifest and can differ; `--shape`
-renders the same integer ids at three string widths; `--duplicate-share`
-copies rows; `--assign` chooses how rows go to files when there are more
-files than entities. The base table cache records what it depends on beside
-it and is regenerated when that differs.
+million rows. The files are sorted by `(col_1, col_2)`; `--depth d` makes file
+*i* overlap files *i+1* to *i+d-1*, so *d* is the intended minimum number of
+ordered groups, and the groups the statistics produce are in the manifest and
+can differ; `--shape` renders the same integer ids at three string widths;
+`--duplicate-share` copies rows; `--assign` chooses how rows go to files when
+there are more files than entities. The base table cache records what it
+depends on beside it and is regenerated when that differs.
 
 ## Reading the results
 
