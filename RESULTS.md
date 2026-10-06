@@ -74,7 +74,8 @@ f24503de40eb712df25a9e9d0989e8e1421e65717b613c9936e776547707321a  bin/datafusion
 
 All from `scripts/datasets.sh`, fixed seeds, fixed time origin; the same
 600,000 rows redistributed, except the duplicate dataset, which holds the same
-number of rows with half of them copies.
+number of rows with half of them copies, and the datasets of the experiment
+on rows, which hold 6 and 24 million rows.
 
 | dataset | files | depth | assignment | shape | rows | distinct keys | duplicate rows | groups by bounds | bytes | row groups |
 |---|---|---|---|---|---|---|---|---|---|---|

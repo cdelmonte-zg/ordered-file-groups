@@ -643,7 +643,8 @@ case, "within the quartiles" otherwise. A gain is the reduction of the median.
 
 All from `scripts/datasets.sh`, fixed seeds, fixed time origin; the same
 600,000 rows redistributed, except the duplicate dataset, which holds the same
-number of rows with half of them copies.
+number of rows with half of them copies, and the datasets of the experiment
+on rows, which hold 6 and 24 million rows.
 
 {datasets(manifests)}
 
