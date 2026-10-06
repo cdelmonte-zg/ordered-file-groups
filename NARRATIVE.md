@@ -1,235 +1,86 @@
-# Ordered file groups in DataFusion
+# Ordered file groups: when preserving order helps
 
-*Where the order of sorted files is lost, what keeping it changes, and where it stops paying.*
+Sorted Parquet files do not by themselves produce a sorted scan. DataFusion can concatenate files into one stream only when their statistics show that the value range of one file ends before the range of the next. Files whose ranges overlap must remain in separate streams; a later operator can merge those streams, but the scan no longer has one continuous order.
 
-## 1. Where the order is lost
+This distinction is the starting point of the lab. The files are written in the declared order, so the experiment controls both the physical layout and the statistics that DataFusion sees. The question is what happens when the engine preserves that order through the rest of the plan.
 
-Sorted Parquet files do not automatically produce a sorted scan. Concatenating two files preserves an ascending order only when their boundary values permit it. Overlapping files need separate streams, which can then be merged.
+## The decision that changes the plan
 
-A file scan in DataFusion has one output partition for each file group, and reads the files of a group one after the next. An ordered group therefore becomes one ordered stream of the scan. In the path studied here, DataFusion builds ordered groups from the statistics of the files; the setting `split_file_groups_by_statistics` enables this statistics grouping. It starts with as many empty groups as `target_partitions`, the number of partitions the engine is configured to use. It takes the files by increasing minimum. A file can join a group that is empty, or one whose last file has a maximum strictly below the file's minimum. Among those groups it joins the one with the fewest files, and when no group qualifies a new one is added. The statistics establish whether files can be concatenated; they do not prove that the rows within each file are sorted. The files the lab generates follow the declared sort order.
+For a listing table, DataFusion can build file groups from the files' minimum and maximum values; the setting `split_file_groups_by_statistics` enables this statistics grouping. It starts with as many empty groups as `target_partitions`, the configured number of partitions, and considers the files by increasing minimum. A file can join an empty group or a group whose last maximum is strictly below the file's minimum; among those groups it chooses the one with the fewest files. If no group qualifies, it creates another group.
 
-At DataFusion commit `e1aa7d956`, the listing-table code accepts the proposed groups only when their count does not exceed `target_partitions`. This text calls that check the guard. If the guard rejects the groups, the code retains the initial grouping; a later optimizer step can redistribute files by size and split them into byte ranges, and the resulting scan may no longer advertise an order. The engine reports the reason for the rejection in a log line at debug level; the plans the lab records do not show it.
+The statistics establish that files can be concatenated. They do not establish that the rows inside an individual file are sorted. The generator used here writes the rows in the declared `(col_1, col_2)` order, so the experiment satisfies that additional condition.
 
-The comparison is strict, and this matters for files that touch. When the maximum of one file equals the minimum of another, the two go to different groups. `MinMaxStatistics::is_sorted`, in the same engine, accepts such files (`max <= next_min`). In one of the lab's datasets, with 1,200 files, 248 pairs touch and the grouping produces 5 groups where 4 would do.
+At the DataFusion commit used by the lab, `e1aa7d956`, the proposed groups are accepted only when their number does not exceed `target_partitions`. The lab calls this condition the guard. When it rejects the groups, the scan keeps its initial grouping. A later optimizer step may then redistribute files by size and split them into byte ranges; the resulting scan may no longer advertise the ordering that the statistics had established. DataFusion logs the reason for rejecting the groups at debug level, but the recorded plans do not expose it.
 
-Keeping the order saves work later in the plan. Carrying it through the plan costs resources. The lab asks which is larger. Time and memory are separate outcomes: a faster plan can hold more memory.
+The comparison is strict at the boundary. If one file ends exactly where the next begins, the grouping code puts them in different groups because it requires `max < next_min`. `MinMaxStatistics::is_sorted` in the same engine accepts `max <= next_min`. In a 1,200-file layout, 248 touching pairs therefore produce 5 groups although 4 would be sufficient.
 
-## 2. What the lab runs and how it measures
+The lab asks whether the work saved by preserving order justifies the cost of carrying that order through the plan. Runtime and memory are separate outcomes: a faster plan can require more resident memory or more open files.
 
-The base dataset is a table of eight columns with 600,000 rows in twelve files. Every file is sorted by `(col_1, col_2)` and overlaps the next three, so the bounds require four ordered groups. The configured `target_partitions` is two, and the guard decides the plan. Five queries run on the table:
+## The experiment
 
-| Query | What it does |
-|---|---|
-| Q1 | `SELECT *` with `ORDER BY col_1, col_2` |
-| Q2 | `GROUP BY col_1, col_2`, the complete sort key, with the same `ORDER BY` |
-| Q3 | A deduplication: `GROUP BY` six columns that begin with the sort key, with the same `ORDER BY` |
-| Q4 | `GROUP BY col_3, col_4, col_5, col_6`, without the sort key and without `ORDER BY` |
-| Q5 | Q3 without its `ORDER BY` |
+The base dataset contains 600,000 rows in twelve Parquet files. The files are sorted by `(col_1, col_2)`, and each file overlaps the next three. Their bounds require four ordered groups, while the configured `target_partitions` is two. The guard therefore determines whether the ordered grouping reaches the scan.
 
-Q3 is the main query of the lab:
+The workload is a deduplication query. It groups by six columns, beginning with the two-column sort key, and then orders the result by that same key. The input order is therefore useful to the aggregate: once the first two grouping columns change, the previous prefix cannot appear again in the stream. The aggregate can finish state earlier instead of retaining all prefixes until the input ends.
 
-```sql
-SELECT col_1, col_2, col_3, col_4, col_5, col_6,
-       first_value(col_7) AS col_7,
-       first_value(col_8) AS col_8
-FROM example
-GROUP BY col_1, col_2, col_3, col_4, col_5, col_6
-ORDER BY col_1 ASC, col_2 ASC;
-```
+The lab compares four configurations:
 
-Its input is ordered by a prefix of the grouping key, the pair `(col_1, col_2)`. DataFusion runs such an aggregation in two stages with a repartition between them: a partial aggregate on each partition of the scan, a repartition by the grouping key, and a final aggregate.
+| Configuration | Change | Purpose |
+| --- | --- | --- |
+| `original` | Unmodified build, statistics grouping enabled, target two | Show the rejected grouping and its plan |
+| `accept-groups` | Remove the guard, keep target two | Measure the whole effect of accepting the extra ordered groups |
+| `original-target` | Unmodified build, target raised to the required count | Test the configuration workaround |
+| `original-split-off` | Unmodified build, statistics grouping disabled | Provide a reference without statistics grouping |
 
-Four variants run the queries:
+The main comparison is between `original` and `accept-groups`. Removing the guard is a small source change, but it changes several downstream decisions at once: the scan streams, the repartition, the aggregate modes and the presence of a sort. The measurements therefore describe the combined execution effect, not an isolated cost of one conditional.
 
-| Variant | Intervention | Purpose |
-|---|---|---|
-| `original` | Unmodified commit, statistics grouping enabled, target two | Observe the rejected grouping and subsequent plan |
-| `accept-groups` | Remove the guard, keep target two | Measure the whole effect of accepting extra ordered groups |
-| `original-target` | Original build, target raised to the required count | Compare the existing configuration workaround |
-| `original-split-off` | Original build, statistics grouping disabled | Base-case reference for the grouping setting |
+The machine is a Ryzen 9 7950X3D with eight pinned physical cores. Each configuration of the main matrix runs with a warmup and ten measured executions. The matrix uses the fair memory pool at 128, 256 and 512 MB; other experiments use larger pools. The matrix records 620 executions, and 620 complete; a separate check of the deterministic results passes in 62 of 62 cells. The report calls one plan faster when its third quartile lies below the first quartile of the other. The full protocol and the complete measurements are in [`DESIGN.md`](DESIGN.md) and [`RESULTS.md`](RESULTS.md).
 
-In the rest of the text the original plan is that of `original`, the ordered plan that of `accept-groups`, and the workaround is `original-target`. Removing the guard is a small change in the source and a broad one in execution. It changes the streams of the scan, the repartition, the presence of a sort and the mode of the aggregates; the mode says whether an aggregate uses the order of its input. The lab measures the combined consequence of those changes.
+## What happens in the base case
 
-The base case is Q3 on the base dataset with a target of two. The base layout is the way the files of that dataset overlap, and the lab reuses it with more rows and with more files.
+At a 256 MB pool, the ordered plan completes the deduplication in 0.351 seconds, compared with 0.603 seconds for the original plan. The statistics-grouping-disabled reference takes 0.603 seconds, within the quartiles of the original, so the difference comes from preserving the ordered groups rather than from the grouping setting by itself.
 
-The lab runs on one machine, a Ryzen 9 7950X3D, with the measured processes pinned to eight physical cores. Its main set of runs, the matrix, varies one property of the base case at a time, under DataFusion's fair memory pool at 128, 256 and 512 MB, and each configuration has a warm-up and ten recorded runs. The matrix records 620 executions, 620 of which complete. A separate check compares the results of the variants on their deterministic columns and passes 62 of 62 cells.
+The original plan sorts, and it spills in the sort and in the final aggregate. The ordered plan does neither. The operator metrics accumulate time over the partitions, so they can exceed the elapsed time of the query. In [those metrics](RESULTS.md#time-by-operator-as-the-engine-reports-it) the final aggregate of the ordered plan computes for 0.378 seconds, compared with 0.888 seconds for the original plan. The ordered repartition spends longer delivering data, 0.815 seconds against 0.233; that time includes waiting. A gain remains in the query without an explicit `ORDER BY`, in which neither plan sorts: the ordered plan completes in 0.306 seconds versus 0.567 seconds.
 
-The report of the lab, `RESULTS.md`, calls one variant faster when its third quartile lies below the other's first. This is a declared descriptive rule, not a hypothesis test or a guarantee of statistical significance. For configurations with failures the report gives the completed runs beside the time of those that complete.
+[Three other queries](RESULTS.md#a1-the-consumer-of-the-order) bound the effect. A query with only the `ORDER BY` also gains, with a merge in place of a sort: 0.027 seconds against 0.049. A query that groups on the complete sort key shows no gain, 0.052 seconds against 0.050. A query that groups on columns outside the sort key shows none either: the optimizer discards the ordering it cannot use. The order helps only where a downstream operator can consume it, and consuming it is not always enough.
 
-`DESIGN.md`, the design of the experiments, states the predictions, and the report checks each one against a declared rule; not all of them hold.
+The advantage depends on memory. In the [series on larger pools](RESULTS.md#the-base-case-with-larger-pools), with 512 MB and 1 GB the ordered plan remains near 0.35 seconds (0.350 and 0.356) while the original plan is still affected by spills. At 2 GB, the original final aggregate no longer spills, and from there the two plans are not clearly distinguishable in the runs collected: 0.362 seconds against 0.357 at 2 GB, 0.346 against 0.357 at 4 GB. Preserving the order removes a source of memory pressure; where that pressure is absent, it brings no advantage here.
 
-Four measures recur. Elapsed time is the `Elapsed` that `datafusion-cli` prints for the measured statement, planning included. Operator metrics are accumulated durations: `elapsed_compute` times the computation of an operator, and the `send_time` of a repartition includes delivery and waiting. The memory pool is the engine's account of memory, with a limit. A reservation is what an operator has declared to the pool, and the limit applies to the sum of the reservations. RSS is the resident memory of the process, as the operating system measures it.
+The [larger-row experiments](RESULTS.md#more-rows-for-the-same-files) show the same boundary. With 24 million rows, the ordered plan reserves much less memory for the final aggregate and remains faster under a 256 MB pool. Under a pool large enough for its final aggregate not to spill, the original plan is the faster one: in the two datasets of 24 million rows the ordered plan takes 16 percent more and 9 percent more time. The result is therefore conditional: preserving order helps when it prevents expensive state from spilling, not as a universal rule.
 
-## 3. In the base layout, keeping the order pays where the unordered aggregation spills
+## Why the memory numbers matter
 
-In the ordered plan of Q3, a change of the prefix `(col_1, col_2)` proves that the previous prefix will not return in that stream, so the aggregate can finish those groups early.
+DataFusion's fair memory pool divides the available quota among registered spillable consumers after accounting for memory held by consumers that cannot spill. A request can be refused even while the pool still has unused capacity, because the requesting consumer has reached its fair share. This is documented behaviour: the [description of the pool](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/datafusion/execution/src/memory_pool/pool.rs) warns that it will sometimes cause spills even when there was sufficient memory to avoid them.
 
-At 256 MB, Q3 takes 0.603 seconds in the original plan and 0.351 in the ordered one, a reduction of 42 percent. With statistics grouping disabled the original build takes 0.603 seconds, within the quartiles of the original, so the setting alone does not change the time. The original spills in its sort and in its final aggregate, which write part of what they hold to disk when the pool refuses them more memory; the ordered plan does not spill. A count of spills is not a measure of their cost: it does not say how much data was written.
+That is what happens in the base case. At 256 MB, the original final aggregate reaches its fair quota and receives a refusal while the pool as a whole is still below its limit. The pool peaks at about 181 MB of 256 MB. The ordered final aggregate reserves less memory, and the ordered plan records no refusal. The reservation is a property of the execution plan and the pool's sharing policy; it is not a direct measurement of the query's intrinsic memory requirement.
 
-| Metric, accumulated seconds | Original | Ordered |
-|---|---:|---:|
-| Sort `elapsed_compute` | 0.030 | absent |
-| Final aggregate `elapsed_compute` | 0.888 | 0.378 |
-| Partial aggregate `elapsed_compute` | 0.275 | 0.316 |
-| Repartition `send_time` | 0.233 | 0.815 |
+The row series makes the difference clearer. The reservation of the ordered final aggregate stays near 20 MB as the data grows from 600,000 to 24 million rows: 21.6 MB in the base case, 19.1 and 19.5 MB in the two larger datasets. That of the original aggregate grows from about 361.2 MB to more than 12 GB (12,338.9 and 12,340.0 MB), measured under a pool large enough for it not to be refused. Releasing completed prefixes is the natural reading of the ordered figures, but the lab does not identify what the ordered aggregate holds. Its reservation stays level also in the dataset with forty times the keys under each prefix, where that reading alone would predict growth.
 
-The largest reduction in recorded compute duration is at the final aggregate, while the repartition spends longer delivering batches in the ordered plan.
+These figures come from [traced runs](RESULTS.md#what-the-memory-pool-grants-and-refuses). The tracing wrapper records reservations, refusals and held memory, and the lock used by the trace can change task interleaving. Every traced configuration also runs with the plain binary: the two complete the same number of runs in 39 of 39 configurations, but their spill counts are not always equal. The trace supports the diagnosis of the refusal; it is not used to compare execution time.
 
-### A gain remains without a sort to remove
+## When preserving order becomes expensive
 
-Q5 is the same deduplication without the final `ORDER BY`. Neither plan sorts, and the ordered plan still takes 0.306 seconds against 0.567. With the operator metrics, this points to the aggregation. The scan and the repartition change at the same time, and the lab does not separate their parts.
+The base case has only four ordered groups. The cost changes when the number of streams grows, and DataFusion's [repartition documentation](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/datafusion/physical-plan/src/repartition/mod.rs) itself calls preserving order more expensive at runtime. In the total-overlap layout, 1,200 files produce 1,196 ordered groups. The order-preserving repartition must merge those inputs in each of its outputs, and the merge reservations cannot spill. The plan also keeps many files open.
 
-### Which queries use the order
+At 128 MB, the ordered plan is slower than the original plan (0.792 seconds against 0.703) and the final aggregates of both plans spill. At 256 and 512 MB, the ordered plan is faster in this particular layout (0.587 against 0.722 seconds at 256 MB), but its repartition still spills and the process holds more resident memory. In a [separate series at 128 MB](RESULTS.md#why-plans-with-many-ordered-groups-fail-or-lose), from 150 to 1,196 streams, the ordered plan is faster at one size, within the quartiles at two and slower at the largest. The difference does not change monotonically, and the large advantage of the base case appears at none of these sizes.
 
-Three other queries use the order in different ways.
+The [workaround of raising `target_partitions`](RESULTS.md#raising-target_partitions-when-the-groups-are-many) shows a second cost. It can produce an ordered plan without changing the source, but it also increases downstream parallelism. In the base case it is faster than the ordered plan while using more resident memory: 0.267 seconds and 452 MB against 0.351 and 354. With many groups it stops completing. With 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB; with about 1,200 groups, 0 of 10 at 2 GB. The fair pool is not the whole reason: under the greedy pool, which has no quotas, the workaround with 120 groups completes 0 of 10 runs at 256 MB and 0 of 10 at 2 GB. DataFusion's [configuration guide](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/docs/source/user-guide/configs.md) warns that a higher `target_partitions` can make the spilling path more frequent. In the traces, the merge consumers hold memory that cannot be redistributed to the aggregate. Increasing the target therefore exchanges one cost for another; it is not a general way around the guard.
 
-| Query | Original seconds | Ordered seconds | What the comparison establishes |
-|---|---:|---:|---|
-| Q1, only `ORDER BY` | 0.049 | 0.027 | An ordered scan and merge can beat the scan-and-sort plan |
-| Q2, group on the complete sort key | 0.050 | 0.052 | `Sorted` mode does not ensure a time benefit when the unordered alternative fits in memory |
-| Q4, group without the sort key | 0.014 | 0.014 | The optimizer discards the unused ordering; the measured times overlap |
+The large-stream layout also exposes operating-system costs. The ordered plan keeps many more files open, most of them temporary spill files. It fails at [open-file limits](RESULTS.md#the-open-file-limit) up to 4,096 and completes at 8,192, while the original completes at 1,024. A sampler outside the process counts up to 4,505 descriptors for the ordered plan, 4,495 of them temporary spill files; the original plan holds 32. Resident memory shows a related effect: the excess RSS of the ordered plan grows with the number of streams and with the outputs of the repartition. Most of that excess depends on the page policy. With [transparent huge pages disabled](RESULTS.md#how-much-of-the-resident-memory-is-transparent-huge-pages) for the measured process, the difference between the peaks of the two plans falls from 1446 to 108 MB. The experiment does not identify the complete allocation path.
 
-### With enough memory the advantage disappears
+## Other checks
 
-Up to 512 MB, the largest pool of the matrix, the final aggregate of the original plan spills at every pool and that of the ordered plan at none. A separate experiment runs the base case under larger pools.
+The [wide-string experiment](RESULTS.md#string-views-and-the-repartitions-accounting) changes the width and the representation of the string columns. Short strings use inline views; long strings retain references to external buffers. With wide strings and the default string-view representation, the ordered plan is about 10 percent faster than the original at 128 MB, where the original completes 8 of its 10 runs. Reading the same values as ordinary UTF-8 strings increases the gain to about 41 percent: the ordered plan no longer spills, while the original still does. A third build charges the repartition only for the bytes of each slice's rows, where the engine charges the full capacity of the buffers a slice shares. That reduces repartition spills and leaves those of the final aggregate unchanged. The experiment shows that representation and accounting affect the result, but it does not establish a single cause for the whole difference.
 
-| Pool | Original seconds | Ordered seconds | Original final-aggregate spills, median |
-|---|---:|---:|---:|
-| 512 MB | 0.633 | 0.350 | 6 |
-| 1 GB | 0.611 | 0.356 | 4 |
-| 2 GB | 0.362 | 0.357 | 0 |
-| 4 GB | 0.346 | 0.357 | 0 |
+With twelve files in two ordered groups, both builds produce the same plan and the guard is irrelevant. The layout in which the files do not overlap is slower than the one in which each file overlaps the next: 0.483 seconds against 0.404 at the default batch size. A plausible explanation is [backpressure](RESULTS.md#depth-1-against-depth-2-backpressure). When the ranges being read are disjoint, the ordered merge consumes one producer for a while, and the other is blocked once its channels are full. Larger batches narrow the gap; very large batches make both layouts slower and sometimes fail. This is another reason not to treat the number of ordered groups as a complete cost model.
 
-From the pool `2g` up, the final aggregate of the original no longer spills in any run, and the advantage of the ordered plan shrinks until the two are not clearly distinguishable in the runs collected. The ordered plan takes about the same time at every pool.
+## What the lab establishes
 
-Between 1 and 2 GB the sort may play a part. In the median, the final aggregate of the original stops spilling at `2g`, with the `ORDER BY` and without it. At 1 GB, however, it does not spill in 5 of 10 completed runs of the query without a sort, and in 0 of 10 of the query with one. That is compatible with a contribution of the sort, for instance by competing for the pool.
+The base case shows one chain of events. The guard rejects an ordered grouping because it requires more groups than `target_partitions`. Accepting those groups preserves an input order that lets the deduplication aggregate finish prefixes early. The ordered plan then reserves far less for that aggregate, does not spill, and is faster at a constrained memory pool. The guard is the demonstrated cause of the change of plan. The gain is the effect of the whole change, which the lab does not divide among its parts.
 
-On the larger datasets the original becomes the faster plan once its final aggregate no longer spills. A prefix is a distinct pair `(col_1, col_2)`, and the keys under it are the distinct grouping keys that share it. The series on rows uses the base layout with 6 and 24 million rows. The rows grow in two ways: with more prefixes, or with more keys under each prefix. Each size runs under 256 MB, and under a pool large enough for the final aggregate of the original not to spill: 4 GB for the base case, 32 GB at 6 million rows, 128 GB at 24 million. These are limits of the pool, not memory the process holds.
+None of these mechanisms is new to DataFusion. The use of order by aggregations, the quotas of the fair pool, and the cost of preserving order and of more partitions are documented. What the lab adds is a diagnosis of one case and a way to repeat the measurements.
 
-| Dataset | Ordered against original, 256 MB | Ordered against original, large pool |
-|---|---|---|
-| 600,000 rows | 40 percent less | 0 percent more |
-| 24 million rows, more keys under each prefix | 45 percent less | 16 percent more |
-| 24 million rows, more prefixes | 49 percent less | 9 percent more |
+The wider matrix gives the boundary of the result. The benefit shrinks when the original plan has enough memory, and it can reverse when preserving order requires too many streams. Ordered streams consume merge memory, resident memory and file descriptors. Raising `target_partitions` can reproduce the order but also increases parallelism, and with many groups the query fails, under the fair pool and under the greedy one.
 
-Under 256 MB the ordered plan keeps its advantage at every size. At 24 million rows the original also fails some of its runs there, completing 4 of 5 and 3 of 5, and its times are those of the runs that complete. Under the large pool the original is the faster plan at every size above the base case. The benefit of keeping the order therefore depends on the memory available: it is large where the unordered aggregation spills, and it is not guaranteed where that aggregation has room.
+The lab therefore does not support unconditional removal of the guard. It raises two questions for the engine: whether `EXPLAIN` could show why the ordering was discarded, and whether the strict comparison at file boundaries, which differs from `MinMaxStatistics::is_sorted`, is intended. The right decision on the groups depends on the overlap pattern, the downstream operator, the memory budget and the number of streams; the lab identifies these dimensions and supplies no threshold.
 
-## 4. The original's aggregate is refused at its quota while the pool has capacity
-
-The fair pool divides its limit among the operators that can spill. A consumer is the registration of an operator with the pool. Every consumer that can spill has a quota. The quota is the limit, less what the consumers that cannot spill hold, divided by the number of consumers that can spill and are registered at that moment. A request that would take a consumer above its quota is refused. The [description of the pool](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/datafusion/execution/src/memory_pool/pool.rs) gives the formula and warns that it will sometimes cause spills even when there was sufficient memory to avoid them.
-
-The lab shows where this documented rule applies in the base case, and which consumers hold memory reservations when a request is refused. At 256 MB the pool refuses requests of the original plan 21 times in median. Of the refusals the traces record in detail, 106 of 106 are above the quota computed for that moment, and in 106 of 106 the request fitted the pool. The pool itself peaks at 181 MB of 256. An operator is refused at its own quota while the pool as a whole still has capacity.
-
-These observations come from traced copies of the two builds, which wrap the memory pool and record what each consumer reserves, what it is refused and what was held at that moment. They keep the first and the last events of a run in detail, with complete counters. The lock the wrapper takes can change how tasks interleave, so every traced configuration also runs with the plain binary. The two complete the same number of runs in 39 of 39 configurations; their spill counts are not always equal. These observations apply to the traced runs, and no time of a traced run is used.
-
-The two plans reserve very different amounts for their final aggregate. That of the original peaks at 62.9 MB at 256 MB, 127.3 MB at 512 MB and 361.2 MB at 2 GB, where it is no longer refused while the sort still is. That of the ordered plan peaks at 21.6 MB at 256 MB, and the ordered plan records 0 refusals. A peak is taken per class of consumers, for example all the streams of the final aggregate. It is the largest total they hold at one moment, and it is a reservation. These reservations are not what the query needs: that of the original's aggregate grows with the pool until it is no longer refused, and the other operators can change with it.
-
-The series on rows shows how differently the two aggregations grow. The first column of peaks is the ordered plan under 256 MB, where its aggregation is not refused at any of these sizes; the second is the original under the large pool, where its final aggregate is not refused either. Prefixes and keys per prefix are counted on the source table, not on what reaches each partition of the final aggregate.
-
-| Dataset | Prefixes | Keys per prefix, mean (largest) | Ordered final aggregate, peak MB | Original final aggregate, peak MB |
-|---|---:|---|---:|---:|
-| 600,000 rows | 114,345 | 5.25 (largest 21) | 21.6 | 361.2 |
-| 24 million, more keys | 115,500 | 207.47 (largest 395) | 19.1 | 12,338.9 |
-| 24 million, more prefixes | 4,573,880 | 5.25 (largest 24) | 19.5 | 12,340.0 |
-| 6 million, concentrated | 231 | 21633.38 (largest 31151) | 30.7 | 2,885.6 |
-
-The reservation of the original's final aggregate grows with the rows. That of the ordered one stays level when the prefixes grow. With the prefixes fixed and up to forty times the keys under each it stays level too: in this range, more keys under a prefix do not raise it. Only the dataset with its keys concentrated under few prefixes reserves more. It does not isolate the keys per prefix: a sixth of its rows are duplicates, and it has fewer distinct keys than the other datasets of 6 million rows.
-
-## 5. Many ordered groups cost time, memory and descriptors
-
-Carrying order through the plan is not free, and the engine says so: the [repartition's own documentation](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/datafusion/physical-plan/src/repartition/mod.rs) calls preserving order more expensive at runtime, to be asked for only when an operator after it can use it. A repartition that preserves order merges its inputs in each of its outputs, and those merges reserve memory that cannot spill. The lab measures the costs as the ordered groups grow in number.
-
-### With about 1,200 groups the ordered plan loses under a small pool
-
-With 1,200 files generated for total overlap, the scan of the ordered plan has 1,196 groups.
-
-| Pool | Original seconds | Ordered seconds | Ordered final-aggregate spills, median |
-|---|---:|---:|---:|
-| 128 MB | 0.703 | 0.792 | 26 |
-| 256 MB | 0.722 | 0.587 | 0 |
-| 512 MB | 0.694 | 0.585 | 0 |
-
-The ordered plan loses at the smallest budget and wins at the larger ones. Its repartition spills at every budget; what changes at 128 MB is the final aggregate, which spills there. At that budget the final aggregate of the original spills in every run too, at least 22 times, and the original is still the faster plan: spills in the unordered aggregation are not enough for the ordered plan to win.
-
-With few groups the gain remains at the same number of files. At 256 MB, 1,200 files in the base layout form 5 groups, and the ordered plan takes 0.417 seconds against 0.728. The two layouts also differ in how rows are assigned to files.
-
-A separate series at 128 MB varies the streams. Its times are those of its own runs with the plain binary, and its peaks are medians of the traced runs.
-
-| Ordered streams | Original seconds | Ordered seconds | Ordered against original | Ordered final aggregate, peak MB |
-|---:|---:|---:|---|---:|
-| 150 | 0.623 | 0.625 | within the quartiles | 94.8 |
-| 300 | 0.647 | 0.631 | faster | 82.9 |
-| 599 | 0.656 | 0.689 | within the quartiles | 85.9 |
-| 1,196 | 0.710 | 0.783 | slower | 85.9 |
-
-The large advantage of the base case does not appear at any of these sizes, and the difference between the two plans does not change monotonically with the streams. The final aggregate of the ordered plan already spills at 150 streams.
-
-The final aggregate is refused here under a condition different from that of the base case. With about 1,200 streams, at its refusals 2 to 5 consumers that can spill are registered, and the consumers that cannot hold 2 to 105 MB of the 128. Where the merges of the repartition keep most of the limit, little is left to divide among the few consumers that can. In the base case, at the refusals of the original's final aggregate, the consumers that cannot spill hold nothing.
-
-The aggregate does not need a larger reservation to be refused. From 150 to about 1,200 streams its median peak does not rise. Its peak by run with about 1,200 streams is 24.7, 82.9, 85.9, 85.9, 85.9 MB: in one run it stays near the base case, and the final aggregate is refused in that run too.
-
-### The workaround stops completing as the groups grow
-
-Raising `target_partitions` to the number of groups makes the original binary accept them. In the base case the workaround takes 0.267 seconds and 452 MB RSS, against 0.351 and 354 for the ordered plan with two downstream partitions. Across the deduplication cases of the matrix, which go up to twelve groups, it is faster than the ordered plan in most of the cases where both run, and has a larger peak RSS in all of them. The workaround does two things at once: it accepts the order and it raises the parallelism downstream.
-
-With more groups it stops completing. With 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB (3 of 10 in a second set of runs of the same configuration). With about 1,200 groups it completes 0 of 10 at 2 GB.
-
-Under the fair pool, more partitions leave less memory to each. DataFusion's [configuration guide](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/docs/source/user-guide/configs.md) says so, and warns that a higher `target_partitions` can make the spilling path more frequent. With 120 groups, the traces show which consumers hold reservations when the request that ends the query is refused. Under the fair pool the error names the ordered final aggregate: it asks for 3.3 MB while holding nothing, against a quota of 0.3 MB at 256 MB and of 2.4 MB at 2 GB. Most of what the pool has reserved at that moment is held by the merges of the repartition's outputs, which cannot spill and so narrow every quota. Under the greedy pool, which has no quotas, the error names those merges, and the pool is nearly full: 255.8 MB of 256, most of it held by the repartition. At the refusals the two pools show different conditions: quotas too small in one, overall capacity nearly exhausted in the other.
-
-Passing to the greedy pool is not enough for the workaround to complete: with 120 groups it completes 0 of 10 runs at 256 MB and 0 of 10 at 2 GB. The traces support a contribution of the fair pool's quotas to the refusals; without quotas the query still fails.
-
-With statistics grouping disabled and the same target, the 1,200 files are spread over the partitions without regard to their bounds, and the plan is no longer ordered. It completes 10 of 10 runs at 2 GB and 0 of 10 at 256 MB. This bounds the failure without isolating its cause: at 2 GB the contrast points at the ordered path, with several operators changing at once; at 256 MB the number of partitions is enough for the query to fail.
-
-### Resident memory grows with streams and outputs, and most of the excess depends on page policy
-
-With about 1,200 streams the ordered plan has a much larger RSS than the original. For Q1, which reads all columns and merges ordered streams, the excess grows by 0.34 to 0.38 MB per stream across three series of runs. For the deduplication it grows with the outputs of the repartition as well: going from two to eight outputs adds 1.4 to 1.6 GB in the same series. These coefficients describe RSS in a specific allocator and page environment; the report gives them per series, with an experiment that crosses streams with outputs.
-
-Most of the excess disappears when the transparent huge pages of the Linux kernel are disabled for the measured process. A separate experiment, with its own runs, repeats the deduplication with 1,196 ordered streams under a 256 MB pool, with the page policy of the machine and without huge pages.
-
-| Q3, 256 MB pool | As configured | Huge pages disabled |
-|---|---:|---:|
-| Ordered peak RSS, MB | 2081 | 596 |
-| Original peak RSS, MB | 635 | 488 |
-| Difference between peaks, MB | 1446 | 108 |
-| Added ordered RSS from two to eight outputs, MB | 1343 | 283 |
-| Ordered elapsed seconds | 0.582 | 0.603 |
-
-Elapsed time changes relatively little. Partly used huge pages are a plausible mechanism, consistent with the kernel's documented behavior; the experiment does not map individual buffers to pages. The remaining 108 MB is a difference between two peaks, and both can include retained allocations, stacks and other residency. The resident pages consume physical memory and can matter to external limits. The experiment separates two things: memory that is resident, and data the application still uses.
-
-### The ordered plan needs more open files
-
-Under a process limit on open files, the ordered plan with about 1,200 streams fails at every limit tested up to 4,096 and completes at 8,192, while the original completes already at 1,024. These are the limits tested, not an exact minimum. A sampler outside the process, reading `/proc`, counts 4,505 descriptors for the ordered plan, dominated by 4,495 temporary spill files, against 32 for the original. The number of Parquet files is therefore not a sufficient predictor of the pressure on descriptors.
-
-### With files that do not overlap, the plan uses fewer cores
-
-With twelve files in two ordered groups, both builds produce the same plan and the guard plays no part. When the files do not overlap and the two groups alternate over the key range, the plan takes 0.483 seconds, against 0.404 when the files overlap two at a time. Without overlap, the ranges the two producers are reading at any moment are disjoint. The merge consumes one producer for a while before using the other. The second can run ahead only as far as buffering permits: in the repartition each input is blocked once all its channels to the outputs hold pending data. A separate experiment measures the average cores the process uses, CPU time over wall time, at several batch sizes. Larger batches close the gap between the two layouts at 32,768 rows, which supports backpressure as an explanation in combination with that channel design. The largest batch size has a price: at 131,072 rows, 4 of 20 runs fail, and both layouts take longer among completions.
-
-## 6. String views change the outcome, and the accounting alone does not explain it
-
-By default, the engine reads the lab's string columns as string views. Short views fit their bytes inline; long ones refer to external buffers. Reading the same values as ordinary `Utf8` changes outcomes. The lab has a variant of the dataset with wide strings: the string columns `col_1`, `col_3` and `col_4` are all longer than the twelve bytes a view holds inline. With wide strings at 128 MB, the ordered gain is 10 percent with views, where the original completes 8 of its 10 runs, and 41 percent with `Utf8`. With about 1,200 streams at 128 MB and `Utf8`, the final aggregate of the ordered plan spills 0 times and the plan is faster than the original (0.586 against 0.763 seconds). For the workaround with 120 groups it changes little: 0 of 10 runs complete at 256 MB and 2 of 10 at 2 GB.
-
-The source suggests one way in which views could raise the pressure. The hash repartition performs one `take` for an input batch and slices the reordered batch for its outputs, charging each slice with the capacity of the buffers it refers to. Views can retain source string buffers shared by all fragments, which makes the accounted amount much larger than the rows in one fragment suggest. A third build, `accept-groups-accounting`, tests this: it keeps views and charges the repartition with the bytes associated with each slice's rows.
-
-| Ordered plan, wide strings, 128 MB | Elapsed seconds | Final spills, median | Repartition spills, median |
-|---|---:|---:|---:|
-| Views, engine accounting | 0.627 | 14 | 8 |
-| Views, slice accounting | 0.645 | 14 | 4 |
-| `Utf8` | 0.405 | 0 | 0 |
-
-The slice accounting lowers the spills of the repartition. The final aggregate still spills the same median number of times, and elapsed time is slightly worse, beyond the quartiles. For this configuration, reducing the reservation of the slices does not resolve the spills of the final aggregate. String views are involved in the pressure; whether representation, copying, retained buffers or accounting produces it is not identified.
-
-## 7. What the lab establishes and where it stops
-
-None of the mechanisms named here is new to the engine. What the lab adds is a diagnosis of one case. It shows where the ordering is discarded, what accepting it changes and where that stops paying, and which consumers hold the reservations at the request that ends a query. It also gives a way to repeat the measurements when the engine changes.
-
-The guard is a demonstrated cause of the plan change in the base case. In the base layout and in the series on rows, keeping the order improves execution substantially where the unordered aggregation spills. Carrying many ordered streams has costs in time, reservation, residency and descriptors, and with about 1,200 streams under a small pool they reverse that advantage. That is evidence against removing the guard unconditionally. The experiments expose the trade-offs of the choice the guard makes; they supply no portable threshold or cost formula for a policy that would replace it.
-
-Two questions can be taken upstream apart from that choice: whether `EXPLAIN` could show why the ordering was discarded, and whether the stricter treatment of files that touch at a boundary, compared with `MinMaxStatistics::is_sorted`, is intended.
-
-This is a synthetic study on one machine and one engine commit. Outside the experiment on rows, query durations are about a second or less and fixed costs per stream are prominent. The greedy pool appears only where an experiment changes the pool, and no data is of production scale. The quota in the traces is computed by the wrapper after the pool has decided. Reservations and resident memory are measured; which operator owns the live allocations is not.
-
-## Reproduction
-
-The executable workflow and prerequisites are in the repository's README and `scripts/run_lab.sh`. The script rebuilds datasets, checks plans and results, runs the experiments and generates the report. The provenance of the binaries is recorded.
-
-Every number in this narrative is in `results/figures.tsv`, in the result tables or in `RESULTS.md`, as recorded at lab commit `dcf1f1e7`; none is measured apart from them.
+The experiment is synthetic and runs on one machine and one DataFusion commit. Most timings are sub-second, and the lab measures reservations and resident memory rather than complete live ownership of every allocation. The code, exact commands, all measurements and their provenance are in the repository; the results are those of lab commit `dcf1f1e7`.
