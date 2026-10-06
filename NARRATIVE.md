@@ -2,17 +2,13 @@
 
 *Why each experiment exists, what it establishes, and where the explanation stops.*
 
-This document explains the reasoning behind the lab, and how its explanations changed as the experiments were added. [DESIGN.md](DESIGN.md) records the experimental design; [RESULTS.md](RESULTS.md) contains the generated tables and comparisons; the [recorded outputs](results/) support both. The numbers come from the results recorded at lab commit `dcf1f1e7`, on DataFusion commit `e1aa7d956`.
-
-The numbers below are those of `results/figures.tsv` and of the result tables at the commit named above. When the lab is run again they must be checked against the new ones, and where an experiment changes its outcome the interpretation must be read again.
-
 ## 1. The question and the intervention
 
 Sorted Parquet files do not automatically produce a sorted scan. Concatenating two files preserves an ascending order only when their boundary values permit it. Overlapping files may require separate streams, which can then be merged.
 
-DataFusion uses file groups as scan partitions. In the path studied here, it attempts to build ordered groups from statistics, starting with `target_partitions` empty groups. Files are considered by increasing minimum; a file is appended to the least populated group that is empty or whose last file's maximum is strictly below the file's minimum. When no group qualifies, another one is added. These statistics establish whether files can be concatenated; they do not prove that the rows within each file are sorted. The lab declares an order which its generator actually writes.
+A file scan in DataFusion has one output partition for each file group, and reads the files of a group one after the next. In the path studied here, DataFusion attempts to build ordered groups from statistics, starting with `target_partitions` empty groups. Files are considered by increasing minimum; a file is appended to the least populated group that is empty or whose last file's maximum is strictly below the file's minimum. When no group qualifies, another one is added. These statistics establish whether files can be concatenated; they do not prove that the rows within each file are sorted. The lab declares an order which its generator actually writes.
 
-At the studied commit, the listing-table code accepts the proposed groups only when their count does not exceed the target. If it rejects them, it retains the initial grouping; a later optimizer step can redistribute files by size and split them into byte ranges. The resulting scan may no longer advertise an order.
+At DataFusion commit `e1aa7d956`, the listing-table code accepts the proposed groups only when their count does not exceed the target. If it rejects them, it retains the initial grouping; a later optimizer step can redistribute files by size and split them into byte ranges. The resulting scan may no longer advertise an order.
 
 The base dataset has 600,000 rows in twelve files sorted by `(col_1, col_2)`. Its bounds require four ordered groups while the configured target is two. This makes the guard decisive. The two primary builds differ only in whether that guard remains:
 
@@ -23,31 +19,31 @@ The base dataset has 600,000 rows in twelve files sorted by `(col_1, col_2)`. It
 | `original-target` | Original build, target raised to the required count | Compare the existing configuration workaround |
 | `original-split-off` | Original build, statistics grouping disabled | Base-case reference for the grouping setting |
 
-The primary intervention is small in source code, but broad in execution. It changes scan streams, aggregate modes, repartition behavior and the presence of a sort. Its effect is the combined consequence of those changes. It is not an isolated measurement of one operator, and the patch is not an unconditional fix proposal.
+The primary intervention is small in source code, but broad in execution. It changes scan streams, aggregate modes, repartition behavior and the presence of a sort. Its effect is the combined consequence of those changes, and the patch exists to measure it.
 
 The practical question is whether useful downstream work saved by order outweighs the resources needed to carry that order through the plan. Time and memory are separate outcomes: a faster plan can be more expensive to keep resident.
 
 ## 2. What is controlled and what is checked
 
-The machine is a Ryzen 9 7950X3D. Governor and energy preference are set to `performance`, boost remains enabled, swap is disabled, and the measured processes are pinned to the eight physical cores sharing the larger cache, including their SMT siblings. This controls placement and power policy; it does not lock the processor to one frequency. The recorded machine state is authoritative.
+The machine is a Ryzen 9 7950X3D. Governor and energy preference are set to `performance`, boost remains enabled, swap is disabled, and the measured processes are pinned to the eight physical cores sharing the larger cache, including their SMT siblings. This controls placement and power policy; it does not lock the processor to one frequency.
 
-The matrix uses the fair memory pool at 128, 256 and 512 MB. Each configuration has a warm-up and ten recorded runs, with variant order rotated. The many-stream experiment uses five ordered runs and three baseline runs per cell in each of three series. The depth and string experiments use ten runs, as do those on larger pools, on the raised target and on causes; the experiment on rows and the traced runs use five; the open-file tests and external process observations use three. Repetition across series explores variation on this machine, not portability across machines.
+The matrix uses the fair memory pool at 128, 256 and 512 MB. Each configuration has a warm-up and ten recorded runs, with variant order rotated. The many-stream experiment uses five ordered runs and three baseline runs per cell in each of three series. The depth and string experiments use ten runs, as do those on larger pools, on the raised target and on causes; the experiment on rows and the traced runs use five; the open-file tests and external process observations use three. Repetition across series explores variation on this one machine.
 
 The matrix records 620 executions, 620 of which complete. A run that fails is retained and excluded from timing summaries. The separate correctness check passes 62 of 62 cells. It compares multisets of deterministic columns, checks the requested sort key, and for deduplication checks the number of distinct keys against the manifest. Unordered `first_value` results may differ legitimately and are excluded. Rows tied on the requested sort key need not appear in an identical sequence.
 
-The comparison queries are executed through a `COPY` sink so that collecting terminal output does not consume the query's pool. The plan beneath that sink is checked against the timed plan's relevant properties. Correctness is therefore a separate check of comparable execution plans, not a comparison of rows emitted by `EXPLAIN ANALYZE` itself.
+The comparison queries are executed through a `COPY` sink so that collecting terminal output does not consume the query's pool. The plan beneath that sink is checked against the timed plan's relevant properties. Correctness is therefore checked on a separate execution of a comparable plan.
 
-Three kinds of time must remain distinct:
+The lab records three kinds of time:
 
 - The matrix's CLI `Elapsed` includes planning and query execution for the measured statement, including listing and statistics work involved in constructing the scan.
 - Whole-process wall time and user/system CPU time come from `/usr/bin/time`. The depth experiment uses their ratio as average cores used.
-- Operator metrics are accumulated durations. `elapsed_compute` times instrumented computation; `send_time` includes delivery and waiting. Neither should be added mechanically to the query's elapsed time, nor treated as a direct sample of per-operator CPU consumption.
+- Operator metrics are accumulated durations. `elapsed_compute` times instrumented computation; `send_time` includes delivery and waiting.
 
-RSS is the process's resident memory, not its memory-pool reservation. `output_bytes` is cumulative Arrow-accounted batch volume, not unique allocated bytes or peak resident memory. Shared buffers may be counted repeatedly. Counts printed with suffixes must also be parsed as scaled values: `2.12 K` means approximately 2,120, not two; the printed value itself has limited precision.
+RSS is the resident memory of the process, as the operating system measures it. A reservation is what an operator has declared to the memory pool; the pool's limit applies to reservations. `output_bytes` adds up the size of the batches an operator emitted, as Arrow accounts for their buffers; a buffer shared by several batches may be counted more than once. The engine prints large counts with a suffix and limited precision: `2.12 K` stands for approximately 2,120.
 
-The report calls one variant faster when its third quartile lies below the other's first. This is a declared descriptive rule, not a hypothesis test or a guarantee of statistical significance. For configurations with failures, completion frequency and time conditional on completion must both be considered.
+The report calls one variant faster when its third quartile lies below the other's first. This is a declared descriptive rule, not a hypothesis test or a guarantee of statistical significance. For configurations with failures the report gives the completed runs beside the time of those that complete.
 
-`DESIGN.md` states predictions for the axes of the matrix before the run, and `RESULTS.md` checks each one against a declared rule in its table of predictions; not all of them hold. The experiments added last were first run as a pilot. Their explanations and predictions stand in `DESIGN.md` as they were written before it; the hypothesis on the quotas of the pool, the readings of the traces and the two series on rows were written after it, and are marked as such. This narrative follows the results, not the predictions.
+`DESIGN.md` states predictions for the axes of the matrix, written before the run, and `RESULTS.md` checks each one against a declared rule in its table of predictions; not all of them hold. The experiments on larger pools, on the raised target, on rows and on causes had a pilot. Their explanations and predictions were written before it; the hypothesis on the quotas of the pool, the readings of the traces and the two series on rows were written after it, and `DESIGN.md` marks them as such. The pilot had already shown the quotas: for that hypothesis the recorded runs repeat an observation under a fixed design, and are not a test of a prediction made blind.
 
 The lab builds five binaries: the two primary builds, a third with a changed accounting used by one experiment, and a traced copy of each primary build. The traced ones wrap the memory pool and record what each consumer reserves, what it is refused and what held at that moment, forwarding every call unchanged. The lock they take can change how tasks interleave, so every traced configuration also runs with the plain binary: the two complete the same number of runs in 39 of 39 configurations. Their spills are not identical: the median spills of an operator are equal in 119 of 136 cells of that comparison, and elsewhere differ by a few units or a few percent. That makes the two comparable on what was recorded; it does not show that the wrapper perturbs nothing, and what the traces attribute describes the traced runs. No time of a traced run is used.
 
@@ -84,7 +80,7 @@ Q5 is the same deduplication without the final `ORDER BY`. Neither plan sorts, b
 | Q2, group on the complete sort key | 0.050 | 0.052 | `Sorted` mode does not ensure a time benefit when the hash alternative fits in memory |
 | Q4, group without the sort key | 0.014 | 0.014 | The optimizer discards the unused ordering; the measured times overlap |
 
-Q1 is the most direct sort-versus-merge case, but its scan organization changes too. Q2 prevents the argument from becoming "ordered aggregation is always faster." Q4 checks whether the scan intervention creates a benefit when the query has no use for the property. It does not prove a universal necessity theorem; it is the negative control for this plan and workload.
+Q1 is the most direct sort-versus-merge case, but its scan organization changes too. Q2 prevents the argument from becoming "ordered aggregation is always faster." Q4 checks whether the scan intervention creates a benefit when the query has no use for the property. It is the negative control for this plan and workload.
 
 ### Where the benefit ends
 
@@ -149,7 +145,7 @@ The series on rows shows how differently the two aggregations grow. The first co
 | 24 million, more prefixes | 4,573,880 | 5.25 (largest 24) | 19.5 | 12,340.0 |
 | 6 million, concentrated | 231 | 21633.38 (largest 31151) | 30.7 | 2,885.6 |
 
-The reservation of the original's final aggregate grows with the rows. That of the ordered one stays level when the prefixes grow, as the prediction written after the first pilot said. With the prefixes fixed and ten to forty times the keys under each it stays level too, and that is against the prediction: in the range tried, more keys under a prefix did not raise it. Only the concentrated dataset reserves more. It does not isolate the keys per prefix: a sixth of its rows are duplicates and it has fewer distinct keys than the other datasets of 6 million rows. Prefixes and keys per prefix are counted on the source table, not on what reaches each partition of the final aggregate.
+The reservation of the original's final aggregate grows with the rows. That of the ordered one stays level when the prefixes grow, as predicted. With the prefixes fixed and ten to forty times the keys under each it stays level too, and that is against the prediction: in the range tried, more keys under a prefix did not raise it. Only the concentrated dataset reserves more. It does not isolate the keys per prefix: a sixth of its rows are duplicates and it has fewer distinct keys than the other datasets of 6 million rows. Prefixes and keys per prefix are counted on the source table, not on what reaches each partition of the final aggregate.
 
 The ordered plan reserves far less for its aggregation, and with both plans under a 256 MB pool, in the base case and in the series on rows, its aggregation is not refused where that of the original is; its repartition is refused a few times at the larger sizes. That is what the traces connect; they do not suppose that the two plans have the same quotas, which change during a run and depend on the other consumers.
 
@@ -175,11 +171,11 @@ At 1,200 files with intended total overlap, the actual ordered group count is 1,
 
 The ordered plan loses at the smallest budget and wins at the larger ones. The loss coincides with final-aggregate spilling. The repartition spills at every budget, about 2,275, 2,200 and 2,130 times in median, counts which the engine prints rounded, here to the nearest ten; what changes at 128 MB is the final aggregate. This is consistent with spills having an important role, but still does not isolate their contribution from the surrounding changes.
 
-The two 1,200-file layouts are a useful comparison of few versus many streams with the same file count. They are not a pure intervention on stream count: row assignment changes too. "Streams, not files" would overstate what this comparison identifies.
+The two 1,200-file layouts compare few and many streams at the same file count. The assignment of rows to files changes between them as well, and the comparison carries both changes.
 
 ### The workaround with many groups
 
-Raising `target_partitions` to the number of groups makes the original binary accept them. The matrix runs this up to twelve groups, where it is faster than the ordered plan and holds more memory. With more groups it stops completing: with 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB (3 of 10 in another experiment with the same configuration), and with about 1,200 groups 0 of 10 at 2 GB.
+Raising `target_partitions` to the number of groups makes the original binary accept them. The matrix runs this up to twelve groups, where it is faster than the ordered plan and holds more memory. With more groups it stops completing: with 120 groups it completes 0 of 10 runs at 256 MB and 2 of 10 at 2 GB (3 of 10 in a second set of runs of the same configuration), and with about 1,200 groups 0 of 10 at 2 GB.
 
 That more partitions leave less memory to each under the fair pool is in DataFusion's [configuration guide](https://github.com/apache/datafusion/blob/e1aa7d956a5aa67452c9e8bd2a033599767055d8/docs/source/user-guide/configs.md), which warns that a higher `target_partitions` can make the spilling path more frequent. The traces say what holds, in this case, at the request that ends the query. Under the fair pool the error names the ordered final aggregate: it asks 3.3 MB holding nothing, against a quota of 0.3 MB at 256 MB and of 2.4 MB at 2 GB. The pool then reports 188 and 1,558 MB reserved, most of it held by the merges of the repartition's outputs, which cannot spill and so narrow every quota. Under the greedy pool, which has no quotas, the error names those merges, and the pool is nearly full: 256 MB of 256, most of it held by the repartition. At the refusals the two pools show different conditions: quotas too small in one, overall capacity nearly exhausted in the other.
 
@@ -222,7 +218,7 @@ The crossed experiment varies both. Across the selected small-to-large file coun
 
 #### What the decomposition means
 
-An exploratory model applies the Q1 slope as a per-stream term and the two-to-eight-output difference as a per-pair term. Its residual is 181 to 488 MB. That residual is a property of the model. It is not an independently observed block of unattributed memory.
+An exploratory model applies the Q1 slope as a per-stream term and the two-to-eight-output difference as a per-pair term. Its residual is 181 to 488 MB. That residual is a property of the model: the part of the observed difference that its two terms leave over.
 
 RSS is a maximum over time. Differences between process peaks may compare different phases; adding such differences does not turn them into simultaneous operator allocations. Applying an incremental per-pair coefficient to the baseline also assumes there is no separate fixed cost per input or output. The report makes those assumptions visible and compares the intermediate four-output observation with the model's prediction.
 
@@ -230,7 +226,7 @@ The medians of the three ordered Q3 series range from 1.8 to 2.0 GB. This descri
 
 #### Allocator policy
 
-Setting `MIMALLOC_PURGE_DELAY=0` changes median Q3 RSS by -114 to -66 MB and lowers it in 3 of 3 series. This is evidence that allocator policy affects the observed residency. It neither assigns the whole residual to the allocator nor measures how much application state is live. Allocator policy and page size can interact, so their separately observed effects should not be added as independent components.
+Setting `MIMALLOC_PURGE_DELAY=0` changes median Q3 RSS by -114 to -66 MB and lowers it in 3 of 3 series. This is evidence that allocator policy affects the observed residency. It neither assigns the whole residual to the allocator nor measures how much application state is live. Allocator policy and page size can interact, so the two effects, observed separately, need not add up.
 
 ### Transparent huge pages and the meaning of the peak
 
@@ -246,13 +242,13 @@ The THP experiment reruns the selected configurations with the machine's existin
 
 Disabling THP removes most of the excess peak RSS while changing elapsed time relatively little in this case. This demonstrates a substantial effect of the page policy. Partly used huge pages provide a plausible mechanism, consistent with the kernel's documented behavior. The experiment does not map individual buffers to pages, measure unique live allocation bytes, or establish that each channel owns a separate huge page.
 
-The remaining 108 MB is a difference between peaks under the disabled-THP policy. It must not be relabeled as the additional live memory of ordered execution. Both peaks can include retained allocations, stacks and other residency.
+The remaining 108 MB is a difference between peaks under the disabled-THP policy. Both peaks can include retained allocations, stacks and other residency.
 
-This experiment changes the interpretation of the earlier coefficients. They describe RSS in a specific allocator and page environment, not intrinsic byte costs of a stream or a channel pair. The resident pages still consume physical memory and can matter to external limits; the distinction is between residency and live application data, not real and imaginary memory.
+This experiment changes the interpretation of the earlier coefficients. They describe RSS in a specific allocator and page environment. The resident pages consume physical memory and can matter to external limits; what the experiment separates is residency from live application data.
 
 ### File descriptors and the timing of the peak
 
-The open-file experiment applies process limits to the many-stream query. It asks whether the query completes, not how fast it is. In the recorded trials the ordered plan fails at limits through 4,096, completes at 8192 and at the larger tested limit, while the original completes already at 1024. These are observed tested limits, not an exact minimum derived by binary search.
+The open-file experiment applies process limits to the many-stream query. It asks only whether the query completes. In the recorded trials the ordered plan fails at limits through 4,096, completes at 8192 and at the larger tested limit, while the original completes already at 1024. These are observed tested limits, not an exact minimum derived by binary search.
 
 An external sampler then observes RSS and descriptor classes through `/proc`. This observation costs CPU and its elapsed times are not compared with the ordinary timing matrix. It uses three runs per configuration; descriptor snapshots are sampled less often than RSS and may miss brief maxima.
 
@@ -277,17 +273,17 @@ The matrix records 0.483 seconds at depth one against 0.404 at depth two. The de
 | 32,768 | 10/10, 0.401, 1.91 | 10/10, 0.404, 1.90 |
 | 131,072 | 7/10, 0.706, 2.10 | 9/10, 0.728, 2.05 |
 
-At the default batch size the accumulated repartition send duration is 0.51 seconds at depth one and 0.37 at depth two. It is more directly associated with delivery than the process-wide CPU ratio, but still does not trace who waited for whom. It must not be added to elapsed time.
+At the default batch size the accumulated repartition send duration is 0.51 seconds at depth one and 0.37 at depth two. It is more directly associated with delivery than the process-wide CPU ratio, but still does not trace who waited for whom.
 
 Larger batches close the core-use gap at 32,768 rows. The generator's group-size imbalance remains, so unequal work alone is insufficient to explain the original gap. Counts of emitted batches are another control in the report. The layout probes with more files do not isolate the effect either: depth two at 120 files produces three groups rather than two.
 
 Batch size is a broad intervention. It changes buffering, fixed per-batch costs and the granularity of upstream work together. The observed response supports backpressure as an explanation in combination with the channel design; it does not quantify each contribution separately.
 
-At 131,072 rows, 4 of 20 runs fail. Both depths take longer among completions. This prevents interpreting a vanishing core gap as an unconditional recommendation to increase batches.
+The largest batch size has a price: at 131,072 rows, 4 of 20 runs fail, and both depths take longer among completions.
 
 ## 6. Explanations the lab does not support
 
-Some explanations that seemed plausible while the lab was built are not carried by its results. They are recorded with the tests that did not support them.
+Some plausible explanations are not supported by the results. Each is given here with the test that did not support it.
 
 ### The sort as what raises the pool the original needs
 
@@ -303,7 +299,7 @@ The prediction was that passing from the fair pool to the greedy one would be en
 
 ### String representation and the accounting of slices
 
-The string experiment preserves the underlying values and changes their representation. Short string views fit their bytes inline; long ones refer to external buffers. The dedicated comparison is separate from the matrix and has its own runs: its figures must not be mixed with matrix medians merely because the configuration names resemble one another.
+The string experiment preserves the underlying values and changes their representation. Short string views fit their bytes inline; long ones refer to external buffers. The dedicated comparison is separate from the matrix and has its own runs.
 
 For wide strings at 128 MB, the ordered gain is 10 percent with views and 41 percent with ordinary `Utf8`. For the short-code shape, views give 43 percent. In the ordered wide-string case, reported repartition output volume drops from 594 to 61 MB when reading as `Utf8`.
 
@@ -313,7 +309,7 @@ This source-level fact does not establish which operator's reservation triggers 
 
 #### The accounting-only intervention
 
-A third binary keeps views and changes the repartition's charge to the bytes associated with each slice's rows. The receiver releases the same charge. This is an experimental policy, not a proposed exact accounting system for the lifetime of shared allocations: charging only referenced rows can differ from the capacity kept alive.
+A third binary keeps views and changes the repartition's charge to the bytes associated with each slice's rows. The receiver releases the same charge. This is an experimental policy: charging only referenced rows can differ from the capacity kept alive.
 
 | Ordered plan, wide strings, 128 MB | Elapsed seconds | Final spills, median | Repartition spills, median |
 |---|---:|---:|---:|
@@ -323,7 +319,7 @@ A third binary keeps views and changes the repartition's charge to the bytes ass
 
 The intervention affects repartition spills, so it is not behaviorally inert. Yet the final aggregate still spills the same median number of times and elapsed time is slightly worse, 0.645 seconds against 0.627, beyond the quartiles. The slice charge adds one pass over the views of every batch sent; that added work is a possible contribution to the difference, not a measured cause, and the fewer repartition spills change the run as well. For this configuration, reducing the slice reservation does not resolve final spilling. It does not support the claim that repartition's inflated accounting is the decisive cause of that spilling. It also does not prove accounting can never contribute under other budgets or workloads.
 
-Where the remaining pressure arises is unresolved. The final aggregate's own retention or accounting of view data is a possible explanation, not an established finding. The result is not a general recommendation to disable views.
+Where the remaining pressure arises is unresolved. The final aggregate's own retention or accounting of view data is a possible explanation that the lab does not establish.
 
 Both conversion settings are needed for the plain-string comparison:
 
@@ -338,19 +334,9 @@ The second prevents declared SQL string types from being mapped back to views. T
 
 Reading the strings as `Utf8` changes outcomes. With about 1,200 streams at 128 MB the final aggregate of the ordered plan spills 0 times and the plan is faster than the original (0.586 against 0.763 seconds). For the workaround it changes little: 0 of 10 runs complete at 256 MB and 2 of 10 at 2 GB. The change moves representation, copying and retained buffers together with the accounting, so it shows that string views are involved and not which of these produces the pressure.
 
-## 7. How the explanations changed
-
-The first reading of the base case was that the ordered plan is faster. The larger pools replaced it: the ordered plan is faster where the final aggregate of the original spills in every run, and the two are not clearly distinguishable, or the original is faster, where it spills in none.
-
-The second reading was that the ordered plan uses less memory. The traces replaced it with the documented behaviour of the fair pool, observed in this case: an operator is refused at its own quota while the pool still has capacity; the original's final aggregate reaches that quota and the ordered one, which reserves far less, is not refused in the same configuration.
-
-The third was that raising `target_partitions` is a way out. It is one with few groups. With many, under the fair pool the error comes at a first request above a quota that the reservations of the merges have narrowed, and under the greedy pool with the limit nearly reached, most of it held by the repartition.
-
-The first step came from an experiment that could have gone the other way. The hypothesis on the quotas was written after a pilot that had already shown them, and `DESIGN.md` marks it as such; the run that followed is a repetition of that observation under a fixed design, not a test of a prediction made blind. The predictions that failed are kept beside those that held.
+## 7. What the diagnosis supports upstream
 
 None of the mechanisms named here is new to the engine. Order used by aggregations, the quotas of the fair pool, the price of more partitions and of preserving order are all documented. What the lab adds is a diagnosis of one case: where the ordering is discarded, what accepting it changes and where that stops paying, who holds the limit at the request that ends a query, and a way to repeat the measurements when the engine changes.
-
-## 8. What the diagnosis supports upstream
 
 The acceptance guard is a demonstrated cause of the plan change in the reproducer. Removing it admits ordered groups, changes downstream execution and preserves the checked deterministic results. The lab is sufficient to diagnose that behavior and show that the rejected path can be substantially better.
 
@@ -358,18 +344,16 @@ It also measures circumstances where accepting all groups is worse, or requires 
 
 A more informed selection policy could consider the downstream consumer, effective interval overlap, input and output counts, the pool and how it divides its limit, and representation-dependent resource costs. The experiments identify those dimensions; they do not supply a portable threshold or an optimizer cost formula.
 
-## 9. Boundaries of the evidence
+## 8. Boundaries of the evidence
 
 This is a synthetic study on one machine and one engine commit. Outside the experiment on rows, query durations are about a second or less and per-stream fixed costs are prominent. The greedy pool appears only where an experiment changes the pool, and no data is of production scale.
 
 The interventions on THP and accounting sharpen two explanations, and the traced runs a third. The traces keep the first and the last events of a run, with complete counters by class; the quota in them is computed by the wrapper, after the pool has decided. The batch experiment remains broader. Neither the memory model nor the external sampler measures ownership of live allocations by operator. The cost of merge comparisons is not isolated from how a merge drives its upstream streams. Small-sample bootstrap intervals do not capture every source of experimental uncertainty.
 
-The useful stopping point is a bounded answer. In the base layout and in the series on rows, preserving order improves execution substantially where the unordered aggregation spills. Carrying many ordered streams has time, reservation, residency and descriptor costs whose manifestation depends on the query, the pool and the environment, and they can reverse that advantage: with about 1,200 streams at 128 MB the final aggregate of the original spills in every run, at least 22 times, and the original is still the faster plan, 0.703 seconds against 0.792. The source identifies a policy decision; the experiments expose its trade-offs. Choosing a replacement policy remains engineering work.
+In the base layout and in the series on rows, preserving order improves execution substantially where the unordered aggregation spills. Carrying many ordered streams has time, reservation, residency and descriptor costs whose manifestation depends on the query, the pool and the environment, and they can reverse that advantage: with about 1,200 streams at 128 MB the final aggregate of the original spills in every run, at least 22 times, and the original is still the faster plan, 0.703 seconds against 0.792. The source identifies a policy decision; the experiments expose its trade-offs. Choosing a replacement policy remains engineering work.
 
-## Reproduction and numerical maintenance
+## Reproduction
 
-The executable workflow and prerequisites remain in the repository's README and `scripts/run_lab.sh`. This narrative does not duplicate those commands or change the run protocol. The script rebuilds datasets, checks plans and results, runs the experiments and generates the numerical report using recorded binary provenance.
+The executable workflow and prerequisites are in the repository's README and `scripts/run_lab.sh`. The script rebuilds datasets, checks plans and results, runs the experiments and generates the numerical report using recorded binary provenance.
 
-Every number in this narrative is in `results/figures.tsv`, in the result tables or in `RESULTS.md`; none is measured apart from them. A new run changes them, and a changed value is a reason to reread the sentence around it, not only to replace the number.
-
-Keep one authoritative location for each kind of information: the lab data for measurements, the source and patch for implementation facts, and this narrative for experimental interpretation.
+Every number in this narrative is in `results/figures.tsv`, in the result tables or in `RESULTS.md`, as recorded at lab commit `dcf1f1e7`; none is measured apart from them.
