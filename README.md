@@ -30,9 +30,9 @@ attribute memory; no time of a traced run is used.
 
 ## Where things are
 
-- `DESIGN.md`: what is measured, how, and what was predicted. No results.
-- `NARRATIVE.md`: why each experiment exists, what it establishes and where
-  the explanation stops. The place to start reading.
+- `DESIGN.md`: what is measured, how, and what is predicted. No results.
+- `NARRATIVE.md`: where the order of sorted files is lost, what keeping it
+  changes and where it stops paying. The place to start reading.
 - `RESULTS.md`: the report, generated from `results/` by
   `scripts/make_report.py`. Every table, number and comparison in it is
   computed from the recorded runs.
@@ -58,8 +58,7 @@ attribute memory; no time of a traced run is used.
   the view of the process from outside (`process`), their shared runner (`common.py`) and the code of
   their report sections (`report.py`).
 
-The repository holds one run. Nothing in it was collected by hand, and no
-result of an earlier run is kept: the history of the repository has them.
+The repository holds one run, and nothing in it is collected by hand.
 
 ## Reproducing
 
