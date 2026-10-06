@@ -4,12 +4,10 @@ A lab that measures what Apache DataFusion gains and what it pays when the
 scan of a table made of sorted Parquet files keeps the file order by opening
 more ordered file groups than `target_partitions`.
 
-Starting point: apache/datafusion issue
-[#16919](https://github.com/apache/datafusion/issues/16919). With
-`split_file_groups_by_statistics = true`, overlapping sorted files can need
-more ordered groups than there are partitions. The engine then rejects the
-grouping and the scan loses its advertised ordering, so a deduplication query
-hashes and sorts data that was already sorted.
+With `split_file_groups_by_statistics = true`, overlapping sorted files can
+need more ordered groups than there are partitions. The engine then rejects
+the grouping and the scan loses its advertised ordering, so a deduplication
+query hashes and sorts data that was already sorted.
 
 In the base case, a deduplication over twelve overlapping sorted files under
 a 256 MB memory pool, accepting the ordered groups makes the query markedly
