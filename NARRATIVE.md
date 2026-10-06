@@ -77,7 +77,7 @@ Q5 is the same deduplication without the final `ORDER BY`. Neither plan sorts, b
 | Query | Original seconds | Ordered seconds | What the comparison establishes |
 |---|---:|---:|---|
 | Q1, only `ORDER BY` | 0.049 | 0.027 | An ordered scan and merge can beat the scan-and-sort plan |
-| Q2, group on the complete sort key | 0.050 | 0.052 | `Sorted` mode does not ensure a time benefit when the hash alternative fits in memory |
+| Q2, group on the complete sort key | 0.050 | 0.052 | `Sorted` mode does not ensure a time benefit when the unordered alternative fits in memory |
 | Q4, group without the sort key | 0.014 | 0.014 | The optimizer discards the unused ordering; the measured times overlap |
 
 Q1 is the most direct sort-versus-merge case, but its scan organization changes too. Q2 prevents the argument from becoming "ordered aggregation is always faster." Q4 checks whether the scan intervention creates a benefit when the query has no use for the property. It is the negative control for this plan and workload.
@@ -106,7 +106,7 @@ With more rows the original goes further. The base layout was generated at 6 and
 | 24 million rows, more prefixes | 49 percent less | 9 percent more |
 | 6 million rows, keys concentrated under few prefixes | 49 percent less | 8 percent more |
 
-Under 256 MB the ordered plan keeps its advantage at every size; at 24 million rows the original also fails some of its runs there, completing 4 of 5 and 3 of 5, and its times are those of the runs that complete. Under the large pool the original is the faster plan at every size above the base case. The concentrated dataset differs from the others in more than its prefixes, as the next section says. The benefit of keeping the order therefore belongs to a regime of memory: it is large where the original aggregation spills, and it is not guaranteed where the hash aggregation has room.
+Under 256 MB the ordered plan keeps its advantage at every size; at 24 million rows the original also fails some of its runs there, completing 4 of 5 and 3 of 5, and its times are those of the runs that complete. Under the large pool the original is the faster plan at every size above the base case. The concentrated dataset differs from the others in more than its prefixes, as the next section says. The benefit of keeping the order therefore belongs to a regime of memory: it is large where the original aggregation spills, and it is not guaranteed where the unordered aggregation has room.
 
 ### Memory budgets and duplicates inside the matrix
 
@@ -340,7 +340,7 @@ None of the mechanisms named here is new to the engine. Order used by aggregatio
 
 The acceptance guard is a demonstrated cause of the plan change in the reproducer. Removing it admits ordered groups, changes downstream execution and preserves the checked deterministic results. The lab is sufficient to diagnose that behavior and show that the rejected path can be substantially better.
 
-It also measures circumstances where accepting all groups is worse, or requires resources beyond a process limit. That is evidence against using unconditional guard removal as the complete solution. Raising `target_partitions` is an existing workaround: in the base case it takes 0.267 seconds and 452 MB RSS, against 0.351 and 354 for the ordered plan with two downstream partitions. The workaround changes downstream parallelism along with acceptance of the ordering, so it is not a neutral control for order alone. Across the matrix, `RESULTS.md` finds it faster than the ordered plan in most of the cases where both run, and with a larger peak RSS in all of them. With many groups it stops completing, as section 5 shows. At depth twelve, where the target becomes twelve, it reaches 782 MB.
+It also measures circumstances where accepting all groups is worse, or requires resources beyond a process limit. That is evidence against using unconditional guard removal as the complete solution. Raising `target_partitions` is an existing workaround: in the base case it takes 0.267 seconds and 452 MB RSS, against 0.351 and 354 for the ordered plan with two downstream partitions. The workaround changes downstream parallelism along with acceptance of the ordering, so it is not a neutral control for order alone. Across the deduplication cases of the matrix, `RESULTS.md` finds it faster than the ordered plan in most of the cases where both run, and with a larger peak RSS in all of them. With many groups it stops completing, as section 5 shows. At depth twelve, where the target becomes twelve, it reaches 782 MB.
 
 A more informed selection policy could consider the downstream consumer, effective interval overlap, input and output counts, the pool and how it divides its limit, and representation-dependent resource costs. The experiments identify those dimensions; they do not supply a portable threshold or an optimizer cost formula.
 
