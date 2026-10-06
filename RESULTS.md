@@ -543,7 +543,7 @@ Over the 3 series:
 
 ### Depth 1 against depth 2: backpressure
 
-`experiments/depth/run.py`: the deduplication with two ordered groups whose key ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, 10 runs per configuration. Wall and CPU time of the whole process; cores are CPU over wall. Means over the completed runs, standard deviation in parentheses.
+`experiments/depth/run.py`: the deduplication with two ordered groups whose files do not overlap (depth 1) or overlap each with the next (depth 2), same plan in both, 256 MB, 10 runs per configuration. Wall and CPU time of the whole process; cores are CPU over wall. Means over the completed runs, standard deviation in parentheses.
 
 | batch size | depth 1: completed, wall s, CPU s, cores | depth 2: completed, wall s, CPU s, cores | gap in cores | send time of the repartition's inputs, depth 1 / depth 2, s |
 |---|---|---|---|---|

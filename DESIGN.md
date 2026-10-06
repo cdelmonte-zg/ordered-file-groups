@@ -1,6 +1,6 @@
 # Design
 
-What the lab measures, how, and what was predicted. The outcomes are in
+What the lab measures, how, and what it predicts. The outcomes are in
 `RESULTS.md`, which `scripts/make_report.py` generates from the recorded
 runs; this file holds no result.
 
@@ -155,7 +155,7 @@ pass over the views of every batch sent, which the engine's own accounting
 does not make. If the reservations are
 what makes the final aggregate spill on wide strings, the spills go with
 this binary. Like the first patch it is a measuring instrument, not a
-proposal: it was not checked against the engine's own memory safety.
+proposal: it is not checked against the engine's own memory safety.
 
 The mechanism, read in the source at the commit (DataFusion `e1aa7d956`,
 arrow 60.0.0), which the experiment does not instrument:
@@ -212,12 +212,14 @@ sum of the estimated terms leaves a residual that is a property of the
 model.
 
 **Depth 1 against depth 2 (`experiments/depth/`).** With two ordered groups
-the same plan is slower when their key ranges are disjoint. Three
-explanations:
+the same plan is slower when the files do not overlap (depth 1) than when
+each overlaps the next (depth 2). The two groups alternate over the key
+range in both. Three explanations:
 
 - backpressure: in the order-preserving repartition every input has its own
   channels behind a gate that closes once all of them hold data
-  (`repartition/distributor_channels.rs`); with disjoint ranges the merge in
+  (`repartition/distributor_channels.rs`); when the files do not overlap, the
+  ranges the two inputs are reading at any moment are disjoint, so the merge in
   each output takes rows from one input at a time and the other waits. The
   batch size sets how far the waiting input can run ahead, so with larger
   batches the gap in cores used shrinks;
@@ -319,23 +321,40 @@ belong to the number of streams, they appear from some number of streams on
 and the loss with them. At 1200 files the pool and the strings change as in
 W: if the spills belong to the shares of the fair pool, they go with the
 greedy pool; if to the string views, with plain `Utf8`. The accounting of the
-repartition's slices was tested on one configuration (wide strings, 128 MB):
-changing it did not remove the spills of the final aggregate there. Its
-contribution elsewhere is not excluded.
+repartition's slices is tested on one configuration only (wide strings,
+128 MB, in the experiment on string views); its contribution elsewhere is
+not excluded.
 
-## Hypotheses after the pilot of 2026-10-05
+**Rows (`experiments/rows/`).** More rows can mean more prefixes, more
+distinct grouping keys under each prefix, or more duplicates, and each
+predicts something different for a partially ordered aggregation. The base
+layout (twelve files, depth 4) is generated at 6 and 24 million rows in two
+series, with the streams and the width of the rows fixed: in one the prefixes
+grow with the rows and the keys under each stay about as in the base case; in
+the other the prefixes stay those of the base case and the keys under each
+grow. The prediction for the first is a reservation of the ordered aggregation
+that stays level; for the second, one that grows. In both series even the
+largest prefix holds a few hundred keys at most, a range in which batches and
+capacity already allocated can dominate the reservation; that is a possible
+reason for a level reservation, not a finding. One dataset therefore has the
+keys of 6 million rows concentrated under a few hundred prefixes (tens of
+thousands of keys each; the distinct keys in all come out fewer, because the
+combinations under one prefix are bounded). There the growth, if it is there,
+should be visible. The deduplication runs under 256 MB and under a pool chosen
+for each size so that the original plan has room, with the original plan, the
+ordered plan and the original with the target raised. The manifests give, for
+every dataset, the distinct prefixes and the keys under each; means, medians
+and largest prefixes are counted on the source table, not on what reaches each
+partition of the final aggregate. Three things are reported apart: whether a
+plan completes under the small pool, what its aggregation reserves (the traced
+runs), and what the process holds resident.
 
-The four experiments above (larger pools, raised target, rows, causes) were
-first run as a pilot, outside `results/`, and a wrapper around the memory
-pool was tried on three cases (`patch/trace-pool.patch`; see below). What
-follows was written after seeing that pilot. The explanations and predictions
-above are kept as they were written before it. One specific prediction the
-pilot already contradicts: that passing to the greedy pool is enough for the
-workaround to complete. That is the prediction, not the hypothesis behind it:
-that the quotas of the fair pool contribute to the refusals is, after the
-pilot, supported. The
-statements below are predictions for the run that follows, not predictions of
-what the pilot showed.
+## The traced runs and their hypotheses
+
+The hypotheses of this section come from exploratory runs that are not part of
+the results, and such runs also precede the recorded ones of the experiment on
+rows. The recorded runs repeat observations under a fixed design: they are not
+tests of predictions made blind.
 
 **The instrument.** `datafusion-cli` built with `patch/trace-pool.patch`
 wraps the memory pool and forwards every call unchanged. It records every
@@ -382,93 +401,54 @@ is read against the limit as reserved plus request, not as reserved alone.
 The refusals that are not above the quota the wrapper computes are listed by
 class, with how near the quota they were.
 
-**Main hypothesis.** The fair pool gives each consumer that can spill a
-quota, the limit less what the others that cannot spill hold, divided by the
-number of consumers that can spill. As those consumers grow in number the
-quota shrinks. An operator can then be refused, and spill, or be unable to
-make a first allocation, while the pool as a whole still has capacity. This
-mechanism can contribute to the three observations; its standing differs.
+**Main hypothesis.** The fair pool gives each consumer that can spill a quota,
+the limit less what the others that cannot spill hold, divided by the number
+of consumers that can spill. As those consumers grow in number the quota
+shrinks. An operator can then be refused, and spill, or be unable to make a
+first allocation, while the pool as a whole still has capacity. This mechanism
+can contribute to three observations; its standing differs.
 
-- Base case (the original plan slows down under the smaller pools). The
-  pilot observed it directly on one run: the final aggregate was refused at
-  about its quota while the pool reported less than half its limit as
-  reserved. Prediction for the run: in every traced run at a pool where the
-  original's final aggregate spills, its refusals come with the requester's
-  holding plus the request above the computed quota and with the pool's
-  `reserved` below the limit; at the pools where it does not spill, it is not
-  refused. What this does not show: that the whole plan would complete
-  without spills within the same limit if the aggregate were allowed more.
-  The other operators' reservations and peaks can change when it holds more.
-  The reservations of the aggregation seen in the pilot (about 360 MB at
-  2 GB) are not the need of the query.
-- The workaround that fails with many groups. A plausible contribution: in
-  the pilot the first refusals were requests of about 2 MB with nothing
-  reserved, where the computed quota was below the request. A refusal is not
-  a failure: an operator can spill or release and go on. What ends the query
-  has to be read from the last events: the request refused last, what its
-  consumer held, whether it had released after earlier refusals, and what the
-  classes held then. Prediction: the consumers that end refused are of a
-  class whose request exceeds the computed quota at that moment. If instead
-  they end refused with the request within the quota, another constraint ends
-  the query.
-- The ordered plan that loses with many streams at 128 MB. Not yet examined
-  with the instrument. Prediction if the quota contributes: the refusals of
-  its final aggregate come above quota and below the limit, and they are
-  fewer where the consumers that can spill are fewer (fewer streams).
-  Added after the second pilot: with about 1200 streams the reservation of
-  the ordered final aggregation was about four times that of the base case.
-  The wrapper does not tell what those bytes are: resident groups, retained
-  buffers, or the capacity of the structures. The hypothesis is that with
-  many streams a larger accounted need of the final aggregation goes with
-  the effect of the quotas. It is checked on the series of streams that is
-  already there (150, 300, 600 and about 1200, same rows and the same two
-  final partitions), which the traced runs now include: if it holds, the
-  peak of that class grows with the streams.
+- Base case (the original plan slows down under the smaller pools).
+  Prediction: in every traced run at a pool where the original's final
+  aggregate spills, its refusals come with the requester's holding plus the
+  request above the computed quota and with the pool's `reserved` below the
+  limit; at the pools where it does not spill, it is not refused. What this
+  does not show: that the whole plan would complete without spills within the
+  same limit if the aggregate were allowed more. The other operators'
+  reservations and peaks can change when it holds more. The reservations of
+  the aggregation seen under a limit are not the need of the query.
+- The workaround that fails with many groups. A plausible contribution: a
+  first request above a quota that the many partitions have made small. A
+  refusal is not a failure: an operator can spill or release and go on. What
+  ends the query has to be read from the last events: the request refused
+  last, what its consumer held, whether it had released after earlier
+  refusals, and what the classes held then. Prediction: the consumers that end
+  refused are of a class whose request exceeds the computed quota at that
+  moment. If instead they end refused with the request within the quota,
+  another constraint ends the query.
+- The ordered plan that loses with many streams at 128 MB. Prediction if the
+  quota contributes: the refusals of its final aggregate come above quota and
+  below the limit, and they are fewer where the consumers that can spill are
+  fewer (fewer streams). A second hypothesis: with many streams a larger
+  accounted need of the final aggregation goes with the effect of the quotas.
+  It is checked on the series of streams (150, 300, 600 and about 1200, same
+  rows and the same two final partitions), which the traced runs include: if
+  it holds, the peak of that class grows with the streams. The wrapper does
+  not tell what those bytes are: resident groups, retained buffers, or the
+  capacity of the structures.
 
-**The greedy pool as the next control.** It has no quotas. If under it the
-refusals above quota and below the limit go away and the query fails
-elsewhere, the limitation by quota is separated from a second constraint of
-memory; that is not a refutation of the first. The traced runs say which
-class is refused under the greedy pool and with how much reserved. In the
-pilot the two pools showed different conditions at the moment of the
-refusals: individual quotas too small under the fair pool, where the
-consumers that cannot spill also held memory that narrows those quotas, and
-an overall capacity nearly exhausted under the greedy one, with the
-repartition as the main holder. What remains is to connect those conditions
-to the error that ends the query.
+**The greedy pool as a control.** It has no quotas. If under it the refusals
+above quota and below the limit go away and the query fails elsewhere, the
+limitation by quota is separated from a second constraint of memory; that is
+not a refutation of the first. The traced runs say which class is refused
+under the greedy pool and with how much reserved, and set those conditions
+beside the error that ends the query.
 
 **What stays one change among several.** The outputs of the repartition
 change the partitions of the operators downstream with them; plain `Utf8`
 changes copies and retained buffers together with the accounting. For both,
 the traced runs give the reservations by class beside the outcome, and no
 conclusion is drawn from the outcome alone.
-
-**Rows.** The experiment on rows above does not identify why the ordered plan
-holds less: more rows can mean more prefixes, more distinct groups under each
-prefix, or more duplicates, and each predicts something different for a
-partially ordered aggregation. It is to be replaced by two series with the
-streams and the width of the rows fixed: more prefixes with the same groups
-under each, and more groups under each prefix with the same prefixes. The
-prediction for the first is a reservation of the ordered aggregation that
-stays level; for the second, one that grows. A second pilot ran both series
-with the traced binaries and did not see the growth predicted for the
-second: the reservation stayed level in both. The prediction is kept as
-written. In the range explored it was not observed, and that range was
-narrow: the keys per prefix of the manifests are means, and even the largest
-prefix held a few hundred keys. One dataset is therefore added, with the keys
-of 6 million rows concentrated under a few hundred prefixes (tens of
-thousands of keys each; the distinct keys in all come out fewer, because the
-combinations under one prefix are bounded). There the growth, if it is there,
-should be visible. That batches and capacity already allocated dominate the
-reservation at a few hundred keys is a possible reason for the level
-reservation, not a finding. Means, medians and largest prefixes are counted
-on the source table, not on what reaches each partition of the final
-aggregate. The manifests give, for every dataset, the distinct prefixes and the keys
-under each. The pilot kept the generator as it was, which bounds the prefixes
-by its timestamp clusters: it had varied the keys under each prefix and not
-the prefixes. Three things are reported apart: whether a plan completes under
-the small pool, what its aggregation reserves (the traced runs), and what
-the process holds resident.
 
 ## Limits
 

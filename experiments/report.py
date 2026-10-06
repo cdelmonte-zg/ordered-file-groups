@@ -1154,8 +1154,8 @@ def depth(out, matrix, manifests, figures):
     sizes = sorted({int(r["batch_size"]) for r in rows if r["kind"] == "batch"})
     per_config = max(len(select(rows, name=n)) for n in {r["name"] for r in rows})
     lines = ["### Depth 1 against depth 2: backpressure", "",
-             "`experiments/depth/run.py`: the deduplication with two ordered groups whose key "
-             "ranges are disjoint (depth 1) and overlapping (depth 2), same plan in both, 256 MB, "
+             "`experiments/depth/run.py`: the deduplication with two ordered groups whose files "
+             "do not overlap (depth 1) or overlap each with the next (depth 2), same plan in both, 256 MB, "
              f"{per_config} runs per configuration. Wall and CPU time of the whole process; cores are CPU "
              "over wall. Means over the completed runs, standard deviation in parentheses.", "",
              "| batch size | depth 1: completed, wall s, CPU s, cores | "
