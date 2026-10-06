@@ -11,6 +11,13 @@ more ordered groups than there are partitions. The engine then rejects the
 grouping and the scan loses its advertised ordering, so a deduplication query
 hashes and sorts data that was already sorted.
 
+In the base case, a deduplication over twelve overlapping sorted files under
+a 256 MB memory pool, accepting the ordered groups makes the query markedly
+faster. The advantage is no longer clearly measurable once the original plan
+has enough memory, and it reverses when many ordered streams add merge and
+memory costs under a small pool. The figures are in
+[`RESULTS.md`](RESULTS.md).
+
 Two builds of `datafusion-cli` 55.1.0 are compared on the same queries:
 
 - `original`: commit `e1aa7d956` as it is;
@@ -30,10 +37,11 @@ attribute memory; no time of a traced run is used.
 
 ## Where things are
 
-- `DESIGN.md`: what is measured, how, and what is predicted. No results.
-- `NARRATIVE.md`: where the order of sorted files is lost, what keeping it
-  changes and where it stops paying. The place to start reading.
-- `RESULTS.md`: the report, generated from `results/` by
+- [`NARRATIVE.md`](NARRATIVE.md): the technical explanation, when preserving
+  the order helps and when it becomes expensive.
+- [`DESIGN.md`](DESIGN.md): what is measured, how, and what is predicted. No
+  results.
+- [`RESULTS.md`](RESULTS.md): the report, generated from `results/` by
   `scripts/make_report.py`. Every table, number and comparison in it is
   computed from the recorded runs.
 - `results/`: the outputs of one run of the lab. `manifests/` (the datasets),
@@ -88,8 +96,10 @@ script documents its command line, and the experiments take `--out` to write
 somewhere else.
 
 Datasets are written from fixed seeds and a fixed time origin
-(2026-09-29T00:00:00Z). Every dataset holds the same 600,000 rows in files
-sorted by `(col_1, col_2)`; `--depth d` makes file *i* overlap files *i+1* to
+(2026-09-29T00:00:00Z). Most datasets hold the same 600,000 rows,
+redistributed across files; the experiment on rows adds datasets of 6 and 24
+million rows. The files are sorted by `(col_1, col_2)`; `--depth d` makes
+file *i* overlap files *i+1* to
 *i+d-1*, so *d* is the intended minimum number of ordered groups, and the
 groups the statistics produce are in the manifest and can differ; `--shape`
 renders the same integer ids at three string widths; `--duplicate-share`
@@ -99,13 +109,9 @@ it and is regenerated when that differs.
 
 ## Reading the results
 
-Two builds, one machine, one commit, synthetic data, queries under a second:
-the report says what these runs show, and `DESIGN.md` lists the limits. None
-of it is an argument for removing the check unconditionally. It is evidence
-for choosing the number of ordered groups from the overlap, the memory budget
-and the expected cost per stream, which the engine today compares with the
-parallelism target only; and such a choice is only as good as the memory
-accounting it relies on.
+One machine, one commit, synthetic data, queries mostly under a second: the
+report says what these runs show, and `DESIGN.md` lists the limits. None of
+it is an argument for removing the check unconditionally.
 
 ## License
 
