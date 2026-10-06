@@ -151,7 +151,7 @@ The series on rows shows how differently the two aggregations grow. The first co
 
 The reservation of the original's final aggregate grows with the rows. That of the ordered one stays level when the prefixes grow, as the prediction written after the first pilot said. With the prefixes fixed and ten to forty times the keys under each it stays level too, and that is against the prediction: in the range tried, more keys under a prefix did not raise it. Only the concentrated dataset reserves more. It does not isolate the keys per prefix: a sixth of its rows are duplicates and it has fewer distinct keys than the other datasets of 6 million rows. Prefixes and keys per prefix are counted on the source table, not on what reaches each partition of the final aggregate.
 
-The ordered plan reserves far less for its aggregation, and in the same configurations its aggregation is not refused where that of the original is; its repartition is refused a few times at the larger sizes. That is what the traces connect; they do not suppose that the two plans have the same quotas, which change during a run and depend on the other consumers.
+The ordered plan reserves far less for its aggregation, and with both plans under a 256 MB pool, in the base case and in the series on rows, its aggregation is not refused where that of the original is; its repartition is refused a few times at the larger sizes. That is what the traces connect; they do not suppose that the two plans have the same quotas, which change during a run and depend on the other consumers.
 
 ## 5. The cost of keeping the order
 
@@ -321,7 +321,7 @@ A third binary keeps views and changes the repartition's charge to the bytes ass
 | Views, slice accounting | 0.645 | 14 | 4 |
 | `Utf8` | 0.405 | 0 | 0 |
 
-The intervention affects repartition spills, so it is not behaviorally inert. Yet the final aggregate still spills the same median number of times and elapsed time is slightly worse, 0.645 seconds against 0.627, beyond the quartiles: the slice charge costs one more pass over the views of every batch sent. For this configuration, reducing the slice reservation does not resolve final spilling. It does not support the claim that repartition's inflated accounting is the decisive cause of that spilling. It also does not prove accounting can never contribute under other budgets or workloads.
+The intervention affects repartition spills, so it is not behaviorally inert. Yet the final aggregate still spills the same median number of times and elapsed time is slightly worse, 0.645 seconds against 0.627, beyond the quartiles. The slice charge adds one pass over the views of every batch sent; that added work is a possible contribution to the difference, not a measured cause, and the fewer repartition spills change the run as well. For this configuration, reducing the slice reservation does not resolve final spilling. It does not support the claim that repartition's inflated accounting is the decisive cause of that spilling. It also does not prove accounting can never contribute under other budgets or workloads.
 
 Where the remaining pressure arises is unresolved. The final aggregate's own retention or accounting of view data is a possible explanation, not an established finding. The result is not a general recommendation to disable views.
 
@@ -364,7 +364,7 @@ This is a synthetic study on one machine and one engine commit. Outside the expe
 
 The interventions on THP and accounting sharpen two explanations, and the traced runs a third. The traces keep the first and the last events of a run, with complete counters by class; the quota in them is computed by the wrapper, after the pool has decided. The batch experiment remains broader. Neither the memory model nor the external sampler measures ownership of live allocations by operator. The cost of merge comparisons is not isolated from how a merge drives its upstream streams. Small-sample bootstrap intervals do not capture every source of experimental uncertainty.
 
-The useful stopping point is a bounded answer: preserving order improves execution substantially where the unordered aggregation spills, and carrying many ordered streams has time, reservation, residency and descriptor costs whose manifestation depends on the query, the pool and the environment. The source identifies a policy decision; the experiments expose its trade-offs. Choosing a replacement policy remains engineering work.
+The useful stopping point is a bounded answer. In the base layout and in the series on rows, preserving order improves execution substantially where the unordered aggregation spills. Carrying many ordered streams has time, reservation, residency and descriptor costs whose manifestation depends on the query, the pool and the environment, and they can reverse that advantage: with about 1,200 streams at 128 MB the final aggregate of the original spills in every run, at least 22 times, and the original is still the faster plan, 0.703 seconds against 0.792. The source identifies a policy decision; the experiments expose its trade-offs. Choosing a replacement policy remains engineering work.
 
 ## Reproduction and numerical maintenance
 
